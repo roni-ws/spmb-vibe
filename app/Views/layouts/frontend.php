@@ -1,6 +1,7 @@
 <?php
 $logoText = \App\Models\SettingsModel::getSetting('logo_text', 'SPMB Unggul Bangsa');
 $logoImg = \App\Models\SettingsModel::getSetting('logo_img', '');
+$isOpen = \App\Models\SettingsModel::getSetting('is_open', '1') === '1';
 ?>
 <!DOCTYPE html>
 <html lang="id" class="light">
@@ -61,9 +62,11 @@ $logoImg = \App\Models\SettingsModel::getSetting('logo_img', '');
             <a href="<?= base_url('login') ?>" class="border border-primary text-primary dark:border-slate-300 dark:text-slate-200 font-label-bold text-label-bold px-4 py-2 rounded-lg hover:bg-surface-container-low hover:dark:bg-slate-800 transition-colors text-sm">
                 Login
             </a>
-            <a href="<?= base_url('register') ?>" class="bg-primary text-on-primary dark:bg-white dark:text-primary font-label-bold text-label-bold px-4 py-2 rounded-lg hover:opacity-90 dark:hover:opacity-90 transition-opacity text-sm shadow-md">
-                Daftar
-            </a>
+            <?php if ($isOpen): ?>
+                <a href="<?= base_url('register') ?>" class="bg-primary text-on-primary dark:bg-white dark:text-primary font-label-bold text-label-bold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity text-sm shadow-md">
+                    Daftar
+                </a>
+            <?php endif; ?>
         </div>
         <!-- Mobile Hamburger Button -->
         <button onclick="toggleMobileMenu()" class="md:hidden flex items-center justify-center p-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-surface-container-low hover:dark:bg-slate-800 focus:outline-none transition-colors">
@@ -98,9 +101,11 @@ $logoImg = \App\Models\SettingsModel::getSetting('logo_img', '');
             <a href="<?= base_url('login') ?>" onclick="toggleMobileMenu()" class="flex-1 text-center border border-primary text-primary dark:border-slate-400 dark:text-slate-300 font-label-bold text-label-bold px-4 py-2.5 rounded-lg hover:bg-surface-container-low hover:dark:bg-slate-800/50 transition-colors text-sm">
                 Login
             </a>
-            <a href="<?= base_url('register') ?>" onclick="toggleMobileMenu()" class="flex-1 text-center bg-primary text-on-primary dark:bg-white dark:text-primary font-label-bold text-label-bold px-4 py-2.5 rounded-lg hover:opacity-90 dark:hover:opacity-90 transition-opacity text-sm shadow-md">
-                Daftar
-            </a>
+            <?php if ($isOpen): ?>
+                <a href="<?= base_url('register') ?>" onclick="toggleMobileMenu()" class="flex-1 text-center bg-primary text-on-primary dark:bg-white dark:text-primary font-label-bold text-label-bold px-4 py-2.5 rounded-lg hover:opacity-90 dark:hover:opacity-90 transition-opacity text-sm shadow-md">
+                    Daftar
+                </a>
+            <?php endif; ?>
         </div>
     </div>
 

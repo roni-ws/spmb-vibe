@@ -72,8 +72,14 @@ class Auth extends BaseController
     // ----------------------------------------------------------------
     // Halaman Register (GET)
     // ----------------------------------------------------------------
-    public function register(): string
+    public function register()
     {
+        // 1. Cek apakah pendaftaran dibuka
+        $isOpen = \App\Models\SettingsModel::getSetting('is_open', '1') === '1';
+        if (! $isOpen) {
+            return redirect()->to(base_url())->with('error', 'Pendaftaran calon siswa baru saat ini sedang ditutup.');
+        }
+
         if (auth()->loggedIn()) {
             return $this->redirectByRole();
         }
