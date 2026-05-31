@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Prestige Academy SPMB - Admin Registration Dashboard</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Montserrat:wght@600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <!-- Material Symbols -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#725000",
+                        "secondary-fixed-dim": "#f8bc4b",
+                        "inverse-primary": "#adc7f7",
+                        "on-background": "#121c2c",
+                        "error-container": "#ffdad6",
+                        "on-surface": "#121c2c",
+                        "primary-fixed": "#d6e3ff",
+                        "inverse-on-surface": "#ebf1ff",
+                        "outline-variant": "#c4c6cf",
+                        "tertiary-container": "#003d3c",
+                        "error": "#ba1a1a",
+                        "surface": "#f9f9ff",
+                        "on-surface-variant": "#43474e",
+                        "on-secondary-fixed-variant": "#5f4100",
+                        "surface-container-low": "#f0f3ff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#e7eeff",
+                        "secondary": "#7d5700",
+                        "secondary-fixed": "#ffdeaa",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#00504e",
+                        "outline": "#74777f",
+                        "on-primary-fixed-variant": "#2d476f",
+                        "tertiary-fixed": "#94f2f0",
+                        "on-tertiary-container": "#4cadab",
+                        "on-primary-container": "#86a0cd",
+                        "on-tertiary-fixed": "#00201f",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed": "#001b3c",
+                        "surface-container-high": "#dee8ff",
+                        "inverse-surface": "#273141",
+                        "primary-fixed-dim": "#adc7f7",
+                        "on-secondary-fixed": "#271900",
+                        "on-error": "#ffffff",
+                        "tertiary": "#002625",
+                        "primary-container": "#1a365d",
+                        "surface-container-highest": "#d9e3f9",
+                        "secondary-container": "#ffc250",
+                        "primary": "#002045"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.8px",
+                        "xl": "12px",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "12px",
+                        "md": "24px",
+                        "container-max": "1200px",
+                        "base": "8px",
+                        "xl": "80px",
+                        "gutter": "24px",
+                        "lg": "48px",
+                        "xs": "4px"
+                    },
+                    "fontFamily": {
+                        "label-bold": ["Inter"],
+                        "headline-md": ["Montserrat"],
+                        "body-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "caption": ["Inter"],
+                        "display-lg": ["Montserrat"],
+                        "body-lg": ["Inter"],
+                        "headline-sm": ["Montserrat"]
+                    },
+                    "fontSize": {
+                        "label-bold": ["14px", { "lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "caption": ["12px", { "lineHeight": "1.4", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-sm": ["20px", { "lineHeight": "1.4", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f9f9ff;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #CBD5E0;
+            border-radius: 10px;
+        }
+
+        .glass-header {
+            backdrop-filter: blur(8px);
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="font-body-md text-on-surface">
+    <!-- Top AppBar (Desktop & Mobile Shell) -->
+    <header class="fixed top-0 w-full z-50 glass-header border-b border-outline-variant shadow-sm">
+        <div class="flex justify-between items-center px-md py-base w-full max-w-container-max mx-auto h-16">
+            <div class="flex items-center gap-sm">
+                <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+                    <span class="material-symbols-outlined text-white"
+                        style="font-variation-settings: 'FILL' 1;">school</span>
+                </div>
+                <h1 class="font-headline-md text-headline-md font-bold text-primary">Prestige Academy SPMB</h1>
+            </div>
+            <div class="flex items-center gap-md">
+                <div class="hidden md:flex gap-md">
+                    <button
+                        class="font-label-bold text-label-bold text-primary border-b-2 border-primary py-xs">Dashboard</button>
+                    <button
+                        class="font-label-bold text-label-bold text-on-surface-variant hover:text-primary py-xs transition-colors">Applications</button>
+                    <button
+                        class="font-label-bold text-label-bold text-on-surface-variant hover:text-primary py-xs transition-colors">Academic</button>
+                </div>
+                <button class="material-symbols-outlined text-on-surface-variant cursor-pointer">account_circle</button>
+            </div>
+        </div>
+    </header>
+    <div class="flex min-h-screen pt-16">
+        <!-- Navigation Drawer (Desktop Only) -->
+        <aside
+            class="hidden md:flex fixed left-0 top-16 h-[calc(100vh-64px)] w-72 bg-surface-container-lowest border-r border-outline-variant flex-col p-md">
+            <div class="flex items-center gap-sm mb-lg p-sm bg-surface-container-low rounded-xl">
+                <img alt="Admin" class="w-12 h-12 rounded-full object-cover border-2 border-primary"
+                    data-alt="A professional headshot of a middle-aged academic administrator with a warm but authoritative smile, wearing a sharp navy blue suit and a crisp white shirt. The background is a soft-focus library with wooden shelves and old books, conveying a sense of institutional stability and wisdom. The lighting is balanced and soft, creating a modern, prestigious academic aesthetic."
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYWfPg9Aq86OGsDkViSS1mr_uw3HhaFcol78hh2XbMx1bDEPWZoHxfN1u10mvoHJRBmXE9tmTjUUw_QOnZbmN4tNjkmarzRqrbATQWzbqPtSMGBZ-oKEJLvojdOt0ri8jqEIliab3B-M4p9WKQHvbatlLWtNw5VgwVMLbEBprQ1GJ8Hxg6gr1_kQ40Wgym8Rq2vL-gFo0okTRj2fJWL4q8Lk37-t6JfIsgHDgdt4LjuLV3wkNEbnH5eNIw7vyG6P_psAwYvz1vC74" />
+                <div>
+                    <p class="font-label-bold text-label-bold text-primary">Administrator</p>
+                    <p class="text-caption text-on-surface-variant">Admissions Office</p>
+                </div>
+            </div>
+            <nav class="space-y-base">
+                <a class="flex items-center gap-sm p-sm bg-secondary-container text-on-secondary-container rounded-lg font-bold transition-all"
+                    href="#">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+                    <span class="font-label-bold">Dashboard</span>
+                </a>
+                <a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all"
+                    href="#">
+                    <span class="material-symbols-outlined">description</span>
+                    <span class="font-label-bold">Applications</span>
+                </a>
+                <a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all"
+                    href="#">
+                    <span class="material-symbols-outlined">payments</span>
+                    <span class="font-label-bold">Financials</span>
+                </a>
+                <a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all"
+                    href="#">
+                    <span class="material-symbols-outlined">verified_user</span>
+                    <span class="font-label-bold">Verification</span>
+                </a>
+                <div class="pt-lg mt-auto">
+                    <a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all"
+                        href="#">
+                        <span class="material-symbols-outlined">settings</span>
+                        <span class="font-label-bold">Settings</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+        <!-- Main Content -->
+        <main class="flex-1 md:ml-72 p-md md:p-lg">
+            <div class="max-w-container-max mx-auto space-y-md">
+                <!-- Page Header & Stats -->
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-md mb-md">
+                    <div>
+                        <h2 class="font-headline-md text-headline-md text-primary">Registration Dashboard</h2>
+                        <p class="text-body-sm text-on-surface-variant">Manage and review all incoming student
+                            applications for the 2024 academic year.</p>
+                    </div>
+                    <div class="flex gap-sm">
+                        <button
+                            class="bg-primary text-white font-label-bold text-label-bold px-md py-sm rounded-lg flex items-center gap-xs shadow-md hover:opacity-90 transition-opacity">
+                            <span class="material-symbols-outlined text-[18px]">add</span>
+                            New Application
+                        </button>
+                    </div>
+                </div>
+                <!-- Filters & Search Section -->
+                <div class="bg-white p-md rounded-xl border border-outline-variant shadow-sm space-y-md">
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-md items-center">
+                        <!-- Search Bar -->
+                        <div class="md:col-span-5 relative">
+                            <span
+                                class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+                            <input
+                                class="w-full pl-10 pr-md py-sm rounded-lg border border-outline focus:ring-2 focus:ring-primary-fixed focus:border-primary transition-all text-body-sm"
+                                placeholder="Search by Applicant Name or ID..." type="text" />
+                        </div>
+                        <!-- Status Filter -->
+                        <div class="md:col-span-3">
+                            <select
+                                class="w-full py-sm rounded-lg border border-outline focus:ring-2 focus:ring-primary-fixed focus:border-primary transition-all text-body-sm">
+                                <option value="">All Statuses</option>
+                                <option value="pending">Pending</option>
+                                <option value="verified">Verified</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+                        </div>
+                        <!-- Date Range -->
+                        <div class="md:col-span-3">
+                            <input
+                                class="w-full py-sm rounded-lg border border-outline focus:ring-2 focus:ring-primary-fixed focus:border-primary transition-all text-body-sm"
+                                type="date" />
+                        </div>
+                        <!-- Filter Toggle Button -->
+                        <div class="md:col-span-1 flex justify-end">
+                            <button
+                                class="p-sm text-primary border border-outline-variant rounded-lg hover:bg-surface-container transition-colors">
+                                <span class="material-symbols-outlined">filter_list</span>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Bulk Actions Toolbar (Hidden by default, shown when items selected) -->
+                    <div class="hidden animate-in fade-in slide-in-from-top-2 flex items-center justify-between bg-primary-container/10 p-sm rounded-lg border border-primary-container/20"
+                        id="bulk-toolbar">
+                        <div class="flex items-center gap-sm">
+                            <span class="text-primary font-label-bold text-label-bold"><span
+                                    id="selected-count">0</span> Items Selected</span>
+                        </div>
+                        <div class="flex gap-sm">
+                            <button
+                                class="flex items-center gap-xs px-sm py-xs text-error font-label-bold text-label-bold hover:bg-error-container/20 rounded-md transition-colors">
+                                <span class="material-symbols-outlined text-[18px]">delete</span>
+                                Delete
+                            </button>
+                            <button
+                                class="flex items-center gap-xs px-sm py-xs text-primary font-label-bold text-label-bold hover:bg-primary-container/20 rounded-md transition-colors">
+                                <span class="material-symbols-outlined text-[18px]">ios_share</span>
+                                Export
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Data Table -->
+                <div class="bg-white rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-surface-container-low border-b border-outline-variant">
+                                    <th class="p-md w-10">
+                                        <input class="rounded border-outline text-primary focus:ring-primary"
+                                            id="select-all" type="checkbox" />
+                                    </th>
+                                    <th class="p-md font-label-bold text-label-bold text-primary">Applicant Name</th>
+                                    <th class="p-md font-label-bold text-label-bold text-primary">ID Number</th>
+                                    <th class="p-md font-label-bold text-label-bold text-primary">Date Applied</th>
+                                    <th class="p-md font-label-bold text-label-bold text-primary">Status</th>
+                                    <th class="p-md font-label-bold text-label-bold text-primary text-right">Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body">
+                                <!-- Row 1 -->
+                                <tr
+                                    class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
+                                    <td class="p-md">
+                                        <input
+                                            class="row-checkbox rounded border-outline text-primary focus:ring-primary"
+                                            type="checkbox" />
+                                    </td>
+                                    <td class="p-md">
+                                        <div class="flex items-center gap-sm">
+                                            <div
+                                                class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center font-bold text-primary text-[12px]">
+                                                JD</div>
+                                            <span class="font-label-bold text-on-surface">Johnathan Doe</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-md text-body-sm text-on-surface-variant">#APP-2024-001</td>
+                                    <td class="p-md text-body-sm text-on-surface-variant">Oct 12, 2023</td>
+                                    <td class="p-md">
+                                        <span
+                                            class="px-sm py-xs bg-secondary-container text-on-secondary-container text-caption font-bold rounded-full">Pending</span>
+                                    </td>
+                                    <td class="p-md text-right relative">
+                                        <button
+                                            class="p-xs hover:bg-surface-container-high rounded-full transition-colors"
+                                            onclick="toggleActionMenu('menu-1')">
+                                            <span class="material-symbols-outlined">more_vert</span>
+                                        </button>
+                                        <!-- Action Menu Dropdown -->
+                                        <div class="hidden absolute right-md top-10 w-48 bg-white border border-outline-variant rounded-xl shadow-lg z-10 py-xs text-left overflow-hidden"
+                                            id="menu-1">
+                                            <button
+                                                class="w-full px-md py-sm text-body-sm hover:bg-surface-container flex items-center gap-sm">
+                                                <span
+                                                    class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+                                                Download PDF
+                                            </button>
+                                            <button
+                                                class="w-full px-md py-sm text-body-sm hover:bg-surface-container flex items-center gap-sm">
+                                                <span class="material-symbols-outlined text-[18px]">csv</span> Download
+                                                CSV
+                                            </button>
+                                            <button
+                                                class="w-full px-md py-sm text-body-sm hover:bg-surface-container flex items-center gap-sm">
+                                                <span class="material-symbols-outlined text-[18px]">article</span>
+                                                Download Form
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- Row 2 -->
+                                <tr
+                                    class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
+                                    <td class="p-md">
+                                        <input
+                                            class="row-checkbox rounded border-outline text-primary focus:ring-primary"
+                                            type="checkbox" />
+                                    </td>
+                                    <td class="p-md">
+                                        <div class="flex items-center gap-sm">
+                                            <div
+                                                class="w-8 h-8 rounded-full bg-tertiary-fixed-dim flex items-center justify-center font-bold text-primary text-[12px]">
+                                                EM</div>
+                                            <span class="font-label-bold text-on-surface">Eleanor Maxwell</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-md text-body-sm text-on-surface-variant">#APP-2024-002</td>
+                                    <td class="p-md text-body-sm text-on-surface-variant">Oct 10, 2023</td>
+                                    <td class="p-md">
+                                        <span
+                                            class="px-sm py-xs bg-tertiary-fixed text-on-tertiary-fixed text-caption font-bold rounded-full">Verified</span>
+                                    </td>
+                                    <td class="p-md text-right relative">
+                                        <button
+                                            class="p-xs hover:bg-surface-container-high rounded-full transition-colors"
+                                            onclick="toggleActionMenu('menu-2')">
+                                            <span class="material-symbols-outlined">more_vert</span>
+                                        </button>
+                                        <div class="hidden absolute right-md top-10 w-48 bg-white border border-outline-variant rounded-xl shadow-lg z-10 py-xs text-left overflow-hidden"
+                                            id="menu-2">
+                                            <button
+                                                class="w-full px-md py-sm text-body-sm hover:bg-surface-container flex items-center gap-sm">
+                                                <span
+                                                    class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+                                                Download PDF
+                                            </button>
+                                            <button
+                                                class="w-full px-md py-sm text-body-sm hover:bg-surface-container flex items-center gap-sm">
+                                                <span class="material-symbols-outlined text-[18px]">csv</span> Download
+                                                CSV
+                                            </button>
+                                            <button
+                                                class="w-full px-md py-sm text-body-sm hover:bg-surface-container flex items-center gap-sm">
+                                                <span class="material-symbols-outlined text-[18px]">article</span>
+                                                Download Form
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- Row 3 -->
+                                <tr
+                                    class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
+                                    <td class="p-md">
+                                        <input
+                                            class="row-checkbox rounded border-outline text-primary focus:ring-primary"
+                                            type="checkbox" />
+                                    </td>
+                                    <td class="p-md">
+                                        <div class="flex items-center gap-sm">
+                                            <div
+                                                class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center font-bold text-primary text-[12px]">
+                                                SB</div>
+                                            <span class="font-label-bold text-on-surface">Sebastian Brooks</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-md text-body-sm text-on-surface-variant">#APP-2024-003</td>
+                                    <td class="p-md text-body-sm text-on-surface-variant">Oct 09, 2023</td>
+                                    <td class="p-md">
+                                        <span
+                                            class="px-sm py-xs bg-error-container text-on-error-container text-caption font-bold rounded-full">Rejected</span>
+                                    </td>
+                                    <td class="p-md text-right relative">
+                                        <button
+                                            class="p-xs hover:bg-surface-container-high rounded-full transition-colors"
+                                            onclick="toggleActionMenu('menu-3')">
+                                            <span class="material-symbols-outlined">more_vert</span>
+                                        </button>
+                                        <div class="hidden absolute right-md top-10 w-48 bg-white border border-outline-variant rounded-xl shadow-lg z-10 py-xs text-left overflow-hidden"
+                                            id="menu-3">
+                                            <button
+                                                class="w-full px-md py-sm text-body-sm hover:bg-surface-container flex items-center gap-sm">
+                                                <span
+                                                    class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+                                                Download PDF
+                                            </button>
+                                            <button
+                                                class="w-full px-md py-sm text-body-sm hover:bg-surface-container flex items-center gap-sm">
+                                                <span class="material-symbols-outlined text-[18px]">csv</span> Download
+                                                CSV
+                                            </button>
+                                            <button
+                                                class="w-full px-md py-sm text-body-sm hover:bg-surface-container flex items-center gap-sm">
+                                                <span class="material-symbols-outlined text-[18px]">article</span>
+                                                Download Form
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Pagination Footer -->
+                    <div
+                        class="p-md flex items-center justify-between border-t border-outline-variant bg-surface-container-lowest">
+                        <span class="text-caption text-on-surface-variant">Showing 3 of 124 Applications</span>
+                        <div class="flex gap-xs">
+                            <button
+                                class="p-sm border border-outline-variant rounded-lg hover:bg-surface-container-low disabled:opacity-30"
+                                disabled="">
+                                <span class="material-symbols-outlined">chevron_left</span>
+                            </button>
+                            <button class="w-10 h-10 bg-primary text-white rounded-lg font-bold text-caption">1</button>
+                            <button
+                                class="w-10 h-10 border border-outline-variant rounded-lg font-bold text-caption hover:bg-surface-container-low">2</button>
+                            <button
+                                class="w-10 h-10 border border-outline-variant rounded-lg font-bold text-caption hover:bg-surface-container-low">3</button>
+                            <button
+                                class="p-sm border border-outline-variant rounded-lg hover:bg-surface-container-low">
+                                <span class="material-symbols-outlined">chevron_right</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Load More for Mobile (Optional alternative) -->
+                <div class="md:hidden pt-md pb-xl">
+                    <button
+                        class="w-full py-md border-2 border-dashed border-primary text-primary font-bold rounded-xl hover:bg-primary-container/5 transition-colors">
+                        Load More Applicants
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- Mobile Bottom Navigation -->
+    <nav
+        class="fixed bottom-0 w-full z-50 flex justify-around items-center px-md py-sm bg-surface border-t border-outline-variant md:hidden rounded-t-xl shadow-lg">
+        <a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1"
+            href="#">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+            <span class="text-caption font-caption">Status</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-on-surface-variant" href="#">
+            <span class="material-symbols-outlined">upload_file</span>
+            <span class="text-caption font-caption">Docs</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-on-surface-variant" href="#">
+            <span class="material-symbols-outlined">receipt_long</span>
+            <span class="text-caption font-caption">Payments</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-on-surface-variant" href="#">
+            <span class="material-symbols-outlined">help_outline</span>
+            <span class="text-caption font-caption">Help</span>
+        </a>
+    </nav>
+    <script>
+        // Toggle action menus
+        function toggleActionMenu(id) {
+            const allMenus = document.querySelectorAll('[id^="menu-"]');
+            allMenus.forEach(menu => {
+                if (menu.id !== id) menu.classList.add('hidden');
+            });
+            const target = document.getElementById(id);
+            target.classList.toggle('hidden');
+        }
+
+        // Handle checkbox selection and bulk toolbar
+        const selectAll = document.getElementById('select-all');
+        const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+        const bulkToolbar = document.getElementById('bulk-toolbar');
+        const selectedCountLabel = document.getElementById('selected-count');
+
+        function updateBulkToolbar() {
+            const checkedCount = Array.from(rowCheckboxes).filter(cb => cb.checked).length;
+            if (checkedCount > 0) {
+                bulkToolbar.classList.remove('hidden');
+                selectedCountLabel.textContent = checkedCount;
+            } else {
+                bulkToolbar.classList.add('hidden');
+            }
+        }
+
+        selectAll.addEventListener('change', (e) => {
+            rowCheckboxes.forEach(cb => {
+                cb.checked = e.target.checked;
+            });
+            updateBulkToolbar();
+        });
+
+        rowCheckboxes.forEach(cb => {
+            cb.addEventListener('change', () => {
+                const allChecked = Array.from(rowCheckboxes).every(c => c.checked);
+                selectAll.checked = allChecked;
+                updateBulkToolbar();
+            });
+        });
+
+        // Close menus on outside click
+        window.onclick = function (event) {
+            if (!event.target.closest('.relative')) {
+                const allMenus = document.querySelectorAll('[id^="menu-"]');
+                allMenus.forEach(menu => menu.classList.add('hidden'));
+            }
+        }
+    </script>
+</body>
+
+</html>
