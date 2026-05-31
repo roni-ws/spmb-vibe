@@ -62,11 +62,11 @@ $logoImg  = \App\Models\SettingsModel::getSetting('logo_img', '');
         </div>
 
         <!-- Nav Links -->
-        <?php
             $currentUri = service('uri')->getPath();
             $isDashboard = ($currentUri === 'admin/dashboard' || $currentUri === 'admin');
             $isPendaftar = str_contains($currentUri, 'pendaftar') || str_contains($currentUri, 'admin/verify') || str_contains($currentUri, 'admin/delete');
             $isExport    = str_contains($currentUri, 'export');
+            $isSettings  = str_contains($currentUri, 'settings');
         ?>
         <div class="flex flex-col gap-1 flex-grow overflow-y-auto">
             <p class="font-caption text-caption text-on-surface-variant uppercase tracking-wider px-sm mb-1">Menu Utama</p>
@@ -83,6 +83,13 @@ $logoImg  = \App\Models\SettingsModel::getSetting('logo_img', '');
                       <?= $isPendaftar ? 'bg-secondary-container text-on-secondary-container font-bold' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high' ?>">
                 <span class="material-symbols-outlined" style="font-variation-settings:'FILL' <?= $isPendaftar ? '1' : '0' ?>">description</span>
                 Data Pendaftar
+            </a>
+
+            <a href="<?= base_url('admin/settings') ?>"
+               class="sidebar-link flex items-center gap-sm rounded-xl px-sm py-3 transition-all
+                      <?= $isSettings ? 'bg-secondary-container text-on-secondary-container font-bold' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high' ?>">
+                <span class="material-symbols-outlined" style="font-variation-settings:'FILL' <?= $isSettings ? '1' : '0' ?>">settings</span>
+                Pengaturan
             </a>
 
 
@@ -170,6 +177,9 @@ $logoImg  = \App\Models\SettingsModel::getSetting('logo_img', '');
             <a href="<?= base_url('admin/pendaftar') ?>" class="flex items-center gap-sm rounded-xl px-sm py-3 text-on-surface-variant hover:bg-surface-container-high transition-all">
                 <span class="material-symbols-outlined">description</span> Data Pendaftar
             </a>
+            <a href="<?= base_url('admin/settings') ?>" class="flex items-center gap-sm rounded-xl px-sm py-3 <?= $isSettings ? 'bg-secondary-container text-on-secondary-container font-bold' : 'text-on-surface-variant hover:bg-surface-container-high' ?> transition-all">
+                <span class="material-symbols-outlined" style="font-variation-settings:'FILL' <?= $isSettings ? '1' : '0' ?>">settings</span> Pengaturan
+            </a>
 
             <a href="<?= base_url('logout') ?>" class="flex items-center gap-sm rounded-xl px-sm py-3 text-error hover:bg-error-container mt-auto">
                 <span class="material-symbols-outlined">logout</span> Keluar
@@ -189,6 +199,10 @@ $logoImg  = \App\Models\SettingsModel::getSetting('logo_img', '');
         <a href="<?= base_url('admin/pendaftar') ?>" class="flex flex-col items-center gap-0.5 px-4 py-1 rounded-full transition-all <?= $isPendaftar ? 'text-on-secondary-container bg-secondary-container' : 'text-on-surface-variant hover:bg-surface-container-high' ?>">
             <span class="material-symbols-outlined text-xl" style="font-variation-settings:'FILL' <?= $isPendaftar ? '1' : '0' ?>">description</span>
             Pendaftar
+        </a>
+        <a href="<?= base_url('admin/settings') ?>" class="flex flex-col items-center gap-0.5 <?= $isSettings ? 'text-on-secondary-container bg-secondary-container' : 'text-on-surface-variant hover:bg-surface-container-high' ?> px-4 py-1 rounded-full transition-all">
+            <span class="material-symbols-outlined text-xl" style="font-variation-settings:'FILL' <?= $isSettings ? '1' : '0' ?>">settings</span>
+            Setting
         </a>
 
         <a href="<?= base_url('logout') ?>" class="flex flex-col items-center gap-0.5 text-error px-4 py-1 rounded-full">

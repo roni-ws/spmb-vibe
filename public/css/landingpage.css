@@ -389,6 +389,9 @@
   .bottom-0 {
     bottom: calc(var(--spacing) * 0);
   }
+  .bottom-6 {
+    bottom: calc(var(--spacing) * 6);
+  }
   .bottom-24 {
     bottom: calc(var(--spacing) * 24);
   }
@@ -668,6 +671,9 @@
   .w-32 {
     width: calc(var(--spacing) * 32);
   }
+  .w-36 {
+    width: calc(var(--spacing) * 36);
+  }
   .w-48 {
     width: calc(var(--spacing) * 48);
   }
@@ -689,6 +695,9 @@
   .max-w-\[480px\] {
     max-width: 480px;
   }
+  .max-w-\[1000px\] {
+    max-width: 1000px;
+  }
   .max-w-\[1100px\] {
     max-width: 1100px;
   }
@@ -709,6 +718,9 @@
   }
   .min-w-0 {
     min-width: calc(var(--spacing) * 0);
+  }
+  .min-w-\[200px\] {
+    min-width: 200px;
   }
   .flex-1 {
     flex: 1;
@@ -817,6 +829,9 @@
   }
   .gap-1 {
     gap: calc(var(--spacing) * 1);
+  }
+  .gap-1\.5 {
+    gap: calc(var(--spacing) * 1.5);
   }
   .gap-2 {
     gap: calc(var(--spacing) * 2);
@@ -991,10 +1006,22 @@
       border-color: color-mix(in oklab, var(--color-green-500) 30%, transparent);
     }
   }
+  .border-on-error-container\/20 {
+    border-color: color-mix(in srgb, #93000a 20%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      border-color: color-mix(in oklab, var(--color-on-error-container) 20%, transparent);
+    }
+  }
   .border-on-error-container\/30 {
     border-color: color-mix(in srgb, #93000a 30%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
       border-color: color-mix(in oklab, var(--color-on-error-container) 30%, transparent);
+    }
+  }
+  .border-on-tertiary-container\/20 {
+    border-color: color-mix(in srgb, #4cadab 20%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      border-color: color-mix(in oklab, var(--color-on-tertiary-container) 20%, transparent);
     }
   }
   .border-on-tertiary-container\/30 {
@@ -1025,6 +1052,18 @@
     border-color: color-mix(in srgb, #c4c6cf 50%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
       border-color: color-mix(in oklab, var(--color-outline-variant) 50%, transparent);
+    }
+  }
+  .border-outline-variant\/60 {
+    border-color: color-mix(in srgb, #c4c6cf 60%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      border-color: color-mix(in oklab, var(--color-outline-variant) 60%, transparent);
+    }
+  }
+  .border-outline-variant\/80 {
+    border-color: color-mix(in srgb, #c4c6cf 80%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      border-color: color-mix(in oklab, var(--color-outline-variant) 80%, transparent);
     }
   }
   .border-outline\/30 {
@@ -1071,6 +1110,9 @@
   }
   .border-slate-300 {
     border-color: var(--color-slate-300);
+  }
+  .border-transparent {
+    border-color: transparent;
   }
   .bg-\[\#25D366\]\/10 {
     background-color: color-mix(in oklab, #25D366 10%, transparent);
@@ -1179,6 +1221,18 @@
   }
   .bg-surface-container-lowest {
     background-color: var(--color-surface-container-lowest);
+  }
+  .bg-surface\/40 {
+    background-color: color-mix(in srgb, #f9f9ff 40%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-surface) 40%, transparent);
+    }
+  }
+  .bg-surface\/50 {
+    background-color: color-mix(in srgb, #f9f9ff 50%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-surface) 50%, transparent);
+    }
   }
   .bg-surface\/85 {
     background-color: color-mix(in srgb, #f9f9ff 85%, transparent);
@@ -1444,6 +1498,9 @@
   .pb-xl {
     padding-bottom: var(--spacing-xl);
   }
+  .pl-4 {
+    padding-left: calc(var(--spacing) * 4);
+  }
   .pl-5 {
     padding-left: calc(var(--spacing) * 5);
   }
@@ -1573,6 +1630,9 @@
   .text-xs {
     font-size: var(--text-xs);
     line-height: var(--tw-leading, var(--text-xs--line-height));
+  }
+  .text-\[9px\] {
+    font-size: 9px;
   }
   .text-\[10px\] {
     font-size: 10px;
@@ -1987,6 +2047,60 @@
       color: var(--color-on-primary-container);
     }
   }
+  .file\:mr-4 {
+    &::file-selector-button {
+      margin-right: calc(var(--spacing) * 4);
+    }
+  }
+  .file\:cursor-pointer {
+    &::file-selector-button {
+      cursor: pointer;
+    }
+  }
+  .file\:rounded-xl {
+    &::file-selector-button {
+      border-radius: var(--radius-xl);
+    }
+  }
+  .file\:border-0 {
+    &::file-selector-button {
+      border-style: var(--tw-border-style);
+      border-width: 0px;
+    }
+  }
+  .file\:bg-primary-container {
+    &::file-selector-button {
+      background-color: var(--color-primary-container);
+    }
+  }
+  .file\:px-4 {
+    &::file-selector-button {
+      padding-inline: calc(var(--spacing) * 4);
+    }
+  }
+  .file\:py-2 {
+    &::file-selector-button {
+      padding-block: calc(var(--spacing) * 2);
+    }
+  }
+  .file\:text-caption {
+    &::file-selector-button {
+      font-size: var(--text-caption);
+      line-height: var(--tw-leading, var(--text-caption--line-height));
+      font-weight: var(--tw-font-weight, var(--text-caption--font-weight));
+    }
+  }
+  .file\:font-semibold {
+    &::file-selector-button {
+      --tw-font-weight: var(--font-weight-semibold);
+      font-weight: var(--font-weight-semibold);
+    }
+  }
+  .file\:text-on-primary-container {
+    &::file-selector-button {
+      color: var(--color-on-primary-container);
+    }
+  }
   .placeholder\:text-outline\/70 {
     &::placeholder {
       color: color-mix(in srgb, #74777f 70%, transparent);
@@ -2206,6 +2320,15 @@
       }
     }
   }
+  .hover\:file\:opacity-90 {
+    &:hover {
+      @media (hover: hover) {
+        &::file-selector-button {
+          opacity: 90%;
+        }
+      }
+    }
+  }
   .focus\:border-primary {
     &:focus {
       border-color: var(--color-primary);
@@ -2231,6 +2354,14 @@
   .focus\:ring-primary-fixed {
     &:focus {
       --tw-ring-color: var(--color-primary-fixed);
+    }
+  }
+  .focus\:ring-primary\/20 {
+    &:focus {
+      --tw-ring-color: color-mix(in srgb, #002045 20%, transparent);
+      @supports (color: color-mix(in lab, red, red)) {
+        --tw-ring-color: color-mix(in oklab, var(--color-primary) 20%, transparent);
+      }
     }
   }
   .focus\:ring-primary\/30 {
@@ -2269,6 +2400,16 @@
   .disabled\:opacity-30 {
     &:disabled {
       opacity: 30%;
+    }
+  }
+  .sm\:inline {
+    @media (width >= 40rem) {
+      display: inline;
+    }
+  }
+  .sm\:w-auto {
+    @media (width >= 40rem) {
+      width: auto;
     }
   }
   .sm\:flex-row {

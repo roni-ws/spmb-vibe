@@ -122,17 +122,17 @@ $logoImg = \App\Models\SettingsModel::getSetting('logo_img', '');
                     <?php endif; ?>
                     <span class="font-headline-sm text-headline-sm font-bold"><?= esc($logoText) ?></span>
                 </div>
-                <p class="font-body-sm text-body-sm text-outline-variant w-full text-justify">Membentuk generasi pemimpin masa depan yang beriman, cerdas, kreatif, mandiri, dan berwawasan global.</p>
+                <p class="font-body-sm text-body-sm text-outline-variant w-full text-justify"><?= esc(\App\Models\SettingsModel::getSetting('footer_desc', 'Membentuk generasi pemimpin masa depan yang beriman, cerdas, kreatif, mandiri, dan berwawasan global.')) ?></p>
             </div>
             <div class="w-full flex flex-col">
                 <h4 class="font-label-bold text-label-bold mb-4 text-white">Hubungi Panitia SPMB</h4>
                 <ul class="space-y-2 font-body-sm text-body-sm text-outline-variant">
                     <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm"
-                            data-icon="call">call</span> +62 21 555 0123</li>
+                            data-icon="call">call</span> <?= esc(\App\Models\SettingsModel::getSetting('footer_phone', '+62 21 555 0123')) ?></li>
                     <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm"
-                            data-icon="mail">mail</span> spmb@unggulbangsa.sch.id</li>
+                            data-icon="mail">mail</span> <?= esc(\App\Models\SettingsModel::getSetting('footer_email', 'spmb@unggulbangsa.sch.id')) ?></li>
                     <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm"
-                            data-icon="location_on">location_on</span> Jl. Pendidikan No. 1, Jakarta</li>
+                            data-icon="location_on">location_on</span> <?= esc(\App\Models\SettingsModel::getSetting('footer_address', 'Jl. Pendidikan No. 1, Jakarta')) ?></li>
                 </ul>
             </div>
             <div class="w-full flex flex-col">

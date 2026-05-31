@@ -60,6 +60,12 @@ class Settings extends BaseController
             'req3_title'        => SettingsModel::getSetting('req3_title', 'Kartu Keluarga (KK)'),
             'req3_desc'         => SettingsModel::getSetting('req3_desc', 'Salinan dokumen Kartu Keluarga resmi dari Dinas Kependudukan dan Catatan Sipil setempat.'),
             'req3_icon'         => SettingsModel::getSetting('req3_icon', 'family_history'),
+
+            // Footer Settings
+            'footer_phone'      => SettingsModel::getSetting('footer_phone', '+62 21 555 0123'),
+            'footer_email'      => SettingsModel::getSetting('footer_email', 'spmb@unggulbangsa.sch.id'),
+            'footer_address'    => SettingsModel::getSetting('footer_address', 'Jl. Pendidikan No. 1, Jakarta'),
+            'footer_desc'       => SettingsModel::getSetting('footer_desc', 'Membentuk generasi pemimpin masa depan yang beriman, cerdas, kreatif, mandiri, dan berwawasan global.'),
         ];
 
         $data = [
@@ -117,6 +123,12 @@ class Settings extends BaseController
             'req3_title'        => 'required|min_length[3]|max_length[100]',
             'req3_desc'         => 'required|min_length[5]|max_length[255]',
             'req3_icon'         => 'required|min_length[3]|max_length[50]',
+
+            // Footer Settings
+            'footer_phone'      => 'required|min_length[5]|max_length[50]',
+            'footer_email'      => 'required|valid_email|max_length[100]',
+            'footer_address'    => 'required|min_length[5]|max_length[255]',
+            'footer_desc'       => 'required|min_length[10]|max_length[500]',
         ];
 
         // Validate logo file only if a file was selected/uploaded
@@ -173,6 +185,12 @@ class Settings extends BaseController
         SettingsModel::setSetting('req3_title', $this->request->getPost('req3_title'));
         SettingsModel::setSetting('req3_desc', $this->request->getPost('req3_desc'));
         SettingsModel::setSetting('req3_icon', $this->request->getPost('req3_icon'));
+
+        // Simpan Footer Settings
+        SettingsModel::setSetting('footer_phone', $this->request->getPost('footer_phone'));
+        SettingsModel::setSetting('footer_email', $this->request->getPost('footer_email'));
+        SettingsModel::setSetting('footer_address', $this->request->getPost('footer_address'));
+        SettingsModel::setSetting('footer_desc', $this->request->getPost('footer_desc'));
 
         // 4. Proses File Upload Logo
         $logoFile = $this->request->getFile('logo_file');
