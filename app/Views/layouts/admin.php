@@ -62,6 +62,7 @@ $logoImg  = \App\Models\SettingsModel::getSetting('logo_img', '');
         </div>
 
         <!-- Nav Links -->
+        <?php
             $currentUri = service('uri')->getPath();
             $isDashboard = ($currentUri === 'admin/dashboard' || $currentUri === 'admin');
             $isPendaftar = str_contains($currentUri, 'pendaftar') || str_contains($currentUri, 'admin/verify') || str_contains($currentUri, 'admin/delete');
