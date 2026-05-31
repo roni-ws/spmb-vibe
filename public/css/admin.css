@@ -1,0 +1,90 @@
+/* =============================================================
+   public/css/admin.css
+   Shared styles for the Admin Dashboard layout
+   (DataTables overrides, sidebar, scrollbar, base utilities)
+   ============================================================= */
+
+/* ── Base ────────────────────────────────────────────────── */
+body {
+    min-height: max(884px, 100dvh);
+    background-color: #f9f9ff;
+}
+
+/* ── Slim Scrollbar ──────────────────────────────────────── */
+::-webkit-scrollbar          { width: 5px; height: 5px; }
+::-webkit-scrollbar-track    { background: transparent; }
+::-webkit-scrollbar-thumb    { background: #c4c6cf; border-radius: 9999px; }
+
+/* ── Custom Scrollbar (named) ────────────────────────────── */
+.custom-scrollbar::-webkit-scrollbar        { width: 6px; height: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track  { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb  { background: #CBD5E0; border-radius: 10px; }
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+#sidebar { transition: transform 0.25s ease-in-out; }
+
+/* ── Glass Header ────────────────────────────────────────── */
+.glass-header {
+    backdrop-filter: blur(8px);
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+/* ── Filter bar ──────────────────────────────────────────── */
+.filter-bar {
+    backdrop-filter: blur(8px);
+    background-color: rgba(255, 255, 255, 0.95);
+}
+
+/* ── Status Badges ───────────────────────────────────────── */
+.badge-valid   { background: #003d3c; color: #4cadab; }
+.badge-pending { background: #ffc250; color: #725000; }
+.badge-invalid { background: #ffdad6; color: #93000a; }
+.badge-default { background: #e7eeff; color: #43474e; }
+
+/* ── DataTables — match Tailwind design tokens ───────────── */
+.dataTables_wrapper .dataTables_filter input,
+.dataTables_wrapper .dataTables_length select {
+    border: 1px solid #c4c6cf;
+    border-radius: 0.5rem;
+    padding: 4px 10px;
+    font-size: 14px;
+    outline: none;
+    background: #fff;
+}
+.dataTables_wrapper .dataTables_filter input:focus,
+.dataTables_wrapper .dataTables_length select:focus {
+    border-color: #002045;
+    box-shadow: 0 0 0 2px rgba(0, 32, 69, 0.15);
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    background: #002045;
+    color: #fff !important;
+    border-color: #002045;
+    border-radius: 0.5rem;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: #f0f3ff;
+    border-radius: 0.5rem;
+    border-color: transparent;
+}
+.dataTables_wrapper .dataTables_info {
+    font-size: 12px;
+    color: #43474e;
+}
+/* Hide built-in search / length — we use custom inputs */
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_length { display: none; }
+
+table.dataTable thead th {
+    background-color: #f0f3ff;
+    color: #43474e;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+table.dataTable tbody tr   { transition: background 0.15s; }
+table.dataTable tbody tr:hover { background-color: #f0f3ff; }
+table.dataTable tbody td   { vertical-align: middle; }
