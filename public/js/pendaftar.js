@@ -16,7 +16,7 @@ $(document).ready(function () {
         responsive: true,
         pageLength: 15,
         lengthMenu: [10, 15, 25, 50],
-        language: { url: '//cdn.datatables.net/plug-ins/1.13.8/i18n/id.json' },
+        language: { url: window.BASE_URL + 'vendor/datatables/i18n/id.json' },
         columnDefs: [
             { orderable: false, targets: [0, 8] },
             { searchable: false, targets: [0, 7, 8] }

@@ -27,7 +27,7 @@ $routes->group('siswa', ['filter' => 'session'], static function ($routes) {
 // -----------------------------------------------------------------------
 // Rute Dashboard Panitia / Admin — Dilindungi filter Shield khusus Admin
 // -----------------------------------------------------------------------
-$routes->group('admin', ['filter' => 'group:admin,superadmin,panitia'], static function ($routes) {
+$routes->group('admin', ['filter' => 'group:admin,panitia'], static function ($routes) {
     $routes->get('dashboard', 'Admin\Dashboard::index');
     $routes->get('pendaftar', 'Admin\Dashboard::pendaftar');
     $routes->post('verify/(:num)', 'Admin\Dashboard::verify/$1');
@@ -38,14 +38,14 @@ $routes->group('admin', ['filter' => 'group:admin,superadmin,panitia'], static f
     $routes->post('bulk-delete-students', 'Admin\Dashboard::bulkDeleteStudents');
 
     // Rute Khusus Manajemen User (Hanya Admin & Superadmin)
-    $routes->group('users', ['filter' => 'group:admin,superadmin'], static function ($routes) {
+    $routes->group('users', ['filter' => 'group:admin'], static function ($routes) {
         $routes->get('/', 'Admin\Users::index');
         $routes->post('store', 'Admin\Users::store');
         $routes->get('delete/(:num)', 'Admin\Users::delete/$1');
     });
 
     // Rute Khusus Pengaturan Frontend (Hanya Admin & Superadmin)
-    $routes->group('settings', ['filter' => 'group:admin,superadmin'], static function ($routes) {
+    $routes->group('settings', ['filter' => 'group:admin'], static function ($routes) {
         $routes->get('/', 'Admin\Settings::index');
         $routes->post('save', 'Admin\Settings::save');
     });

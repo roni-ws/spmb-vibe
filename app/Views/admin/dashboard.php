@@ -365,7 +365,7 @@
         $('#pendaftar-table').DataTable({
             responsive: true,
             language: {
-                url: '//cdn.datatables.net/plug-ins/1.13.8/i18n/id.json'
+                url: '<?= base_url('vendor/datatables/i18n/id.json') ?>'
             },
             pageLength: 10,
             columnDefs: [

@@ -16,96 +16,12 @@ $logoImg  = \App\Models\SettingsModel::getSetting('logo_img', '');
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
 
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary":                    "#002045",
-                        "on-primary":                 "#ffffff",
-                        "primary-container":          "#1a365d",
-                        "on-primary-container":       "#86a0cd",
-                        "primary-fixed":              "#d6e3ff",
-                        "primary-fixed-dim":          "#adc7f7",
-                        "inverse-primary":            "#adc7f7",
-                        "secondary":                  "#7d5700",
-                        "on-secondary":               "#ffffff",
-                        "secondary-container":        "#ffc250",
-                        "on-secondary-container":     "#725000",
-                        "tertiary":                   "#002625",
-                        "on-tertiary":                "#ffffff",
-                        "tertiary-container":         "#003d3c",
-                        "on-tertiary-container":      "#4cadab",
-                        "error":                      "#ba1a1a",
-                        "on-error":                   "#ffffff",
-                        "error-container":            "#ffdad6",
-                        "on-error-container":         "#93000a",
-                        "background":                 "#f9f9ff",
-                        "on-background":              "#121c2c",
-                        "surface":                    "#f9f9ff",
-                        "on-surface":                 "#121c2c",
-                        "surface-variant":            "#d9e3f9",
-                        "on-surface-variant":         "#43474e",
-                        "surface-container-lowest":   "#ffffff",
-                        "surface-container-low":      "#f0f3ff",
-                        "surface-container":          "#e7eeff",
-                        "surface-container-high":     "#dee8ff",
-                        "surface-container-highest":  "#d9e3f9",
-                        "surface-dim":                "#d0daf0",
-                        "surface-bright":             "#f9f9ff",
-                        "outline":                    "#74777f",
-                        "outline-variant":            "#c4c6cf",
-                        "inverse-surface":            "#273141",
-                        "inverse-on-surface":         "#ebf1ff",
-                        "surface-tint":               "#455f88",
-                    },
-                    spacing: {
-                        "xs":  "4px",
-                        "sm":  "12px",
-                        "md":  "24px",
-                        "lg":  "48px",
-                        "xl":  "80px",
-                        "gutter": "24px",
-                        "container-max": "1200px",
-                    },
-                    borderRadius: {
-                        DEFAULT: "0.25rem",
-                        "lg":   "0.5rem",
-                        "xl":   "0.75rem",
-                        "2xl":  "1rem",
-                        "full": "9999px",
-                    },
-                    fontFamily: {
-                        "headline-md":      ["Montserrat"],
-                        "headline-sm":      ["Montserrat"],
-                        "display-lg":       ["Montserrat"],
-                        "body-md":          ["Inter"],
-                        "body-sm":          ["Inter"],
-                        "body-lg":          ["Inter"],
-                        "caption":          ["Inter"],
-                        "label-bold":       ["Inter"],
-                    },
-                    fontSize: {
-                        "display-lg":   ["48px", { lineHeight: "1.2", letterSpacing: "-0.02em", fontWeight: "700" }],
-                        "headline-md":  ["24px", { lineHeight: "1.4", fontWeight: "600" }],
-                        "headline-sm":  ["20px", { lineHeight: "1.4", fontWeight: "600" }],
-                        "body-lg":      ["18px", { lineHeight: "1.6", fontWeight: "400" }],
-                        "body-md":      ["16px", { lineHeight: "1.6", fontWeight: "400" }],
-                        "body-sm":      ["14px", { lineHeight: "1.5", fontWeight: "400" }],
-                        "caption":      ["12px", { lineHeight: "1.4", fontWeight: "400" }],
-                        "label-bold":   ["14px", { lineHeight: "1.2", letterSpacing: "0.05em", fontWeight: "600" }],
-                    }
-                }
-            }
-        }
-    </script>
+    <!-- Compiled Tailwind CSS & Theme (Local) -->
+    <?= link_tag('css/landingpage.css') ?>
 
-    <!-- DataTables CSS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css" />
+    <!-- DataTables CSS (Local) -->
+    <link rel="stylesheet" href="<?= base_url('vendor/datatables/css/jquery.dataTables.min.css') ?>" />
+    <link rel="stylesheet" href="<?= base_url('vendor/datatables/css/responsive.dataTables.min.css') ?>" />
 
     <!-- Admin CSS -->
     <?= link_tag('css/admin.css') ?>
@@ -169,17 +85,7 @@ $logoImg  = \App\Models\SettingsModel::getSetting('logo_img', '');
                 Data Pendaftar
             </a>
 
-            <a href="<?= base_url('admin/export-csv') ?>"
-               class="sidebar-link flex items-center gap-sm rounded-xl px-sm py-3 transition-all text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high">
-                <span class="material-symbols-outlined">download</span>
-                Export CSV
-            </a>
 
-            <a href="<?= base_url('admin/export-print') ?>"
-               class="sidebar-link flex items-center gap-sm rounded-xl px-sm py-3 transition-all text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high">
-                <span class="material-symbols-outlined">print</span>
-                Cetak Data
-            </a>
 
             <div class="mt-auto pt-md border-t border-outline-variant">
                 <a href="<?= base_url('logout') ?>"
@@ -264,9 +170,7 @@ $logoImg  = \App\Models\SettingsModel::getSetting('logo_img', '');
             <a href="<?= base_url('admin/pendaftar') ?>" class="flex items-center gap-sm rounded-xl px-sm py-3 text-on-surface-variant hover:bg-surface-container-high transition-all">
                 <span class="material-symbols-outlined">description</span> Data Pendaftar
             </a>
-            <a href="<?= base_url('admin/export-csv') ?>" class="flex items-center gap-sm rounded-xl px-sm py-3 text-on-surface-variant hover:bg-surface-container-high transition-all">
-                <span class="material-symbols-outlined">download</span> Export CSV
-            </a>
+
             <a href="<?= base_url('logout') ?>" class="flex items-center gap-sm rounded-xl px-sm py-3 text-error hover:bg-error-container mt-auto">
                 <span class="material-symbols-outlined">logout</span> Keluar
             </a>
@@ -286,23 +190,20 @@ $logoImg  = \App\Models\SettingsModel::getSetting('logo_img', '');
             <span class="material-symbols-outlined text-xl" style="font-variation-settings:'FILL' <?= $isPendaftar ? '1' : '0' ?>">description</span>
             Pendaftar
         </a>
-        <a href="<?= base_url('admin/export-csv') ?>" class="flex flex-col items-center gap-0.5 text-on-surface-variant px-4 py-1 rounded-full hover:bg-surface-container-high transition-all">
-            <span class="material-symbols-outlined text-xl">download</span>
-            Export
-        </a>
+
         <a href="<?= base_url('logout') ?>" class="flex flex-col items-center gap-0.5 text-error px-4 py-1 rounded-full">
             <span class="material-symbols-outlined text-xl">logout</span>
             Keluar
         </a>
     </nav>
 
-    <!-- jQuery + DataTables JS -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <!-- jQuery + DataTables JS (Local) -->
+    <script src="<?= base_url('vendor/jquery/jquery.min.js') ?>"></script>
+    <script src="<?= base_url('vendor/datatables/js/jquery.dataTables.min.js') ?>"></script>
+    <script src="<?= base_url('vendor/datatables/js/dataTables.responsive.min.js') ?>"></script>
 
-    <!-- ApexCharts -->
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.49.0/dist/apexcharts.min.js"></script>
+    <!-- ApexCharts (Local) -->
+    <script src="<?= base_url('vendor/apexcharts/apexcharts.min.js') ?>"></script>
 
     <!-- Admin JS (sidebar toggle) -->
     <?= script_tag('js/admin.js') ?>
