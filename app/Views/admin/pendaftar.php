@@ -1,7 +1,7 @@
 <?= $this->extend('layouts/admin') ?>
 
 <?= $this->section('title') ?>Data Pendaftar<?= $this->endSection() ?>
-<?= $this->section('page-title') ?>Data Calon Siswa<?= $this->endSection() ?>
+<?= $this->section('page-title') ?>Data Siswa<?= $this->endSection() ?>
 
 <?= $this->section('css') ?>
 <!-- Admin page CSS is loaded from public/css/admin.css via the layout -->
@@ -15,7 +15,7 @@
      ================================ -->
 <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
     <div>
-        <h2 class="text-headline-md font-bold text-primary">Data Calon Siswa</h2>
+        <h2 class="text-headline-md font-bold text-primary">Kelola Pendaftaran</h2>
         <p class="text-body-sm text-on-surface-variant mt-1">
             Kelola dan tinjau semua pendaftaran siswa masuk.
             Total <strong class="text-on-surface"><?= count($students) ?></strong> pendaftar terdaftar.
@@ -53,7 +53,7 @@
 <div class="filter-bar bg-white rounded-2xl border border-outline-variant shadow-sm p-4 mb-4 space-y-3">
     <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
         <!-- Search -->
-        <div class="md:col-span-5 relative">
+        <div class="md:col-span-8 relative">
             <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-xl">search</span>
             <input id="custom-search" type="text"
                    placeholder="Cari nama, NIK, atau sekolah..."
@@ -65,18 +65,8 @@
                     class="w-full px-3 py-2.5 rounded-xl border border-outline-variant focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-body-sm outline-none bg-surface-container-lowest">
                 <option value="">Semua Status Berkas</option>
                 <option value="Valid">Valid</option>
-                <option value="Pending">Pending</option>
-                <option value="Tidak Valid">Tidak Valid</option>
+                <option value="Belum Verifikasi">Belum Verifikasi</option>
                 <option value="Revisi">Revisi</option>
-            </select>
-        </div>
-        <!-- Kelulusan Filter -->
-        <div class="md:col-span-3">
-            <select id="kelulusan-filter"
-                    class="w-full px-3 py-2.5 rounded-xl border border-outline-variant focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-body-sm outline-none bg-surface-container-lowest">
-                <option value="">Semua Status Kelulusan</option>
-                <option value="Lulus">Lulus</option>
-                <option value="Tidak Lulus">Tidak Lulus</option>
             </select>
         </div>
         <!-- Reset -->
@@ -107,7 +97,7 @@
      ================================ -->
 <div class="bg-white rounded-2xl border border-outline-variant shadow-sm overflow-hidden">
     <div class="overflow-x-auto custom-scrollbar">
-        <table id="student-table" class="w-full text-left border-collapse" style="width:100%">
+        <table id="student-table" class="w-full text-left border-collapse min-w-[1000px]" style="width:100%">
             <thead>
                 <tr class="bg-surface-container-low border-b border-outline-variant">
                     <th class="p-4 w-10">
@@ -115,11 +105,10 @@
                                class="rounded border-outline-variant text-primary focus:ring-primary cursor-pointer" />
                     </th>
                     <th class="p-4 font-semibold text-label-bold text-primary text-xs uppercase tracking-wider">Calon Siswa</th>
+                    <th class="p-4 font-semibold text-label-bold text-primary text-xs uppercase tracking-wider">NIK</th>
                     <th class="p-4 font-semibold text-label-bold text-primary text-xs uppercase tracking-wider">Asal Sekolah</th>
-                    <th class="p-4 font-semibold text-label-bold text-primary text-xs uppercase tracking-wider">Nilai Rapor</th>
                     <th class="p-4 font-semibold text-label-bold text-primary text-xs uppercase tracking-wider">Tgl Daftar</th>
                     <th class="p-4 font-semibold text-label-bold text-primary text-xs uppercase tracking-wider">Status Berkas</th>
-                    <th class="p-4 font-semibold text-label-bold text-primary text-xs uppercase tracking-wider">Kelulusan</th>
                     <th class="p-4 font-semibold text-label-bold text-primary text-xs uppercase tracking-wider">Finalisasi</th>
                     <th class="p-4 font-semibold text-label-bold text-primary text-xs uppercase tracking-wider text-right">Aksi</th>
                 </tr>
@@ -130,26 +119,18 @@
                     <?php
                         $nama   = esc($s['nama_lengkap'] ?: $s['username'] ?? '-');
                         $inisial = strtoupper(mb_substr($s['nama_lengkap'] ?: $s['username'] ?? 'X', 0, 2));
-                        $status = $s['status_verifikasi'] ?? 'Pending';
-                        $lulus  = $s['status_kelulusan'] ?? null;
+                        $status = $s['status_verifikasi'] ?? 'Belum Verifikasi';
                         $final  = $s['is_finalized'] ?? 0;
 
                         $statusClass = match($status) {
                             'Valid'       => 'badge-valid',
-                            'Tidak Valid' => 'badge-invalid',
                             'Revisi'      => 'badge-invalid',
                             default       => 'badge-pending',
                         };
                         $statusIcon = match($status) {
                             'Valid'       => 'check_circle',
-                            'Tidak Valid' => 'cancel',
                             'Revisi'      => 'edit_note',
                             default       => 'pending_actions',
-                        };
-                        $lulusClass = match($lulus) {
-                            'Lulus'       => 'bg-tertiary-container/40 text-on-tertiary-container',
-                            'Tidak Lulus' => 'bg-error-container text-on-error-container',
-                            default       => 'bg-surface-container text-on-surface-variant',
                         };
 
                         // Avatar color cycling
@@ -171,17 +152,17 @@
                                 </div>
                                 <div class="min-w-0">
                                     <p class="font-semibold text-body-sm text-on-surface truncate max-w-[160px]"><?= $nama ?></p>
-                                    <p class="text-caption text-on-surface-variant truncate max-w-[160px]"><?= esc($s['email'] ?? '-') ?></p>
+                                    <p class="text-caption text-on-surface-variant truncate max-w-[160px]">NISN: <?= esc($s['nisn'] ?? '-') ?></p>
                                 </div>
                             </div>
+                        </td>
+                        <!-- NIK -->
+                        <td class="p-4 text-body-sm text-on-surface font-semibold">
+                            <?= esc($s['nik'] ?? '-') ?>
                         </td>
                         <!-- Sekolah -->
                         <td class="p-4 text-body-sm text-on-surface-variant max-w-[160px]">
                             <span class="truncate block"><?= esc($s['nama_sekolah'] ?? '-') ?></span>
-                        </td>
-                        <!-- Nilai -->
-                        <td class="p-4 text-body-sm text-on-surface font-semibold">
-                            <?= $s['nilai_rata_rata'] ? number_format((float)$s['nilai_rata_rata'], 2) : '<span class="text-on-surface-variant font-normal">-</span>' ?>
                         </td>
                         <!-- Tgl Daftar -->
                         <td class="p-4 text-body-sm text-on-surface-variant whitespace-nowrap">
@@ -192,12 +173,6 @@
                             <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-caption font-bold <?= $statusClass ?>">
                                 <span class="material-symbols-outlined text-[14px]"><?= $statusIcon ?></span>
                                 <?= esc($status) ?>
-                            </span>
-                        </td>
-                        <!-- Kelulusan -->
-                        <td class="p-4">
-                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-caption font-semibold <?= $lulusClass ?>">
-                                <?= esc($lulus ?? 'Belum diumumkan') ?>
                             </span>
                         </td>
                         <!-- Finalisasi -->
@@ -213,48 +188,65 @@
                             <?php endif; ?>
                         </td>
                         <!-- Actions -->
-                        <td class="p-4 text-right relative">
-                            <button class="p-1.5 hover:bg-surface-container-high rounded-full transition-colors"
-                                    onclick="toggleActionMenu('menu-<?= $s['id'] ?>')"
-                                    aria-label="Aksi">
-                                <span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
-                            </button>
-                            <!-- Dropdown Menu -->
-                            <div id="menu-<?= $s['id'] ?>"
-                                 class="hidden absolute right-6 top-10 w-52 bg-white border border-outline-variant rounded-2xl shadow-xl z-20 py-1 text-left overflow-hidden">
-                                <!-- Verify Button -->
-                                <button onclick="openVerifyModal(<?= $s['id'] ?>, '<?= esc($status) ?>', '<?= esc($lulus ?? '') ?>', <?= json_encode(esc($nama)) ?>)"
-                                        class="w-full px-4 py-2.5 text-body-sm hover:bg-surface-container flex items-center gap-3 transition-colors">
-                                    <span class="material-symbols-outlined text-[18px] text-primary">verified_user</span>
-                                    Verifikasi Berkas
+                        <td class="p-4 text-right">
+                            <div class="flex items-center justify-end gap-1">
+                                <!-- Quick Edit -->
+                                <button class="edit-student-btn p-1.5 text-primary hover:bg-primary-container/20 rounded-full transition-colors"
+                                        data-id="<?= $s['id'] ?>"
+                                        data-nama="<?= esc($nama) ?>"
+                                        data-nik="<?= esc($s['nik'] ?? '') ?>"
+                                        data-sekolah="<?= esc($s['nama_sekolah'] ?? '') ?>"
+                                        data-nilai=""
+                                        data-nohp=""
+                                        title="Edit Calon Siswa">
+                                    <span class="material-symbols-outlined text-[18px]">edit</span>
                                 </button>
-                                <div class="h-px bg-outline-variant/50 my-1"></div>
-                                <!-- Download Form -->
-                                <a href="<?= base_url('admin/download-form/' . $s['id']) ?>" target="_blank"
-                                   class="w-full px-4 py-2.5 text-body-sm hover:bg-surface-container flex items-center gap-3 transition-colors">
-                                    <span class="material-symbols-outlined text-[18px] text-on-surface-variant">article</span>
-                                    Cetak Formulir
-                                </a>
-                                <!-- Download CSV single -->
-                                <a href="<?= base_url('admin/export-csv') ?>"
-                                   class="w-full px-4 py-2.5 text-body-sm hover:bg-surface-container flex items-center gap-3 transition-colors">
-                                    <span class="material-symbols-outlined text-[18px] text-on-surface-variant">download</span>
-                                    Export CSV
-                                </a>
-                                <div class="h-px bg-outline-variant/50 my-1"></div>
-                                <!-- Delete -->
+                                
+                                <!-- Quick Delete -->
                                 <button onclick="confirmDelete(<?= $s['id'] ?>, <?= json_encode(esc($nama)) ?>)"
-                                        class="w-full px-4 py-2.5 text-body-sm hover:bg-error-container/20 flex items-center gap-3 transition-colors text-error">
+                                        class="p-1.5 text-error hover:bg-error-container/20 rounded-full transition-colors"
+                                        title="Hapus Calon Siswa">
                                     <span class="material-symbols-outlined text-[18px]">delete</span>
-                                    Hapus Pendaftar
                                 </button>
+                                
+                                <!-- Dropdown Menu Wrapper -->
+                                <div class="relative">
+                                    <button class="p-1.5 hover:bg-surface-container-high rounded-full transition-colors"
+                                            onclick="toggleActionMenu('menu-<?= $s['id'] ?>')"
+                                            aria-label="Aksi">
+                                        <span class="material-symbols-outlined text-on-surface-variant text-[18px]">more_vert</span>
+                                    </button>
+                                    <!-- Dropdown Menu -->
+                                    <div id="menu-<?= $s['id'] ?>"
+                                         class="hidden absolute right-0 top-9 w-52 bg-white border border-outline-variant rounded-2xl shadow-xl z-20 py-1 text-left overflow-hidden">
+                                        <!-- Verify Button -->
+                                        <button onclick="openVerifyModal(<?= $s['id'] ?>, '<?= esc($status) ?>', '', <?= json_encode(esc($nama)) ?>)"
+                                                class="w-full px-4 py-2.5 text-body-sm hover:bg-surface-container flex items-center gap-3 transition-colors">
+                                            <span class="material-symbols-outlined text-[18px] text-primary">verified_user</span>
+                                            Verifikasi Berkas
+                                        </button>
+                                        <div class="h-px bg-outline-variant/50 my-1"></div>
+                                        <!-- Download Form -->
+                                        <a href="<?= base_url('admin/download-form/' . $s['id']) ?>" target="_blank"
+                                           class="w-full px-4 py-2.5 text-body-sm hover:bg-surface-container flex items-center gap-3 transition-colors">
+                                            <span class="material-symbols-outlined text-[18px] text-on-surface-variant">article</span>
+                                            Cetak Formulir
+                                        </a>
+                                        <!-- Download CSV single -->
+                                        <a href="<?= base_url('admin/export-csv') ?>"
+                                           class="w-full px-4 py-2.5 text-body-sm hover:bg-surface-container flex items-center gap-3 transition-colors">
+                                            <span class="material-symbols-outlined text-[18px] text-on-surface-variant">download</span>
+                                            Export CSV
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </td>
                     </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="9" class="py-16 text-center text-on-surface-variant text-body-sm">
+                        <td colspan="8" class="py-16 text-center text-on-surface-variant text-body-sm">
                             <span class="material-symbols-outlined text-5xl block mb-3 text-outline">inbox</span>
                             Belum ada data pendaftar.
                         </td>
@@ -277,10 +269,12 @@
      VERIFY MODAL
      ================================ -->
 <div id="verify-modal"
-     class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md animate-in fade-in zoom-in-95 duration-200">
+     class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 p-4"
+     style="display: none; align-items: center; justify-content: center; z-index: 9999;">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md animate-in fade-in zoom-in-95 duration-200"
+         style="margin: auto; max-height: 90vh; display: flex; flex-direction: column; width: 100%; max-width: 450px;">
         <!-- Modal Header -->
-        <div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant shrink-0">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center">
                     <span class="material-symbols-outlined">verified_user</span>
@@ -296,28 +290,17 @@
         </div>
 
         <!-- Modal Body -->
-        <form id="verify-form" method="post" action="">
+        <form id="verify-form" method="post" action="" style="display: flex; flex-direction: column; overflow: hidden; margin: 0;">
             <?= csrf_field() ?>
-            <div class="px-6 py-5 space-y-4">
+            <div class="px-6 py-5 space-y-4 overflow-y-auto custom-scrollbar" style="flex: 1 1 auto; max-height: 60vh;">
                 <!-- Status Berkas -->
                 <div>
                     <label class="block text-body-sm font-semibold text-on-surface mb-1.5">Status Verifikasi Berkas</label>
                     <select name="status_verifikasi" id="modal-status"
                             class="w-full px-3 py-2.5 rounded-xl border border-outline-variant focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-body-sm outline-none bg-surface-container-lowest">
-                        <option value="Pending">Pending – Belum ditinjau</option>
+                        <option value="Belum Verifikasi">Belum Verifikasi</option>
                         <option value="Valid">Valid – Berkas lengkap & sah</option>
-                        <option value="Tidak Valid">Tidak Valid – Berkas ditolak</option>
                         <option value="Revisi">Revisi – Perlu perbaikan</option>
-                    </select>
-                </div>
-                <!-- Status Kelulusan -->
-                <div>
-                    <label class="block text-body-sm font-semibold text-on-surface mb-1.5">Status Kelulusan</label>
-                    <select name="status_kelulusan" id="modal-kelulusan"
-                            class="w-full px-3 py-2.5 rounded-xl border border-outline-variant focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-body-sm outline-none bg-surface-container-lowest">
-                        <option value="">Belum diumumkan</option>
-                        <option value="Lulus">Lulus</option>
-                        <option value="Tidak Lulus">Tidak Lulus</option>
                     </select>
                 </div>
                 <!-- Catatan -->
@@ -329,7 +312,7 @@
             </div>
 
             <!-- Modal Footer -->
-            <div class="flex gap-2 px-6 pb-6">
+            <div class="flex gap-2 px-6 pb-6 shrink-0">
                 <button type="button" onclick="closeVerifyModal()"
                         class="flex-1 py-2.5 border border-outline-variant rounded-xl text-body-sm font-semibold text-on-surface hover:bg-surface-container transition-colors">
                     Batal
@@ -347,10 +330,12 @@
      DELETE CONFIRM MODAL
      ================================ -->
 <div id="delete-modal"
-     class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm">
-        <div class="px-6 py-5 text-center">
-            <div class="w-14 h-14 rounded-full bg-error-container flex items-center justify-center mx-auto mb-4">
+     class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 p-4"
+     style="display: none; align-items: center; justify-content: center; z-index: 9999;">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm"
+         style="margin: auto; max-height: 90vh; display: flex; flex-direction: column; width: 100%; max-width: 380px;">
+        <div class="px-6 py-5 text-center flex-grow overflow-y-auto">
+            <div class="w-14 h-14 rounded-full bg-error-container flex items-center justify-center mx-auto mb-4 shrink-0">
                 <span class="material-symbols-outlined text-error text-2xl">delete_forever</span>
             </div>
             <h3 class="font-semibold text-body-lg text-on-surface mb-1">Hapus Pendaftar?</h3>
@@ -358,7 +343,7 @@
                 Data <strong id="delete-student-name" class="text-on-surface"></strong> akan dihapus permanen beserta semua berkas terkait. Tindakan ini tidak dapat dibatalkan.
             </p>
         </div>
-        <div class="flex gap-3 px-6 pb-6">
+        <div class="flex gap-3 px-6 pb-6 shrink-0">
             <button onclick="closeDeleteModal()"
                     class="flex-1 py-2.5 border border-outline-variant rounded-xl text-body-sm font-semibold hover:bg-surface-container transition-colors">
                 Batal
@@ -368,6 +353,74 @@
                 Ya, Hapus
             </button>
         </div>
+    </div>
+</div>
+
+<!-- ================================
+     EDIT STUDENT MODAL
+     ================================ -->
+<div id="edit-modal"
+     class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 p-4"
+     style="display: none; align-items: center; justify-content: center; z-index: 9999;">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md animate-in fade-in zoom-in-95 duration-200"
+         style="margin: auto; max-height: 90vh; display: flex; flex-direction: column; width: 100%; max-width: 450px;">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                    <span class="material-symbols-outlined text-primary">edit</span>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-body-md text-on-surface">Edit Data Calon Siswa</h3>
+                    <p id="edit-modal-subtitle" class="text-caption text-on-surface-variant">Ubah biodata dan data sekolah</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeEditModal()" class="p-1.5 rounded-full hover:bg-surface-container transition-colors">
+                <span class="material-symbols-outlined text-on-surface-variant">close</span>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <form id="edit-form" method="post" action="" style="display: flex; flex-direction: column; overflow: hidden; margin: 0;">
+            <?= csrf_field() ?>
+            <div class="px-6 py-5 space-y-4 overflow-y-auto custom-scrollbar" style="flex: 1 1 auto; max-height: 60vh;">
+                <!-- Nama Lengkap -->
+                <div>
+                    <label class="block text-body-sm font-semibold text-on-surface mb-1.5">Nama Lengkap</label>
+                    <input type="text" name="nama_lengkap" id="edit-nama" required
+                           placeholder="Nama lengkap calon siswa"
+                           class="w-full px-3 py-2.5 rounded-xl border border-outline-variant focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-body-sm outline-none bg-surface-container-lowest" />
+                </div>
+                
+                <!-- NIK -->
+                <div>
+                    <label class="block text-body-sm font-semibold text-on-surface mb-1.5">NIK (Nomor Induk Kependudukan)</label>
+                    <input type="text" name="nik" id="edit-nik" required
+                           placeholder="16 digit NIK"
+                           class="w-full px-3 py-2.5 rounded-xl border border-outline-variant focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-body-sm outline-none bg-surface-container-lowest" />
+                </div>
+
+                <!-- Asal Sekolah -->
+                <div>
+                    <label class="block text-body-sm font-semibold text-on-surface mb-1.5">Asal Sekolah</label>
+                    <input type="text" name="nama_sekolah" id="edit-sekolah" required
+                           placeholder="Nama sekolah asal"
+                           class="w-full px-3 py-2.5 rounded-xl border border-outline-variant focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-body-sm outline-none bg-surface-container-lowest" />
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex gap-2 px-6 pb-6 pt-2 border-t border-outline-variant/30 shrink-0">
+                <button type="button" onclick="closeEditModal()"
+                        class="flex-1 py-2.5 border border-outline-variant rounded-xl text-body-sm font-semibold text-on-surface hover:bg-surface-container transition-colors">
+                    Batal
+                </button>
+                <button type="submit"
+                        class="flex-1 py-2.5 bg-primary text-on-primary rounded-xl text-body-sm font-semibold hover:opacity-90 transition-opacity">
+                    Simpan Perubahan
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 

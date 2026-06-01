@@ -131,7 +131,7 @@
             </form>
             
             <!-- Footer / Sign Up -->
-            <div class="mt-[32px] text-center border-t border-outline-variant/30 dark:border-outline/20 pt-md">
+            <div id="signup-footer" class="mt-[32px] text-center border-t border-outline-variant/30 dark:border-outline/20 pt-md">
                 <p class="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400">
                     Belum punya akun?
                     <a class="text-primary dark:text-tertiary-fixed-dim font-label-bold text-label-bold hover:text-white hover:no-underline transition-colors"

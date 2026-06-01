@@ -13,13 +13,13 @@
 /* ── DataTables Init ─────────────────────────────────────── */
 $(document).ready(function () {
     const table = $('#student-table').DataTable({
-        responsive: true,
+        responsive: false,
         pageLength: 15,
         lengthMenu: [10, 15, 25, 50],
         language: { url: window.BASE_URL + 'vendor/datatables/i18n/id.json' },
         columnDefs: [
-            { orderable: false, targets: [0, 8] },
-            { searchable: false, targets: [0, 7, 8] }
+            { orderable: false, targets: [0, 7] },
+            { searchable: false, targets: [0, 6, 7] }
         ],
         order: [[4, 'desc']],
         drawCallback: function () { syncCheckboxes(); }
@@ -27,12 +27,10 @@ $(document).ready(function () {
 
     $('#custom-search').on('keyup', function () { table.search(this.value).draw(); });
     $('#status-filter').on('change', function () { table.column(5).search(this.value).draw(); });
-    $('#kelulusan-filter').on('change', function () { table.column(6).search(this.value).draw(); });
 
     $('#reset-filter').on('click', function () {
         $('#custom-search').val('');
         $('#status-filter').val('');
-        $('#kelulusan-filter').val('');
         table.search('').columns().search('').draw();
     });
 
@@ -40,6 +38,17 @@ $(document).ready(function () {
     $('#dt-paginate-wrapper').append($('.dataTables_paginate'));
     $('#table-info-text').text('');
     $('.dataTables_info').appendTo('#table-info-text');
+
+    // Edit Student click handler
+    $(document).on('click', '.edit-student-btn', function () {
+        const userId = $(this).data('id');
+        const nama = $(this).data('nama');
+        const nik = $(this).data('nik');
+        const sekolah = $(this).data('sekolah');
+        const nilai = $(this).data('nilai');
+        const nohp = $(this).data('nohp');
+        openEditModal(userId, nama, nik, sekolah, nilai, nohp);
+    });
 });
 
 /* ── Checkbox / Bulk Select ──────────────────────────────── */
@@ -113,14 +122,12 @@ function openVerifyModal(userId, status, kelulusan, nama) {
     document.getElementById('modal-kelulusan').value = kelulusan || '';
     document.getElementById('verify-form').action    = window.BASE_URL + 'admin/verify/' + userId;
     const modal = document.getElementById('verify-modal');
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
+    modal.style.display = 'flex';
 }
 
 function closeVerifyModal() {
     const modal = document.getElementById('verify-modal');
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
+    modal.style.display = 'none';
 }
 
 document.getElementById('verify-modal')?.addEventListener('click', function (e) {
@@ -135,13 +142,11 @@ function confirmDelete(userId, nama) {
     deleteTargetId = userId;
     document.getElementById('delete-student-name').textContent = nama;
     const modal = document.getElementById('delete-modal');
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
+    modal.style.display = 'flex';
 }
 
 function closeDeleteModal() {
-    document.getElementById('delete-modal').classList.add('hidden');
-    document.getElementById('delete-modal').classList.remove('flex');
+    document.getElementById('delete-modal').style.display = 'none';
     deleteTargetId = null;
 }
 
@@ -166,6 +171,29 @@ document.getElementById('confirm-delete-btn')?.addEventListener('click', functio
 
 document.getElementById('delete-modal')?.addEventListener('click', function (e) {
     if (e.target === this) closeDeleteModal();
+});
+
+/* ── Edit Modal ──────────────────────────────────────────── */
+function openEditModal(userId, nama, nik, sekolah, nilai, noHp) {
+    document.querySelectorAll('[id^="menu-"]').forEach(m => m.classList.add('hidden'));
+    document.getElementById('edit-nama').value = nama || '';
+    document.getElementById('edit-nik').value = nik || '';
+    document.getElementById('edit-sekolah').value = sekolah || '';
+    document.getElementById('edit-nilai').value = nilai || '';
+    document.getElementById('edit-nohp').value = noHp || '';
+    document.getElementById('edit-form').action = window.BASE_URL + 'admin/edit-student/' + userId;
+
+    const modal = document.getElementById('edit-modal');
+    modal.style.display = 'flex';
+}
+
+function closeEditModal() {
+    const modal = document.getElementById('edit-modal');
+    modal.style.display = 'none';
+}
+
+document.getElementById('edit-modal')?.addEventListener('click', function (e) {
+    if (e.target === this) closeEditModal();
 });
 
 /* ── Toast Notification ──────────────────────────────────── */

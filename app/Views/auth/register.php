@@ -119,7 +119,10 @@
                             </div>
                             <input
                                 class="w-full pl-[40px] pr-[44px] py-[14px] bg-surface-container-lowest dark:bg-slate-900 border border-outline-variant dark:border-outline/50 rounded-lg font-body-md text-body-md text-on-surface dark:text-white placeholder:text-outline/70 focus:outline-none focus:border-primary focus:dark:border-white focus:ring-1 focus:ring-primary focus:dark:ring-white transition-all duration-200 shadow-sm"
-                                id="password" name="password" placeholder="••••••••" required="" type="password" />
+                                id="password" name="password" placeholder="••••••••" required="" type="password"
+                                minlength="8"
+                                pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}"
+                                title="Kata sandi harus minimal 8 karakter dan mengandung kombinasi huruf besar, huruf kecil, angka, dan simbol." />
                             <button
                                 class="absolute inset-y-0 right-0 pr-sm flex items-center text-outline hover:text-on-surface dark:hover:text-white transition-colors focus:outline-none"
                                 onclick="togglePasswordVisibility()" type="button">
@@ -127,6 +130,35 @@
                                     style="font-size: 20px;">visibility_off</span>
                             </button>
                         </div>
+                        <p class="text-[11px] text-on-surface-variant dark:text-slate-400 mt-1 ml-1 leading-normal">
+                            Minimal 8 karakter dengan kombinasi huruf besar (A-Z), kecil (a-z), angka (0-9), dan simbol.
+                        </p>
+                    </div>
+
+                    <!-- Konfirmasi Kata Sandi -->
+                    <div class="flex flex-col gap-xs">
+                        <label class="font-label-bold text-label-bold text-on-surface dark:text-slate-200 ml-1" for="password_confirm">Konfirmasi Kata Sandi</label>
+                        <div class="relative group">
+                            <div
+                                class="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none text-outline group-focus-within:text-primary group-focus-within:dark:text-white transition-colors">
+                                <span class="material-symbols-outlined" style="font-size: 20px;">lock_reset</span>
+                            </div>
+                            <input
+                                class="w-full pl-[40px] pr-[44px] py-[14px] bg-surface-container-lowest dark:bg-slate-900 border border-outline-variant dark:border-outline/50 rounded-lg font-body-md text-body-md text-on-surface dark:text-white placeholder:text-outline/70 focus:outline-none focus:border-primary focus:dark:border-white focus:ring-1 focus:ring-primary focus:dark:ring-white transition-all duration-200 shadow-sm"
+                                id="password_confirm" name="password_confirm" placeholder="••••••••" required="" type="password"
+                                minlength="8"
+                                title="Masukkan ulang kata sandi Anda." />
+                            <button
+                                class="absolute inset-y-0 right-0 pr-sm flex items-center text-outline hover:text-on-surface dark:hover:text-white transition-colors focus:outline-none"
+                                onclick="toggleConfirmPasswordVisibility()" type="button">
+                                <span class="material-symbols-outlined" id="confirm-visibility-icon"
+                                    style="font-size: 20px;">visibility_off</span>
+                            </button>
+                        </div>
+                        <p id="password-mismatch-error" class="hidden text-[11px] text-error font-medium mt-1 ml-1 leading-normal flex items-center gap-xs">
+                            <span class="material-symbols-outlined text-[15px] font-bold text-error">warning</span>
+                            Konfirmasi kata sandi tidak cocok dengan kata sandi utama.
+                        </p>
                     </div>
                     
                     <!-- Terms & Conditions Checkbox -->

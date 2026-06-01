@@ -3,9 +3,9 @@
 namespace App\Controllers\Siswa;
 
 use App\Controllers\BaseController;
-use App\Models\BiodataModel;
-use App\Models\SekolahModel;
-use App\Models\BerkasModel;
+use App\Models\SiswaModel;
+use App\Models\MasterSekolahModel;
+use App\Models\AdministrasiModel;
 
 class Dashboard extends BaseController
 {
@@ -27,25 +27,27 @@ class Dashboard extends BaseController
             return redirect()->to(base_url('admin/dashboard'));
         }
 
-        $userId = $shieldUser->id;
+        // 3. Tarik Data dari Database Baru berdasarkan username (NISN)
+        $siswaModel = new SiswaModel();
+        $biodata = $siswaModel->where('nisn', $shieldUser->username)->first();
 
-        // 3. Inisialisasi Model Relasional
-        $biodataModel = new BiodataModel();
-        $sekolahModel = new SekolahModel();
-        $berkasModel  = new BerkasModel();
+        $sekolah = null;
+        $berkas  = null;
 
-        // 4. Tarik Data Relasional dari Database
-        $biodata = $biodataModel->where('user_id', $userId)->first();
-        $sekolah = $sekolahModel->where('user_id', $userId)->first();
-        $berkas  = $berkasModel->where('user_id', $userId)->first();
+        if ($biodata) {
+            $sekolahModel = new MasterSekolahModel();
+            $sekolah = $sekolahModel->find($biodata['sekolah_id']);
 
-        // 5. Kalkulasi Status Kelengkapan Formulir
-        $hasBiodata = ! empty($biodata);
-        $hasSekolah = ! empty($sekolah);
-        $hasBerkas  = ! empty($berkas)
-            && (! empty($berkas['file_foto']) || ! empty($berkas['file_ijazah']) || ! empty($berkas['file_kk']));
+            $berkasModel = new AdministrasiModel();
+            $berkas = $berkasModel->where('siswa_id', $biodata['id'])->first();
+        }
 
-        // 6. Hitung Progres Pendaftaran (4 Langkah, masing-masing 25%)
+        // 4. Kalkulasi Status Kelengkapan Formulir
+        $hasBiodata = ! empty($biodata) && ! empty($biodata['nik']) && ! str_contains($biodata['nik'], 'REG-');
+        $hasSekolah = ! empty($sekolah) && $sekolah['nama_sekolah'] !== 'Belum Diisi';
+        $hasBerkas  = ! empty($berkas) && ((int)$berkas['fc_ijazah_skl'] === 1 && (int)$berkas['fc_kk'] === 1);
+
+        // 5. Hitung Progres Pendaftaran (4 Langkah, masing-masing 25%)
         //    Langkah 1: Akun Terdaftar       → +25% (selalu terpenuhi jika bisa login)
         //    Langkah 2: Biodata Diri Terisi   → +25%
         //    Langkah 3: Asal Sekolah Terisi   → +25%
@@ -66,14 +68,14 @@ class Dashboard extends BaseController
             $progressPercent += 25;
         }
 
-        // 7. Data Sapaan & Status Verifikasi
+        // 6. Data Sapaan & Status Verifikasi
         $namaLengkap       = $hasBiodata ? $biodata['nama_lengkap'] : ucfirst($shieldUser->username ?? 'Siswa');
-        $statusVerifikasi  = $berkas ? $berkas['status_verifikasi'] : 'Pending';
+        $statusVerifikasi  = $berkas ? $berkas['status_verifikasi'] : 'Belum Verifikasi';
         $catatanVerifikasi = $berkas ? $berkas['catatan_verifikasi'] : null;
         $isFinalized       = $berkas ? (int)$berkas['is_finalized'] : 0;
-        $statusKelulusan   = $berkas ? $berkas['status_kelulusan'] : 'Belum Pengumuman';
+        $statusKelulusan   = 'Belum Pengumuman';
 
-        // 8. Siapkan Data untuk View
+        // 7. Siapkan Data untuk View
         $data = [
             'username'           => $shieldUser->username,
             'nama_lengkap'       => $namaLengkap,
@@ -103,23 +105,30 @@ class Dashboard extends BaseController
             return redirect()->to(base_url('admin/dashboard'));
         }
 
-        $userId = $user->id;
         $db = \Config\Database::connect();
 
-        // Ambil data berkas
-        $berkas = $db->table('berkas')->where('user_id', $userId)->get()->getRowArray();
+        // Cari calon_siswa berdasarkan username pendaftar (NISN)
+        $siswa = $db->table('calon_siswa')->where('nisn', $user->username)->get()->getRowArray();
+
+        if (!$siswa) {
+            return redirect()->to(base_url('siswa/dashboard'))->with('error', 'Data pendaftar tidak ditemukan.');
+        }
+
+        $siswaId = $siswa['id'];
+
+        // Ambil data kelengkapan_administrasi
+        $berkas = $db->table('kelengkapan_administrasi')->where('siswa_id', $siswaId)->get()->getRowArray();
 
         if ($berkas) {
-            $db->table('berkas')->where('user_id', $userId)->update([
+            $db->table('kelengkapan_administrasi')->where('siswa_id', $siswaId)->update([
                 'is_finalized' => 1,
                 'updated_at'   => date('Y-m-d H:i:s')
             ]);
         } else {
-            $db->table('berkas')->insert([
-                'user_id'            => $userId,
+            $db->table('kelengkapan_administrasi')->insert([
+                'siswa_id'           => $siswaId,
                 'is_finalized'       => 1,
-                'status_verifikasi'  => 'Pending',
-                'status_kelulusan'   => 'Belum Pengumuman',
+                'status_verifikasi'  => 'Belum Verifikasi',
                 'created_at'         => date('Y-m-d H:i:s'),
                 'updated_at'         => date('Y-m-d H:i:s')
             ]);
@@ -140,38 +149,32 @@ class Dashboard extends BaseController
             return redirect()->to(base_url('admin/dashboard'));
         }
 
-        $userId = $user->id;
-
         $db = \Config\Database::connect();
-        $builder = $db->table('users')
+        $builder = $db->table('calon_siswa')
             ->select('
-                users.id, 
-                users.username, 
-                users.email, 
-                users.created_at,
-                biodata.nama_lengkap, 
-                biodata.nik, 
-                biodata.tempat_lahir,
-                biodata.tanggal_lahir,
-                biodata.jenis_kelamin,
-                biodata.no_hp,
-                biodata.nama_ayah,
-                biodata.pekerjaan_ayah,
-                biodata.nama_ibu,
-                biodata.pekerjaan_ibu,
-                biodata.alamat,
-                sekolah.nama_sekolah, 
-                sekolah.npsn,
-                sekolah.tahun_lulus,
-                sekolah.nilai_rata_rata, 
-                berkas.status_verifikasi, 
-                berkas.status_kelulusan,
-                berkas.is_finalized
+                calon_siswa.id, 
+                calon_siswa.nisn as username, 
+                calon_siswa.nisn as email, 
+                COALESCE(kelengkapan_administrasi.created_at, NOW()) as created_at,
+                calon_siswa.nama_lengkap, 
+                calon_siswa.nik, 
+                calon_siswa.tempat_lahir,
+                calon_siswa.tanggal_lahir,
+                calon_siswa.jenis_kelamin,
+                calon_siswa.nisn as no_hp,
+                data_orang_tua.nama_ayah,
+                data_orang_tua.pekerjaan_ayah,
+                data_orang_tua.nama_ibu,
+                data_orang_tua.pekerjaan_ibu,
+                calon_siswa.alamat_desa as alamat,
+                master_sekolah.nama_sekolah, 
+                kelengkapan_administrasi.status_verifikasi, 
+                kelengkapan_administrasi.is_finalized
             ')
-            ->join('biodata', 'biodata.user_id = users.id', 'left')
-            ->join('sekolah', 'sekolah.user_id = users.id', 'left')
-            ->join('berkas', 'berkas.user_id = users.id', 'left')
-            ->where('users.id', $userId);
+            ->join('master_sekolah', 'master_sekolah.id = calon_siswa.sekolah_id', 'left')
+            ->join('kelengkapan_administrasi', 'kelengkapan_administrasi.siswa_id = calon_siswa.id', 'left')
+            ->join('data_orang_tua', 'data_orang_tua.siswa_id = calon_siswa.id', 'left')
+            ->where('calon_siswa.nisn', $user->username);
 
         $student = $builder->get()->getRowArray();
 

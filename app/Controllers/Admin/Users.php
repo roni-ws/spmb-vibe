@@ -130,4 +130,109 @@ class Users extends BaseController
         return redirect()->to(base_url('admin/users'))
             ->with('success', 'Akun staff berhasil dihapus dari sistem.');
     }
+
+    public function edit($userId)
+    {
+        // 1. Proteksi rute
+        if (! auth()->loggedIn() || (! auth()->user()->inGroup('admin') && ! auth()->user()->inGroup('superadmin'))) {
+            return redirect()->to(base_url('admin/dashboard'))
+                ->with('error', 'Akses ditolak.');
+        }
+
+        // 2. Validasi input
+        $rules = [
+            'username' => 'required|min_length[3]|max_length[30]|regex_match[/^[a-zA-Z0-9_]+$/]',
+            'email'    => 'required|valid_email',
+            'role'     => 'required|in_list[admin,panitia]',
+        ];
+
+        $messages = [
+            'username' => [
+                'regex_match' => 'Username hanya boleh mengandung huruf, angka, dan underscore.',
+            ]
+        ];
+
+        if (! $this->validate($rules, $messages)) {
+            return redirect()->back()
+                ->withInput()
+                ->with('errors', $this->validator->getErrors());
+        }
+
+        $username = $this->request->getPost('username');
+        $email    = $this->request->getPost('email');
+        $role     = $this->request->getPost('role');
+
+        $db = \Config\Database::connect();
+
+        // Cek keunikan username
+        $existingUsername = $db->table('users')->where('username', $username)->where('id !=', $userId)->get()->getRow();
+        if ($existingUsername) {
+            return redirect()->back()->withInput()->with('errors', ['username' => 'Username sudah digunakan oleh akun lain.']);
+        }
+
+        // Cek keunikan email
+        $existingEmail = $db->table('users')->where('email', $email)->where('id !=', $userId)->get()->getRow();
+        if ($existingEmail) {
+            return redirect()->back()->withInput()->with('errors', ['email' => 'Email sudah terdaftar di sistem.']);
+        }
+
+        // 3. Update data users
+        $db->table('users')->where('id', $userId)->update([
+            'username'   => $username,
+            'email'      => $email,
+            'role'       => $role,
+            'updated_at' => date('Y-m-d H:i:s')
+        ]);
+
+        // 4. Update data Shield auth_identities (email)
+        $db->table('auth_identities')->where('user_id', $userId)->where('type', 'email_password')->update([
+            'secret'     => $email,
+            'updated_at' => date('Y-m-d H:i:s')
+        ]);
+
+        // 5. Update data Shield auth_groups_users (group)
+        $db->table('auth_groups_users')->where('user_id', $userId)->delete();
+        $db->table('auth_groups_users')->insert([
+            'user_id'    => $userId,
+            'group'      => $role,
+            'created_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        return redirect()->to(base_url('admin/users'))
+            ->with('success', 'Data akun staff berhasil diperbarui!');
+    }
+
+    public function changePassword($userId)
+    {
+        // 1. Proteksi rute
+        if (! auth()->loggedIn() || (! auth()->user()->inGroup('admin') && ! auth()->user()->inGroup('superadmin'))) {
+            return redirect()->to(base_url('admin/dashboard'))
+                ->with('error', 'Akses ditolak.');
+        }
+
+        // 2. Validasi input
+        $rules = [
+            'password'         => 'required|min_length[6]',
+            'password_confirm' => 'required|matches[password]',
+        ];
+
+        if (! $this->validate($rules)) {
+            return redirect()->back()
+                ->with('errors', $this->validator->getErrors());
+        }
+
+        $password = $this->request->getPost('password');
+        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+
+        $db = \Config\Database::connect();
+
+        // 3. Update kata sandi di auth_identities
+        $db->table('auth_identities')->where('user_id', $userId)->where('type', 'email_password')->update([
+            'secret2'    => $passwordHash,
+            'updated_at' => date('Y-m-d H:i:s')
+        ]);
+
+        return redirect()->to(base_url('admin/users'))
+            ->with('success', 'Kata sandi staff berhasil diperbarui!');
+    }
 }

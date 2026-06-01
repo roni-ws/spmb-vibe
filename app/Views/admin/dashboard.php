@@ -1,7 +1,7 @@
 <?= $this->extend('layouts/admin') ?>
 
 <?= $this->section('title') ?>Dashboard Admin<?= $this->endSection() ?>
-<?= $this->section('page-title') ?>Overview<?= $this->endSection() ?>
+<?= $this->section('page-title') ?>Dashboard SPMB SMA<?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
 

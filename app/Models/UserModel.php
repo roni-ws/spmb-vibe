@@ -13,10 +13,9 @@ class UserModel extends ShieldUserModel
     {
         parent::initialize();
 
-        // Dynamically merge custom columns needed by SPMB application
+        // Gabungkan kolom kustom yang dibutuhkan oleh aplikasi SPMB
         $this->allowedFields = array_merge($this->allowedFields, [
             'email',
-            'password_hash',
             'role'
         ]);
     }
@@ -25,9 +24,6 @@ class UserModel extends ShieldUserModel
     {
         if ($this->tempUser !== null) {
             $data['data']['email'] = $this->tempUser->email;
-            if (!empty($this->tempUser->password)) {
-                $data['data']['password_hash'] = password_hash($this->tempUser->password, PASSWORD_BCRYPT);
-            }
         }
         return $data;
     }

@@ -1,6 +1,21 @@
 <?php
 $logoText = \App\Models\SettingsModel::getSetting('logo_text', 'SPMB Unggul Bangsa');
 $logoImg  = \App\Models\SettingsModel::getSetting('logo_img', '');
+
+$shieldUser = auth()->user();
+$admin_username = $shieldUser ? $shieldUser->username : 'Administrator';
+
+// Dapatkan label peran dinamis
+$roleLabel = 'Panitia SPMB';
+if ($shieldUser) {
+    if ($shieldUser->inGroup('superadmin')) {
+        $roleLabel = 'Super Admin';
+    } elseif ($shieldUser->inGroup('admin')) {
+        $roleLabel = 'Administrator';
+    } elseif ($shieldUser->inGroup('panitia')) {
+        $roleLabel = 'Panitia PPDB';
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="id" class="light">
@@ -57,7 +72,7 @@ $logoImg  = \App\Models\SettingsModel::getSetting('logo_img', '');
             </div>
             <div class="overflow-hidden">
                 <p class="font-semibold text-on-surface truncate"><?= esc($admin_username ?? 'Administrator') ?></p>
-                <p class="font-caption text-caption text-on-surface-variant">Panitia SPMB</p>
+                <p class="font-caption text-caption text-on-surface-variant"><?= esc($roleLabel) ?></p>
             </div>
         </div>
 
@@ -68,6 +83,7 @@ $logoImg  = \App\Models\SettingsModel::getSetting('logo_img', '');
             $isPendaftar = str_contains($currentUri, 'pendaftar') || str_contains($currentUri, 'admin/verify') || str_contains($currentUri, 'admin/delete');
             $isExport    = str_contains($currentUri, 'export');
             $isSettings  = str_contains($currentUri, 'settings');
+            $isUsers     = str_contains($currentUri, 'users');
         ?>
         <div class="flex flex-col gap-1 flex-grow overflow-y-auto">
             <p class="font-caption text-caption text-on-surface-variant uppercase tracking-wider px-sm mb-1">Menu Utama</p>
@@ -86,14 +102,21 @@ $logoImg  = \App\Models\SettingsModel::getSetting('logo_img', '');
                 Data Pendaftar
             </a>
 
-            <a href="<?= base_url('admin/settings') ?>"
-               class="sidebar-link flex items-center gap-sm rounded-xl px-sm py-3 transition-all
-                      <?= $isSettings ? 'bg-secondary-container text-on-secondary-container font-bold' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high' ?>">
-                <span class="material-symbols-outlined" style="font-variation-settings:'FILL' <?= $isSettings ? '1' : '0' ?>">settings</span>
-                Pengaturan
-            </a>
+            <?php if ($shieldUser && ($shieldUser->inGroup('admin') || $shieldUser->inGroup('superadmin'))): ?>
+                <a href="<?= base_url('admin/users') ?>"
+                   class="sidebar-link flex items-center gap-sm rounded-xl px-sm py-3 transition-all
+                          <?= $isUsers ? 'bg-secondary-container text-on-secondary-container font-bold' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high' ?>">
+                    <span class="material-symbols-outlined" style="font-variation-settings:'FILL' <?= $isUsers ? '1' : '0' ?>">group</span>
+                    Manajemen User
+                </a>
 
-
+                <a href="<?= base_url('admin/settings') ?>"
+                   class="sidebar-link flex items-center gap-sm rounded-xl px-sm py-3 transition-all
+                          <?= $isSettings ? 'bg-secondary-container text-on-secondary-container font-bold' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high' ?>">
+                    <span class="material-symbols-outlined" style="font-variation-settings:'FILL' <?= $isSettings ? '1' : '0' ?>">settings</span>
+                    Pengaturan
+                </a>
+            <?php endif; ?>
 
             <div class="mt-auto pt-md border-t border-outline-variant">
                 <a href="<?= base_url('logout') ?>"
@@ -168,19 +191,25 @@ $logoImg  = \App\Models\SettingsModel::getSetting('logo_img', '');
             </div>
             <div>
                 <p class="font-semibold"><?= esc($admin_username ?? 'Administrator') ?></p>
-                <p class="font-caption text-caption text-on-surface-variant">Panitia SPMB</p>
+                <p class="font-caption text-caption text-on-surface-variant"><?= esc($roleLabel) ?></p>
             </div>
         </div>
         <div class="flex flex-col gap-1 flex-grow overflow-y-auto">
-            <a href="<?= base_url('admin/dashboard') ?>" class="flex items-center gap-sm rounded-xl px-sm py-3 bg-secondary-container text-on-secondary-container font-bold">
-                <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1">dashboard</span> Dashboard
+            <a href="<?= base_url('admin/dashboard') ?>" class="flex items-center gap-sm rounded-xl px-sm py-3 <?= $isDashboard ? 'bg-secondary-container text-on-secondary-container font-bold' : 'text-on-surface-variant hover:bg-surface-container-high' ?> transition-all">
+                <span class="material-symbols-outlined" style="font-variation-settings:'FILL' <?= $isDashboard ? '1' : '0' ?>">dashboard</span> Dashboard
             </a>
-            <a href="<?= base_url('admin/pendaftar') ?>" class="flex items-center gap-sm rounded-xl px-sm py-3 text-on-surface-variant hover:bg-surface-container-high transition-all">
-                <span class="material-symbols-outlined">description</span> Data Pendaftar
+            <a href="<?= base_url('admin/pendaftar') ?>" class="flex items-center gap-sm rounded-xl px-sm py-3 <?= $isPendaftar ? 'bg-secondary-container text-on-secondary-container font-bold' : 'text-on-surface-variant hover:bg-surface-container-high' ?> transition-all">
+                <span class="material-symbols-outlined" style="font-variation-settings:'FILL' <?= $isPendaftar ? '1' : '0' ?>">description</span> Data Pendaftar
             </a>
-            <a href="<?= base_url('admin/settings') ?>" class="flex items-center gap-sm rounded-xl px-sm py-3 <?= $isSettings ? 'bg-secondary-container text-on-secondary-container font-bold' : 'text-on-surface-variant hover:bg-surface-container-high' ?> transition-all">
-                <span class="material-symbols-outlined" style="font-variation-settings:'FILL' <?= $isSettings ? '1' : '0' ?>">settings</span> Pengaturan
-            </a>
+            
+            <?php if ($shieldUser && ($shieldUser->inGroup('admin') || $shieldUser->inGroup('superadmin'))): ?>
+                <a href="<?= base_url('admin/users') ?>" class="flex items-center gap-sm rounded-xl px-sm py-3 <?= $isUsers ? 'bg-secondary-container text-on-secondary-container font-bold' : 'text-on-surface-variant hover:bg-surface-container-high' ?> transition-all">
+                    <span class="material-symbols-outlined" style="font-variation-settings:'FILL' <?= $isUsers ? '1' : '0' ?>">group</span> Manajemen User
+                </a>
+                <a href="<?= base_url('admin/settings') ?>" class="flex items-center gap-sm rounded-xl px-sm py-3 <?= $isSettings ? 'bg-secondary-container text-on-secondary-container font-bold' : 'text-on-surface-variant hover:bg-surface-container-high' ?> transition-all">
+                    <span class="material-symbols-outlined" style="font-variation-settings:'FILL' <?= $isSettings ? '1' : '0' ?>">settings</span> Pengaturan
+                </a>
+            <?php endif; ?>
 
             <a href="<?= base_url('logout') ?>" class="flex items-center gap-sm rounded-xl px-sm py-3 text-error hover:bg-error-container mt-auto">
                 <span class="material-symbols-outlined">logout</span> Keluar
@@ -201,10 +230,12 @@ $logoImg  = \App\Models\SettingsModel::getSetting('logo_img', '');
             <span class="material-symbols-outlined text-xl" style="font-variation-settings:'FILL' <?= $isPendaftar ? '1' : '0' ?>">description</span>
             Pendaftar
         </a>
-        <a href="<?= base_url('admin/settings') ?>" class="flex flex-col items-center gap-0.5 <?= $isSettings ? 'text-on-secondary-container bg-secondary-container' : 'text-on-surface-variant hover:bg-surface-container-high' ?> px-4 py-1 rounded-full transition-all">
-            <span class="material-symbols-outlined text-xl" style="font-variation-settings:'FILL' <?= $isSettings ? '1' : '0' ?>">settings</span>
-            Setting
-        </a>
+        <?php if ($shieldUser && ($shieldUser->inGroup('admin') || $shieldUser->inGroup('superadmin'))): ?>
+            <a href="<?= base_url('admin/settings') ?>" class="flex flex-col items-center gap-0.5 <?= $isSettings ? 'text-on-secondary-container bg-secondary-container' : 'text-on-surface-variant hover:bg-surface-container-high' ?> px-4 py-1 rounded-full transition-all">
+                <span class="material-symbols-outlined text-xl" style="font-variation-settings:'FILL' <?= $isSettings ? '1' : '0' ?>">settings</span>
+                Setting
+            </a>
+        <?php endif; ?>
 
         <a href="<?= base_url('logout') ?>" class="flex flex-col items-center gap-0.5 text-error px-4 py-1 rounded-full">
             <span class="material-symbols-outlined text-xl">logout</span>

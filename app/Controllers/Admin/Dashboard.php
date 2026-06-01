@@ -18,17 +18,16 @@ class Dashboard extends BaseController
 
         $shieldUser = auth()->user();
 
-        // 2. Ambil semua data pendaftar (siswa) untuk kalkulasi statistik
+        // 2. Ambil semua data pendaftar (siswa) dari tabel calon_siswa untuk kalkulasi statistik
         $db = \Config\Database::connect();
-        $builder = $db->table('users')
+        $builder = $db->table('calon_siswa')
             ->select('
-                users.id, 
-                berkas.status_verifikasi,
-                users.created_at
+                calon_siswa.id, 
+                kelengkapan_administrasi.status_verifikasi,
+                COALESCE(kelengkapan_administrasi.created_at, NOW()) as created_at
             ')
-            ->join('berkas', 'berkas.user_id = users.id', 'left')
-            ->where('users.role', 'student')
-            ->orderBy('users.created_at', 'DESC');
+            ->join('kelengkapan_administrasi', 'kelengkapan_administrasi.siswa_id = calon_siswa.id', 'left')
+            ->orderBy('calon_siswa.id', 'DESC');
 
         $students = $builder->get()->getResultArray();
 
@@ -41,7 +40,7 @@ class Dashboard extends BaseController
         ];
 
         foreach ($students as $student) {
-            $status = $student['status_verifikasi'] ?? 'Pending';
+            $status = $student['status_verifikasi'] ?? 'Belum Verifikasi';
             if ($status === 'Valid') {
                 $stats['valid']++;
             } elseif ($status === 'Tidak Valid' || $status === 'Revisi') {
@@ -71,9 +70,9 @@ class Dashboard extends BaseController
             ];
         }
 
-        $trendBuilder = $db->table('users')
-            ->select("DATE_FORMAT(users.created_at, '%Y-%m') as month_key, COUNT(users.id) as count")
-            ->where('users.role', 'student')
+        $trendBuilder = $db->table('calon_siswa')
+            ->select("DATE_FORMAT(COALESCE(kelengkapan_administrasi.created_at, NOW()), '%Y-%m') as month_key, COUNT(calon_siswa.id) as count")
+            ->join('kelengkapan_administrasi', 'kelengkapan_administrasi.siswa_id = calon_siswa.id', 'left')
             ->groupBy("month_key");
         $trendsRaw = $trendBuilder->get()->getResultArray();
 
@@ -85,11 +84,10 @@ class Dashboard extends BaseController
         }
 
         // Ambil 4 pendaftar terbaru untuk daftar aktivitas/pendaftar terbaru
-        $recentBuilder = $db->table('users')
-            ->select('users.id, users.username, biodata.nama_lengkap, users.created_at')
-            ->join('biodata', 'biodata.user_id = users.id', 'left')
-            ->where('users.role', 'student')
-            ->orderBy('users.created_at', 'DESC')
+        $recentBuilder = $db->table('calon_siswa')
+            ->select('calon_siswa.id, calon_siswa.nisn as username, calon_siswa.nama_lengkap, COALESCE(kelengkapan_administrasi.created_at, NOW()) as created_at')
+            ->join('kelengkapan_administrasi', 'kelengkapan_administrasi.siswa_id = calon_siswa.id', 'left')
+            ->orderBy('calon_siswa.id', 'DESC')
             ->limit(4);
         $recentStudents = $recentBuilder->get()->getResultArray();
 
@@ -114,14 +112,13 @@ class Dashboard extends BaseController
         }
         $db = \Config\Database::connect();
         // Build stats similar to index()
-        $builder = $db->table('users')
-            ->select('users.id, berkas.status_verifikasi, users.created_at')
-            ->join('berkas', 'berkas.user_id = users.id', 'left')
-            ->where('users.role', 'student');
+        $builder = $db->table('calon_siswa')
+            ->select('calon_siswa.id, kelengkapan_administrasi.status_verifikasi')
+            ->join('kelengkapan_administrasi', 'kelengkapan_administrasi.siswa_id = calon_siswa.id', 'left');
         $students = $builder->get()->getResultArray();
         $stats = ['total' => count($students), 'pending' => 0, 'valid' => 0, 'invalid' => 0];
         foreach ($students as $s) {
-            $status = $s['status_verifikasi'] ?? 'Pending';
+            $status = $s['status_verifikasi'] ?? 'Belum Verifikasi';
             if ($status === 'Valid') {
                 $stats['valid']++;
             } elseif (in_array($status, ['Tidak Valid', 'Revisi'])) {
@@ -144,35 +141,28 @@ class Dashboard extends BaseController
 
         $shieldUser = auth()->user();
 
-        // 2. Ambil semua data pendaftar (siswa) bergabung dengan biodata, sekolah, dan berkas
+        // 2. Ambil semua data pendaftar (siswa) dari calon_siswa
         $db = \Config\Database::connect();
-        $builder = $db->table('users')
+        $builder = $db->table('calon_siswa')
             ->select('
-                users.id, 
-                users.username, 
-                users.email, 
-                users.created_at,
-                biodata.nama_lengkap, 
-                biodata.nik, 
-                biodata.tempat_lahir,
-                biodata.tanggal_lahir,
-                biodata.jenis_kelamin,
-                biodata.no_hp, 
-                sekolah.nama_sekolah, 
-                sekolah.nilai_rata_rata, 
-                berkas.status_verifikasi, 
-                berkas.is_finalized,
-                berkas.status_kelulusan,
-                berkas.catatan_verifikasi, 
-                berkas.file_foto, 
-                berkas.file_ijazah, 
-                berkas.file_kk
+                calon_siswa.id, 
+                calon_siswa.nisn as username, 
+                calon_siswa.nik, 
+                COALESCE(kelengkapan_administrasi.created_at, NOW()) as created_at,
+                calon_siswa.nama_lengkap, 
+                calon_siswa.tempat_lahir,
+                calon_siswa.tanggal_lahir,
+                calon_siswa.jenis_kelamin,
+                calon_siswa.nisn,
+                calon_siswa.no_kk,
+                master_sekolah.nama_sekolah, 
+                kelengkapan_administrasi.status_verifikasi, 
+                kelengkapan_administrasi.is_finalized,
+                kelengkapan_administrasi.catatan_verifikasi
             ')
-            ->join('biodata', 'biodata.user_id = users.id', 'left')
-            ->join('sekolah', 'sekolah.user_id = users.id', 'left')
-            ->join('berkas', 'berkas.user_id = users.id', 'left')
-            ->where('users.role', 'student')
-            ->orderBy('users.created_at', 'DESC');
+            ->join('master_sekolah', 'master_sekolah.id = calon_siswa.sekolah_id', 'left')
+            ->join('kelengkapan_administrasi', 'kelengkapan_administrasi.siswa_id = calon_siswa.id', 'left')
+            ->orderBy('calon_siswa.id', 'DESC');
 
         $students = $builder->get()->getResultArray();
 
@@ -195,26 +185,23 @@ class Dashboard extends BaseController
         }
 
         $status          = $this->request->getPost('status_verifikasi');
-        $statusKelulusan = $this->request->getPost('status_kelulusan');
         $catatan         = $this->request->getPost('catatan_verifikasi');
 
         $db = \Config\Database::connect();
         
         // Periksa apakah berkas ada
-        $berkas = $db->table('berkas')->where('user_id', $userId)->get()->getRowArray();
+        $berkas = $db->table('kelengkapan_administrasi')->where('siswa_id', $userId)->get()->getRowArray();
 
         if ($berkas) {
-            $db->table('berkas')->where('user_id', $userId)->update([
+            $db->table('kelengkapan_administrasi')->where('siswa_id', $userId)->update([
                 'status_verifikasi'  => $status,
-                'status_kelulusan'   => $statusKelulusan,
                 'catatan_verifikasi' => $catatan,
                 'updated_at'         => date('Y-m-d H:i:s'),
             ]);
         } else {
-            $db->table('berkas')->insert([
-                'user_id'            => $userId,
+            $db->table('kelengkapan_administrasi')->insert([
+                'siswa_id'           => $userId,
                 'status_verifikasi'  => $status,
-                'status_kelulusan'   => $statusKelulusan,
                 'catatan_verifikasi' => $catatan,
                 'created_at'         => date('Y-m-d H:i:s'),
                 'updated_at'         => date('Y-m-d H:i:s'),
@@ -222,7 +209,45 @@ class Dashboard extends BaseController
         }
 
         return redirect()->back()
-            ->with('success', 'Data verifikasi dan status kelulusan calon siswa berhasil diperbarui!');
+            ->with('success', 'Data verifikasi berkas calon siswa berhasil diperbarui!');
+    }
+
+    public function editStudent($userId)
+    {
+        // 1. Proteksi rute
+        if (! auth()->loggedIn() || ! auth()->user()->inGroup('admin', 'panitia')) {
+            return redirect()->to(base_url('login'))
+                ->with('error', 'Akses ditolak.');
+        }
+
+        // 2. Validasi input
+        $rules = [
+            'nama_lengkap'     => 'required|min_length[3]|max_length[100]',
+            'nik'              => 'required|min_length[5]|max_length[30]',
+            'nama_sekolah'     => 'required|min_length[3]|max_length[100]',
+        ];
+
+        if (! $this->validate($rules)) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Gagal memperbarui data. Periksa kembali isian form Anda.');
+        }
+
+        $db = \Config\Database::connect();
+
+        // Cari atau buat master_sekolah
+        $ppdbController = new \App\Controllers\Admin\Ppdb();
+        $sekolahId = $ppdbController->getOrCreateSekolahId($this->request->getPost('nama_sekolah'));
+
+        // 3. Update tabel calon_siswa
+        $db->table('calon_siswa')->where('id', $userId)->update([
+            'nama_lengkap'  => $this->request->getPost('nama_lengkap'),
+            'nik'           => $this->request->getPost('nik'),
+            'sekolah_id'    => $sekolahId,
+        ]);
+
+        return redirect()->back()
+            ->with('success', 'Data pendaftar berhasil diperbarui secara permanen!');
     }
 
     public function exportCsv()
@@ -233,28 +258,22 @@ class Dashboard extends BaseController
         }
 
         $db = \Config\Database::connect();
-        $builder = $db->table('users')
+        $builder = $db->table('calon_siswa')
             ->select('
-                users.id, 
-                users.username, 
-                users.email, 
-                biodata.nama_lengkap, 
-                biodata.nik, 
-                biodata.tempat_lahir,
-                biodata.tanggal_lahir,
-                biodata.jenis_kelamin,
-                biodata.no_hp, 
-                sekolah.nama_sekolah, 
-                sekolah.nilai_rata_rata, 
-                berkas.status_verifikasi, 
-                berkas.status_kelulusan,
-                berkas.is_finalized
+                calon_siswa.id, 
+                calon_siswa.nisn as username, 
+                calon_siswa.nama_lengkap, 
+                calon_siswa.nik, 
+                calon_siswa.tempat_lahir,
+                calon_siswa.tanggal_lahir,
+                calon_siswa.jenis_kelamin,
+                master_sekolah.nama_sekolah, 
+                kelengkapan_administrasi.status_verifikasi, 
+                kelengkapan_administrasi.is_finalized
             ')
-            ->join('biodata', 'biodata.user_id = users.id', 'left')
-            ->join('sekolah', 'sekolah.user_id = users.id', 'left')
-            ->join('berkas', 'berkas.user_id = users.id', 'left')
-            ->where('users.role', 'student')
-            ->orderBy('users.created_at', 'DESC');
+            ->join('master_sekolah', 'master_sekolah.id = calon_siswa.sekolah_id', 'left')
+            ->join('kelengkapan_administrasi', 'kelengkapan_administrasi.siswa_id = calon_siswa.id', 'left')
+            ->orderBy('calon_siswa.id', 'DESC');
 
         $students = $builder->get()->getResultArray();
 
@@ -269,26 +288,22 @@ class Dashboard extends BaseController
 
         // Add headers
         fputcsv($output, [
-            'ID', 'Username', 'Email', 'Nama Lengkap', 'NIK', 'Tempat Lahir', 
-            'Tanggal Lahir', 'Jenis Kelamin', 'No. HP', 'Asal Sekolah', 
-            'Nilai Rapor', 'Status Berkas', 'Status Kelulusan', 'Status Finalisasi'
+            'ID', 'NISN', 'Nama Lengkap', 'NIK', 'Tempat Lahir', 
+            'Tanggal Lahir', 'Jenis Kelamin', 'Asal Sekolah', 
+            'Status Berkas', 'Status Finalisasi'
         ]);
 
         foreach ($students as $student) {
             fputcsv($output, [
                 $student['id'],
                 $student['username'],
-                $student['email'],
                 $student['nama_lengkap'] ?: 'Belum Mengisi',
                 $student['nik'] ?: '-',
                 $student['tempat_lahir'] ?: '-',
                 $student['tanggal_lahir'] ?: '-',
                 $student['jenis_kelamin'] ?: '-',
-                $student['no_hp'] ?: '-',
                 $student['nama_sekolah'] ?: '-',
-                $student['nilai_rata_rata'] ? number_format($student['nilai_rata_rata'], 2) : '-',
-                $student['status_verifikasi'] ?: 'Pending',
-                $student['status_kelulusan'] ?: 'Belum Pengumuman',
+                $student['status_verifikasi'] ?: 'Belum Verifikasi',
                 $student['is_finalized'] ? 'Selesai' : 'Belum Final'
             ]);
         }
@@ -304,24 +319,19 @@ class Dashboard extends BaseController
         }
 
         $db = \Config\Database::connect();
-        $builder = $db->table('users')
+        $builder = $db->table('calon_siswa')
             ->select('
-                users.id, 
-                users.username, 
-                users.email, 
-                biodata.nama_lengkap, 
-                biodata.nik, 
-                sekolah.nama_sekolah, 
-                sekolah.nilai_rata_rata, 
-                berkas.status_verifikasi, 
-                berkas.status_kelulusan,
-                berkas.is_finalized
+                calon_siswa.id, 
+                calon_siswa.nisn as username, 
+                calon_siswa.nama_lengkap, 
+                calon_siswa.nik, 
+                master_sekolah.nama_sekolah, 
+                kelengkapan_administrasi.status_verifikasi, 
+                kelengkapan_administrasi.is_finalized
             ')
-            ->join('biodata', 'biodata.user_id = users.id', 'left')
-            ->join('sekolah', 'sekolah.user_id = users.id', 'left')
-            ->join('berkas', 'berkas.user_id = users.id', 'left')
-            ->where('users.role', 'student')
-            ->orderBy('users.created_at', 'DESC');
+            ->join('master_sekolah', 'master_sekolah.id = calon_siswa.sekolah_id', 'left')
+            ->join('kelengkapan_administrasi', 'kelengkapan_administrasi.siswa_id = calon_siswa.id', 'left')
+            ->orderBy('calon_siswa.id', 'DESC');
 
         $students = $builder->get()->getResultArray();
 
@@ -338,41 +348,31 @@ class Dashboard extends BaseController
 
         $user = auth()->user();
 
-        // Jika bukan admin, pastikan siswa hanya mencetak form miliknya sendiri
-        if (!$user->inGroup('admin') && $user->id != $studentId) {
-            return redirect()->to(base_url('siswa/dashboard'))->with('error', 'Akses ditolak. Anda tidak berhak mencetak data pendaftar lain.');
-        }
-
         $db = \Config\Database::connect();
-        $builder = $db->table('users')
+        $builder = $db->table('calon_siswa')
             ->select('
-                users.id, 
-                users.username, 
-                users.email, 
-                users.created_at,
-                biodata.nama_lengkap, 
-                biodata.nik, 
-                biodata.tempat_lahir,
-                biodata.tanggal_lahir,
-                biodata.jenis_kelamin,
-                biodata.no_hp,
-                biodata.nama_ayah,
-                biodata.pekerjaan_ayah,
-                biodata.nama_ibu,
-                biodata.pekerjaan_ibu,
-                biodata.alamat,
-                sekolah.nama_sekolah, 
-                sekolah.npsn,
-                sekolah.tahun_lulus,
-                sekolah.nilai_rata_rata, 
-                berkas.status_verifikasi, 
-                berkas.status_kelulusan,
-                berkas.is_finalized
+                calon_siswa.id, 
+                calon_siswa.nisn as username, 
+                COALESCE(kelengkapan_administrasi.created_at, NOW()) as created_at,
+                calon_siswa.nama_lengkap, 
+                calon_siswa.nik, 
+                calon_siswa.tempat_lahir,
+                calon_siswa.tanggal_lahir,
+                calon_siswa.jenis_kelamin,
+                calon_siswa.nisn as no_hp,
+                data_orang_tua.nama_ayah,
+                data_orang_tua.pekerjaan_ayah,
+                data_orang_tua.nama_ibu,
+                data_orang_tua.pekerjaan_ibu,
+                calon_siswa.alamat_desa as alamat,
+                master_sekolah.nama_sekolah, 
+                kelengkapan_administrasi.status_verifikasi, 
+                kelengkapan_administrasi.is_finalized
             ')
-            ->join('biodata', 'biodata.user_id = users.id', 'left')
-            ->join('sekolah', 'sekolah.user_id = users.id', 'left')
-            ->join('berkas', 'berkas.user_id = users.id', 'left')
-            ->where('users.id', $studentId);
+            ->join('master_sekolah', 'master_sekolah.id = calon_siswa.sekolah_id', 'left')
+            ->join('kelengkapan_administrasi', 'kelengkapan_administrasi.siswa_id = calon_siswa.id', 'left')
+            ->join('data_orang_tua', 'data_orang_tua.siswa_id = calon_siswa.id', 'left')
+            ->where('calon_siswa.id', $studentId);
 
         $student = $builder->get()->getRowArray();
 
@@ -393,23 +393,9 @@ class Dashboard extends BaseController
 
         $db = \Config\Database::connect();
         
-        // 2. Cari data pendaftar & hapus berkas fisik dari folder uploads jika ada
-        $berkas = $db->table('berkas')->where('user_id', $userId)->get()->getRowArray();
-        if ($berkas) {
-            $files = ['file_foto', 'file_ijazah', 'file_kk'];
-            foreach ($files as $fileKey) {
-                if (!empty($berkas[$fileKey])) {
-                    $filePath = FCPATH . 'uploads/' . ($fileKey === 'file_foto' ? 'foto/' : 'dokumen/') . $berkas[$fileKey];
-                    if (file_exists($filePath)) {
-                        @unlink($filePath);
-                    }
-                }
-            }
-        }
-
-        // 3. Hapus user. Karena ON DELETE CASCADE aktif di semua relasi (biodata, sekolah, berkas, auth_identities, dsb),
-        // menghapus baris dari tabel 'users' akan membersihkan semuanya secara otomatis!
-        $deleted = $db->table('users')->where('id', $userId)->delete();
+        // 2. Hapus calon_siswa. Karena ON DELETE CASCADE aktif di semua relasi (data_orang_tua, kelengkapan_administrasi),
+        // menghapus baris dari tabel 'calon_siswa' akan membersihkan semuanya secara otomatis!
+        $deleted = $db->table('calon_siswa')->where('id', $userId)->delete();
 
         if ($deleted) {
             return $this->response->setJSON(['status' => 'success', 'message' => 'Data pendaftar berhasil dihapus secara permanen.']);
@@ -435,22 +421,8 @@ class Dashboard extends BaseController
         foreach ($userIds as $userId) {
             $userId = (int) $userId;
             
-            // Hapus berkas fisik
-            $berkas = $db->table('berkas')->where('user_id', $userId)->get()->getRowArray();
-            if ($berkas) {
-                $files = ['file_foto', 'file_ijazah', 'file_kk'];
-                foreach ($files as $fileKey) {
-                    if (!empty($berkas[$fileKey])) {
-                        $filePath = FCPATH . 'uploads/' . ($fileKey === 'file_foto' ? 'foto/' : 'dokumen/') . $berkas[$fileKey];
-                        if (file_exists($filePath)) {
-                            @unlink($filePath);
-                        }
-                    }
-                }
-            }
-
-            // Hapus user (cascades)
-            if ($db->table('users')->where('id', $userId)->delete()) {
+            // Hapus calon_siswa (cascades)
+            if ($db->table('calon_siswa')->where('id', $userId)->delete()) {
                 $deletedCount++;
             }
         }

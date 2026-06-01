@@ -8,6 +8,7 @@ function switchRole(role) {
     const labelIdentifier = document.getElementById('label-identifier');
     const inputIdentifier = document.getElementById('identifier');
     const roleInput = document.getElementById('role');
+    const signupFooter = document.getElementById('signup-footer');
 
     if (!btnStudent || !btnAdmin) return;
 
@@ -25,6 +26,7 @@ function switchRole(role) {
         if (labelIdentifier) labelIdentifier.textContent = 'Email atau Username';
         if (inputIdentifier) inputIdentifier.placeholder = 'Masukkan email terdaftar';
         if (roleInput) roleInput.value = 'student';
+        if (signupFooter) signupFooter.classList.remove('hidden');
     } else {
         btnAdmin.classList.add(...activeClasses);
         btnAdmin.classList.remove(...inactiveClasses);
@@ -36,6 +38,7 @@ function switchRole(role) {
         if (labelIdentifier) labelIdentifier.textContent = 'Username atau NIP';
         if (inputIdentifier) inputIdentifier.placeholder = 'Masukkan username atau NIP admin';
         if (roleInput) roleInput.value = 'admin';
+        if (signupFooter) signupFooter.classList.add('hidden');
     }
 }
 

@@ -26,13 +26,22 @@ class Auth extends BaseController
     // ----------------------------------------------------------------
     public function loginAction()
     {
-        // Validasi input dasar
+        // Validasi input dasar: hanya pastikan tidak kosong pada saat login
         $rules = [
-            'identifier' => 'required|min_length[3]',
-            'password'   => 'required|min_length[6]',
+            'identifier' => 'required',
+            'password'   => 'required',
         ];
 
-        if (! $this->validate($rules)) {
+        $messages = [
+            'identifier' => [
+                'required' => 'Email atau username wajib diisi.',
+            ],
+            'password' => [
+                'required' => 'Kata sandi wajib diisi.',
+            ],
+        ];
+
+        if (! $this->validate($rules, $messages)) {
             return redirect()->back()
                 ->withInput()
                 ->with('errors', $this->validator->getErrors());
@@ -97,8 +106,9 @@ class Auth extends BaseController
             'fullName' => 'required|min_length[3]|max_length[100]',
             'email'    => 'required|valid_email|is_unique[users.email]',
             'username' => 'required|min_length[3]|max_length[30]|is_unique[users.username]|regex_match[/\A[a-zA-Z0-9\.]+\z/]',
-            'password' => 'required|min_length[8]',
-            'terms'    => 'required'
+            'password'         => 'required|min_length[8]|regex_match[/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])/]',
+            'password_confirm' => 'required|matches[password]',
+            'terms'            => 'required'
         ];
 
         $messages = [
@@ -119,7 +129,12 @@ class Auth extends BaseController
             ],
             'password' => [
                 'required' => 'Kata sandi wajib diisi.',
-                'min_length' => 'Kata sandi minimal harus terdiri dari 8 karakter.'
+                'min_length' => 'Kata sandi minimal harus terdiri dari 8 karakter.',
+                'regex_match' => 'Kata sandi harus mengandung kombinasi huruf besar, huruf kecil, angka, dan simbol.'
+            ],
+            'password_confirm' => [
+                'required' => 'Konfirmasi kata sandi wajib diisi.',
+                'matches'  => 'Konfirmasi kata sandi tidak cocok dengan kata sandi yang dimasukkan.'
             ],
             'terms' => [
                 'required' => 'Anda harus menyetujui Ketentuan Layanan dan Kebijakan Privasi.'
@@ -157,35 +172,66 @@ class Auth extends BaseController
             // Tambahkan user ke group 'user' bawaan Shield
             $user->addGroup('user');
 
-            // 3. Inisialisasi Data Relasional di Database
+            // 3. Inisialisasi Data Relasional di Database Baru
             $db = \Config\Database::connect();
 
-            // Set role khusus 'student' di tabel users
-            $db->table('users')->where('id', $userId)->update(['role' => 'student']);
+            // Set role khusus 'student' dan email di tabel users untuk kompatibilitas data
+            $db->table('users')->where('id', $userId)->update([
+                'role'  => 'student',
+                'email' => $this->request->getPost('email')
+            ]);
 
-            // Buat record Biodata (mengisi nama_lengkap)
-            // Field yang bertipe NOT NULL lainnya diberi nilai default kosong
-            $db->table('biodata')->insert([
-                'user_id'        => $userId,
-                'nama_lengkap'   => $this->request->getPost('fullName'),
-                'nik'            => 'REG-' . $userId . '-' . time(), // Unique placeholder NIK
-                'tempat_lahir'   => '',
-                'tanggal_lahir'  => '2000-01-01',
-                'jenis_kelamin'  => 'L',
-                'no_hp'          => '',
+            // Buat master_sekolah default / placeholder jika belum ada
+            $sekolahModel = new \App\Models\MasterSekolahModel();
+            $sekolah = $sekolahModel->where('nama_sekolah', 'Belum Diisi')->first();
+            if ($sekolah) {
+                $sekolahId = $sekolah['id'];
+            } else {
+                $sekolahModel->insert([
+                    'nama_sekolah'   => 'Belum Diisi',
+                    'alamat_sekolah' => 'Belum Diisi'
+                ]);
+                $sekolahId = $sekolahModel->getInsertID();
+            }
+
+            // Buat record calon_siswa
+            $siswaModel = new \App\Models\SiswaModel();
+            $siswaModel->insert([
+                'nisn'             => $this->request->getPost('username'),
+                'nik'              => 'REG-' . $userId . '-' . time(), // Unique placeholder NIK
+                'nama_lengkap'     => $this->request->getPost('fullName'),
+                'no_kk'            => '0000000000000000',
+                'tempat_lahir'     => '',
+                'tanggal_lahir'    => '2008-01-01',
+                'jenis_kelamin'    => 'L',
+                'sekolah_id'       => $sekolahId,
+                'anak_ke'          => 1,
+                'jumlah_saudara'   => 0,
+                'alamat_desa'      => '',
+                'alamat_kecamatan' => '',
+                'alamat_kabupaten' => '',
+            ]);
+            $siswaId = $siswaModel->getInsertID();
+
+            // Buat record data_orang_tua
+            $orangTuaModel = new \App\Models\OrangTuaModel();
+            $orangTuaModel->insert([
+                'siswa_id'       => $siswaId,
                 'nama_ayah'      => '',
                 'pekerjaan_ayah' => '',
                 'nama_ibu'       => '',
                 'pekerjaan_ibu'  => '',
-                'alamat'         => ''
             ]);
 
-            // Buat record Berkas awal
-            $db->table('berkas')->insert([
-                'user_id'            => $userId,
-                'status_verifikasi'  => 'Pending',
-                'status_kelulusan'   => 'Belum Pengumuman',
-                'is_finalized'       => 0
+            // Buat record kelengkapan_administrasi
+            $administrasiModel = new \App\Models\AdministrasiModel();
+            $administrasiModel->insert([
+                'siswa_id'           => $siswaId,
+                'fc_ijazah_skl'      => 0,
+                'fc_kk'              => 0,
+                'status_verifikasi'  => 'Belum Verifikasi',
+                'is_finalized'       => 0,
+                'catatan_verifikasi' => null,
             ]);
 
             // 4. Login Otomatis & Redirect ke Dashboard

@@ -31,6 +31,7 @@ $routes->group('admin', ['filter' => 'group:admin,panitia'], static function ($r
     $routes->get('dashboard', 'Admin\Dashboard::index');
     $routes->get('pendaftar', 'Admin\Dashboard::pendaftar');
     $routes->post('verify/(:num)', 'Admin\Dashboard::verify/$1');
+    $routes->post('edit-student/(:num)', 'Admin\Dashboard::editStudent/$1');
     $routes->get('export/csv', 'Admin\Dashboard::exportCsv');
     $routes->get('export/pdf', 'Admin\Dashboard::exportPrint');
     $routes->get('download-form/(:num)', 'Admin\Dashboard::downloadForm/$1');
@@ -41,6 +42,8 @@ $routes->group('admin', ['filter' => 'group:admin,panitia'], static function ($r
     $routes->group('users', ['filter' => 'group:admin'], static function ($routes) {
         $routes->get('/', 'Admin\Users::index');
         $routes->post('store', 'Admin\Users::store');
+        $routes->post('edit/(:num)', 'Admin\Users::edit/$1');
+        $routes->post('change-password/(:num)', 'Admin\Users::changePassword/$1');
         $routes->get('delete/(:num)', 'Admin\Users::delete/$1');
     });
 
