@@ -23,10 +23,11 @@ class Dashboard extends BaseController
         $builder = $db->table('calon_siswa')
             ->select('
                 calon_siswa.id, 
-                kelengkapan_administrasi.status_verifikasi,
+                status_pendaftaran.status_verifikasi,
                 COALESCE(kelengkapan_administrasi.created_at, NOW()) as created_at
             ')
             ->join('kelengkapan_administrasi', 'kelengkapan_administrasi.siswa_id = calon_siswa.id', 'left')
+            ->join('status_pendaftaran', 'status_pendaftaran.siswa_id = calon_siswa.id', 'left')
             ->orderBy('calon_siswa.id', 'DESC');
 
         $students = $builder->get()->getResultArray();
@@ -113,8 +114,8 @@ class Dashboard extends BaseController
         $db = \Config\Database::connect();
         // Build stats similar to index()
         $builder = $db->table('calon_siswa')
-            ->select('calon_siswa.id, kelengkapan_administrasi.status_verifikasi')
-            ->join('kelengkapan_administrasi', 'kelengkapan_administrasi.siswa_id = calon_siswa.id', 'left');
+            ->select('calon_siswa.id, status_pendaftaran.status_verifikasi')
+            ->join('status_pendaftaran', 'status_pendaftaran.siswa_id = calon_siswa.id', 'left');
         $students = $builder->get()->getResultArray();
         $stats = ['total' => count($students), 'pending' => 0, 'valid' => 0, 'invalid' => 0];
         foreach ($students as $s) {
@@ -156,12 +157,14 @@ class Dashboard extends BaseController
                 calon_siswa.nisn,
                 calon_siswa.no_kk,
                 master_sekolah.nama_sekolah, 
-                kelengkapan_administrasi.status_verifikasi, 
-                kelengkapan_administrasi.is_finalized,
-                kelengkapan_administrasi.catatan_verifikasi
+                kelengkapan_administrasi.pas_foto,
+                status_pendaftaran.status_verifikasi, 
+                status_pendaftaran.is_finalized,
+                status_pendaftaran.catatan_verifikasi
             ')
             ->join('master_sekolah', 'master_sekolah.id = calon_siswa.sekolah_id', 'left')
             ->join('kelengkapan_administrasi', 'kelengkapan_administrasi.siswa_id = calon_siswa.id', 'left')
+            ->join('status_pendaftaran', 'status_pendaftaran.siswa_id = calon_siswa.id', 'left')
             ->orderBy('calon_siswa.id', 'DESC');
 
         $students = $builder->get()->getResultArray();
@@ -190,16 +193,16 @@ class Dashboard extends BaseController
         $db = \Config\Database::connect();
         
         // Periksa apakah berkas ada
-        $berkas = $db->table('kelengkapan_administrasi')->where('siswa_id', $userId)->get()->getRowArray();
+        $statusRecord = $db->table('status_pendaftaran')->where('siswa_id', $userId)->get()->getRowArray();
 
-        if ($berkas) {
-            $db->table('kelengkapan_administrasi')->where('siswa_id', $userId)->update([
+        if ($statusRecord) {
+            $db->table('status_pendaftaran')->where('siswa_id', $userId)->update([
                 'status_verifikasi'  => $status,
                 'catatan_verifikasi' => $catatan,
                 'updated_at'         => date('Y-m-d H:i:s'),
             ]);
         } else {
-            $db->table('kelengkapan_administrasi')->insert([
+            $db->table('status_pendaftaran')->insert([
                 'siswa_id'           => $userId,
                 'status_verifikasi'  => $status,
                 'catatan_verifikasi' => $catatan,
@@ -268,11 +271,12 @@ class Dashboard extends BaseController
                 calon_siswa.tanggal_lahir,
                 calon_siswa.jenis_kelamin,
                 master_sekolah.nama_sekolah, 
-                kelengkapan_administrasi.status_verifikasi, 
-                kelengkapan_administrasi.is_finalized
+                status_pendaftaran.status_verifikasi, 
+                status_pendaftaran.is_finalized
             ')
             ->join('master_sekolah', 'master_sekolah.id = calon_siswa.sekolah_id', 'left')
             ->join('kelengkapan_administrasi', 'kelengkapan_administrasi.siswa_id = calon_siswa.id', 'left')
+            ->join('status_pendaftaran', 'status_pendaftaran.siswa_id = calon_siswa.id', 'left')
             ->orderBy('calon_siswa.id', 'DESC');
 
         $students = $builder->get()->getResultArray();
@@ -326,11 +330,12 @@ class Dashboard extends BaseController
                 calon_siswa.nama_lengkap, 
                 calon_siswa.nik, 
                 master_sekolah.nama_sekolah, 
-                kelengkapan_administrasi.status_verifikasi, 
-                kelengkapan_administrasi.is_finalized
+                status_pendaftaran.status_verifikasi, 
+                status_pendaftaran.is_finalized
             ')
             ->join('master_sekolah', 'master_sekolah.id = calon_siswa.sekolah_id', 'left')
             ->join('kelengkapan_administrasi', 'kelengkapan_administrasi.siswa_id = calon_siswa.id', 'left')
+            ->join('status_pendaftaran', 'status_pendaftaran.siswa_id = calon_siswa.id', 'left')
             ->orderBy('calon_siswa.id', 'DESC');
 
         $students = $builder->get()->getResultArray();
@@ -366,11 +371,13 @@ class Dashboard extends BaseController
                 data_orang_tua.pekerjaan_ibu,
                 calon_siswa.alamat_desa as alamat,
                 master_sekolah.nama_sekolah, 
-                kelengkapan_administrasi.status_verifikasi, 
-                kelengkapan_administrasi.is_finalized
+                kelengkapan_administrasi.pas_foto,
+                status_pendaftaran.status_verifikasi, 
+                status_pendaftaran.is_finalized
             ')
             ->join('master_sekolah', 'master_sekolah.id = calon_siswa.sekolah_id', 'left')
             ->join('kelengkapan_administrasi', 'kelengkapan_administrasi.siswa_id = calon_siswa.id', 'left')
+            ->join('status_pendaftaran', 'status_pendaftaran.siswa_id = calon_siswa.id', 'left')
             ->join('data_orang_tua', 'data_orang_tua.siswa_id = calon_siswa.id', 'left')
             ->where('calon_siswa.id', $studentId);
 

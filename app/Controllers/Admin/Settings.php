@@ -4,6 +4,7 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Models\SettingsModel;
+use App\Models\PengumumanModel;
 
 class Settings extends BaseController
 {
@@ -66,11 +67,24 @@ class Settings extends BaseController
             'footer_email'      => SettingsModel::getSetting('footer_email', 'spmb@unggulbangsa.sch.id'),
             'footer_address'    => SettingsModel::getSetting('footer_address', 'Jl. Pendidikan No. 1, Jakarta'),
             'footer_desc'       => SettingsModel::getSetting('footer_desc', 'Membentuk generasi pemimpin masa depan yang beriman, cerdas, kreatif, mandiri, dan berwawasan global.'),
+
+            // Pengumuman & WhatsApp Group Settings
+            'whatsapp_link'        => SettingsModel::getSetting('whatsapp_link', 'https://wa.me/6281234567890'),
+            'announcement_title_1' => SettingsModel::getSetting('announcement_title_1', 'Jadwal Ujian Masuk Seleksi Akademik'),
+            'announcement_desc_1'  => SettingsModel::getSetting('announcement_desc_1', 'Ujian seleksi potensi akademik dan wawancara online akan diselenggarakan pada hari Selasa depan. Harap cetak bukti pendaftaran dan kartu ujian Anda terlebih dahulu.'),
+            'announcement_time_1'  => SettingsModel::getSetting('announcement_time_1', '2 jam yang lalu'),
+            'announcement_title_2' => SettingsModel::getSetting('announcement_title_2', 'Panduan Unggah Berkas Persyaratan'),
+            'announcement_desc_2'  => SettingsModel::getSetting('announcement_desc_2', 'Pastikan semua dokumen hasil scan (Ijazah/SKL, Kartu Keluarga, Rapor) terbaca dengan sangat jelas. Format file yang diterima hanya berupa gambar/PDF dengan batas ukuran maksimal 2MB per file.'),
+            'announcement_time_2'  => SettingsModel::getSetting('announcement_time_2', 'Kemarin'),
         ];
+
+        $pengumumanModel = new PengumumanModel();
+        $announcements = $pengumumanModel->orderBy('created_at', 'DESC')->findAll();
 
         $data = [
             'admin_username' => $shieldUser->username,
             'settings'       => $settings,
+            'announcements'  => $announcements,
         ];
 
         return view('admin/settings', $data);
@@ -129,6 +143,15 @@ class Settings extends BaseController
             'footer_email'      => 'required|valid_email|max_length[100]',
             'footer_address'    => 'required|min_length[5]|max_length[255]',
             'footer_desc'       => 'required|min_length[10]|max_length[500]',
+
+            // Pengumuman & WA Rules
+            'whatsapp_link'        => 'required|valid_url',
+            'announcement_title_1' => 'required|min_length[3]|max_length[255]',
+            'announcement_desc_1'  => 'required|min_length[5]',
+            'announcement_time_1'  => 'required|min_length[2]|max_length[50]',
+            'announcement_title_2' => 'required|min_length[3]|max_length[255]',
+            'announcement_desc_2'  => 'required|min_length[5]',
+            'announcement_time_2'  => 'required|min_length[2]|max_length[50]',
         ];
 
         // Validate logo file only if a file was selected/uploaded
@@ -192,6 +215,15 @@ class Settings extends BaseController
         SettingsModel::setSetting('footer_address', $this->request->getPost('footer_address'));
         SettingsModel::setSetting('footer_desc', $this->request->getPost('footer_desc'));
 
+        // Simpan Pengumuman & WA
+        SettingsModel::setSetting('whatsapp_link', $this->request->getPost('whatsapp_link'));
+        SettingsModel::setSetting('announcement_title_1', $this->request->getPost('announcement_title_1'));
+        SettingsModel::setSetting('announcement_desc_1', $this->request->getPost('announcement_desc_1'));
+        SettingsModel::setSetting('announcement_time_1', $this->request->getPost('announcement_time_1'));
+        SettingsModel::setSetting('announcement_title_2', $this->request->getPost('announcement_title_2'));
+        SettingsModel::setSetting('announcement_desc_2', $this->request->getPost('announcement_desc_2'));
+        SettingsModel::setSetting('announcement_time_2', $this->request->getPost('announcement_time_2'));
+
         // 4. Proses File Upload Logo
         $logoFile = $this->request->getFile('logo_file');
         if ($logoFile && $logoFile->isValid() && ! $logoFile->hasMoved()) {
@@ -228,5 +260,70 @@ class Settings extends BaseController
 
         return redirect()->to(base_url('admin/settings'))
             ->with('success', 'Seluruh konfigurasi frontend berhasil diperbarui secara real-time!');
+    }
+
+    // =========================================================================
+    // POST: Tambah Pengumuman Baru
+    // =========================================================================
+    public function addAnnouncement()
+    {
+        if (! auth()->loggedIn() || (! auth()->user()->inGroup('admin') && ! auth()->user()->inGroup('superadmin'))) {
+            return redirect()->to(base_url('admin/dashboard'))->with('error', 'Akses ditolak.');
+        }
+
+        $rules = [
+            'judul'  => 'required|min_length[3]|max_length[255]',
+            'konten' => 'required|min_length[5]',
+        ];
+
+        $messages = [
+            'judul' => [
+                'required'   => 'Judul pengumuman wajib diisi.',
+                'min_length' => 'Judul minimal terdiri dari 3 karakter.',
+                'max_length' => 'Judul maksimal terdiri dari 255 karakter.',
+            ],
+            'konten' => [
+                'required'   => 'Isi konten pengumuman wajib diisi.',
+                'min_length' => 'Isi konten minimal terdiri dari 5 karakter.',
+            ],
+        ];
+
+        if (! $this->validate($rules, $messages)) {
+            return redirect()->to(base_url('admin/settings?tab=pengumuman'))
+                ->withInput()
+                ->with('errors', $this->validator->getErrors());
+        }
+
+        $pengumumanModel = new PengumumanModel();
+        $pengumumanModel->insert([
+            'judul'  => trim($this->request->getPost('judul')),
+            'konten' => trim($this->request->getPost('konten')),
+        ]);
+
+        return redirect()->to(base_url('admin/settings?tab=pengumuman'))
+            ->with('success', 'Pengumuman baru berhasil dipublikasikan!');
+    }
+
+    // =========================================================================
+    // GET: Hapus Pengumuman
+    // =========================================================================
+    public function deleteAnnouncement($id)
+    {
+        if (! auth()->loggedIn() || (! auth()->user()->inGroup('admin') && ! auth()->user()->inGroup('superadmin'))) {
+            return redirect()->to(base_url('admin/dashboard'))->with('error', 'Akses ditolak.');
+        }
+
+        $pengumumanModel = new PengumumanModel();
+        $pengumuman = $pengumumanModel->find($id);
+
+        if (! $pengumuman) {
+            return redirect()->to(base_url('admin/settings?tab=pengumuman'))
+                ->with('error', 'Data pengumuman tidak ditemukan.');
+        }
+
+        $pengumumanModel->delete($id);
+
+        return redirect()->to(base_url('admin/settings?tab=pengumuman'))
+            ->with('success', 'Pengumuman berhasil dihapus.');
     }
 }

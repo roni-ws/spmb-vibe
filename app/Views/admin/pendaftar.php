@@ -220,7 +220,7 @@
                                     <div id="menu-<?= $s['id'] ?>"
                                          class="hidden absolute right-0 top-9 w-52 bg-white border border-outline-variant rounded-2xl shadow-xl z-20 py-1 text-left overflow-hidden">
                                         <!-- Verify Button -->
-                                        <button onclick="openVerifyModal(<?= $s['id'] ?>, '<?= esc($status) ?>', '', <?= json_encode(esc($nama)) ?>)"
+                                        <button onclick="openVerifyModal(<?= $s['id'] ?>, '<?= esc($status) ?>', '', <?= json_encode(esc($nama)) ?>, '<?= !empty($s['pas_foto']) ? base_url('uploads/berkas/' . $s['pas_foto']) : '' ?>')"
                                                 class="w-full px-4 py-2.5 text-body-sm hover:bg-surface-container flex items-center gap-3 transition-colors">
                                             <span class="material-symbols-outlined text-[18px] text-primary">verified_user</span>
                                             Verifikasi Berkas
@@ -293,6 +293,12 @@
         <form id="verify-form" method="post" action="" style="display: flex; flex-direction: column; overflow: hidden; margin: 0;">
             <?= csrf_field() ?>
             <div class="px-6 py-5 space-y-4 overflow-y-auto custom-scrollbar" style="flex: 1 1 auto; max-height: 60vh;">
+                <!-- Pas Foto Preview -->
+                <div class="flex flex-col items-center mb-2">
+                    <img id="modal-pas-foto" src="" alt="Pas Foto" class="w-24 h-32 object-cover border-2 border-outline-variant rounded-md hidden">
+                    <span id="modal-pas-foto-placeholder" class="text-xs text-error hidden font-semibold">Belum ada foto yang diunggah</span>
+                </div>
+
                 <!-- Status Berkas -->
                 <div>
                     <label class="block text-body-sm font-semibold text-on-surface mb-1.5">Status Verifikasi Berkas</label>

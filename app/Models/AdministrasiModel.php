@@ -15,9 +15,7 @@ class AdministrasiModel extends Model
         'siswa_id',
         'fc_ijazah_skl',
         'fc_kk',
-        'status_verifikasi',
-        'is_finalized',
-        'catatan_verifikasi',
+        'pas_foto',
     ];
 
     // Dates (Otomatis populate created_at & updated_at)

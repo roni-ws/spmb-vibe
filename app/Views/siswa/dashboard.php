@@ -124,24 +124,109 @@ Dashboard Calon Siswa
             </div>
             
             <!-- Step Checklist Details -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-xs mt-3 text-[11px] text-slate-500">
-                <div class="flex items-center gap-xs">
-                    <span class="material-symbols-outlined text-emerald-500 text-sm">check_circle</span> Akun Dibuat
-                </div>
-                <div class="flex items-center gap-xs">
-                    <span class="material-symbols-outlined <?= $has_biodata ? 'text-emerald-500' : 'text-slate-300' ?> text-sm">
-                        <?= $has_biodata ? 'check_circle' : 'radio_button_unchecked' ?>
-                    </span> Biodata Diri
-                </div>
-                <div class="flex items-center gap-xs">
-                    <span class="material-symbols-outlined <?= $has_sekolah ? 'text-emerald-500' : 'text-slate-300' ?> text-sm">
-                        <?= $has_sekolah ? 'check_circle' : 'radio_button_unchecked' ?>
-                    </span> Asal Sekolah
-                </div>
-                <div class="flex items-center gap-xs">
-                    <span class="material-symbols-outlined <?= $has_berkas ? 'text-emerald-500' : 'text-slate-300' ?> text-sm">
-                        <?= $has_berkas ? 'check_circle' : 'radio_button_unchecked' ?>
-                    </span> Berkas Diunggah
+            <div class="mt-4 border-t border-outline-variant/60 pt-sm relative z-10">
+                <?php if ($is_finalized === 0): ?>
+                    <p class="text-[11px] font-semibold text-primary mb-sm flex items-center gap-xs">
+                        <span class="material-symbols-outlined text-[15px] text-primary">info</span>
+                        Panduan: Silakan klik tombol langkah berwarna kuning di bawah ini untuk mengisi data yang belum lengkap.
+                    </p>
+                <?php endif; ?>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-sm text-[11px]">
+                    <!-- Step 1: Akun -->
+                    <div class="flex items-center justify-between p-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 shadow-sm">
+                        <div class="flex items-center gap-xs font-semibold">
+                            <span class="material-symbols-outlined text-emerald-500 text-base">check_circle</span>
+                            Akun Terdaftar
+                        </div>
+                        <span class="font-bold text-[9px] uppercase px-1.5 py-0.5 bg-emerald-200 text-emerald-900 rounded">Selesai</span>
+                    </div>
+
+                    <!-- Step 2: Biodata -->
+                    <?php if ($is_finalized === 0): ?>
+                        <a href="<?= base_url('siswa/biodata') ?>" 
+                           class="flex items-center justify-between p-2 rounded-lg transition-all shadow-sm group hover:scale-[1.02] hover:border-primary
+                                  <?= $has_biodata ? 'bg-emerald-50 border border-emerald-200 text-emerald-800' : 'bg-amber-50 border border-amber-300 text-amber-900 animate-[pulse_3s_infinite]' ?>">
+                            <div class="flex items-center gap-xs font-semibold">
+                                <span class="material-symbols-outlined text-base <?= $has_biodata ? 'text-emerald-500' : 'text-amber-600' ?>">
+                                    <?= $has_biodata ? 'check_circle' : 'edit_square' ?>
+                                </span>
+                                Biodata Diri
+                            </div>
+                            <?php if ($has_biodata): ?>
+                                <span class="font-bold text-[9px] uppercase px-1.5 py-0.5 bg-emerald-200 text-emerald-900 rounded">Selesai</span>
+                            <?php else: ?>
+                                <span class="font-bold text-[9px] uppercase px-1.5 py-0.5 bg-amber-200 text-amber-950 rounded group-hover:bg-primary group-hover:text-white transition-colors">Isi ➜</span>
+                            <?php endif; ?>
+                        </a>
+                    <?php else: ?>
+                        <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 shadow-sm">
+                            <div class="flex items-center gap-xs font-semibold">
+                                <span class="material-symbols-outlined text-base <?= $has_biodata ? 'text-emerald-500' : 'text-slate-400' ?>">
+                                    <?= $has_biodata ? 'check_circle' : 'radio_button_unchecked' ?>
+                                </span>
+                                Biodata Diri
+                            </div>
+                            <span class="font-bold text-[9px] uppercase px-1.5 py-0.5 bg-slate-200 text-slate-800 rounded"><?= $has_biodata ? 'Selesai' : 'Kosong' ?></span>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- Step 3: Asal Sekolah -->
+                    <?php if ($is_finalized === 0): ?>
+                        <a href="<?= base_url('siswa/sekolah') ?>" 
+                           class="flex items-center justify-between p-2 rounded-lg transition-all shadow-sm group hover:scale-[1.02] hover:border-primary
+                                  <?= $has_sekolah ? 'bg-emerald-50 border border-emerald-200 text-emerald-800' : 'bg-amber-50 border border-amber-300 text-amber-900' ?>">
+                            <div class="flex items-center gap-xs font-semibold">
+                                <span class="material-symbols-outlined text-base <?= $has_sekolah ? 'text-emerald-500' : 'text-amber-600' ?>">
+                                    <?= $has_sekolah ? 'check_circle' : 'school' ?>
+                                </span>
+                                Asal Sekolah
+                            </div>
+                            <?php if ($has_sekolah): ?>
+                                <span class="font-bold text-[9px] uppercase px-1.5 py-0.5 bg-emerald-200 text-emerald-900 rounded">Selesai</span>
+                            <?php else: ?>
+                                <span class="font-bold text-[9px] uppercase px-1.5 py-0.5 bg-amber-200 text-amber-950 rounded group-hover:bg-primary group-hover:text-white transition-colors">Isi ➜</span>
+                            <?php endif; ?>
+                        </a>
+                    <?php else: ?>
+                        <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 shadow-sm">
+                            <div class="flex items-center gap-xs font-semibold">
+                                <span class="material-symbols-outlined text-base <?= $has_sekolah ? 'text-emerald-500' : 'text-slate-400' ?>">
+                                    <?= $has_sekolah ? 'check_circle' : 'radio_button_unchecked' ?>
+                                </span>
+                                Asal Sekolah
+                            </div>
+                            <span class="font-bold text-[9px] uppercase px-1.5 py-0.5 bg-slate-200 text-slate-800 rounded"><?= $has_sekolah ? 'Selesai' : 'Kosong' ?></span>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- Step 4: Berkas -->
+                    <?php if ($is_finalized === 0): ?>
+                        <a href="<?= base_url('siswa/berkas') ?>" 
+                           class="flex items-center justify-between p-2 rounded-lg transition-all shadow-sm group hover:scale-[1.02] hover:border-primary
+                                  <?= $has_berkas ? 'bg-emerald-50 border border-emerald-200 text-emerald-800' : 'bg-amber-50 border border-amber-300 text-amber-900' ?>">
+                            <div class="flex items-center gap-xs font-semibold">
+                                <span class="material-symbols-outlined text-base <?= $has_berkas ? 'text-emerald-500' : 'text-amber-600' ?>">
+                                    <?= $has_berkas ? 'check_circle' : 'upload_file' ?>
+                                </span>
+                                Berkas Dokumen
+                            </div>
+                            <?php if ($has_berkas): ?>
+                                <span class="font-bold text-[9px] uppercase px-1.5 py-0.5 bg-emerald-200 text-emerald-900 rounded">Selesai</span>
+                            <?php else: ?>
+                                <span class="font-bold text-[9px] uppercase px-1.5 py-0.5 bg-amber-200 text-amber-950 rounded group-hover:bg-primary group-hover:text-white transition-colors">Isi ➜</span>
+                            <?php endif; ?>
+                        </a>
+                    <?php else: ?>
+                        <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 shadow-sm">
+                            <div class="flex items-center gap-xs font-semibold">
+                                <span class="material-symbols-outlined text-base <?= $has_berkas ? 'text-emerald-500' : 'text-slate-400' ?>">
+                                    <?= $has_berkas ? 'check_circle' : 'radio_button_unchecked' ?>
+                                </span>
+                                Berkas Dokumen
+                            </div>
+                            <span class="font-bold text-[9px] uppercase px-1.5 py-0.5 bg-slate-200 text-slate-800 rounded"><?= $has_berkas ? 'Selesai' : 'Kosong' ?></span>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -149,6 +234,23 @@ Dashboard Calon Siswa
 
     <!-- Action Cards Container -->
     <div class="md:col-span-4 flex flex-col gap-md">
+        <!-- Lengkapi Formulir Action -->
+        <?php if ($is_finalized === 0): ?>
+        <a class="group flex items-center gap-sm p-sm bg-gradient-to-r from-primary to-primary-container text-white border border-primary/20 rounded-xl shadow-[0_4px_12px_rgba(0,32,69,0.08)] hover:shadow-[0_8px_24px_rgba(0,32,69,0.16)] transition-all cursor-pointer"
+            href="<?= base_url('siswa/biodata') ?>">
+            <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center text-white group-hover:bg-white group-hover:text-primary transition-colors shrink-0 shadow-inner">
+                <span class="material-symbols-outlined">edit_document</span>
+            </div>
+            <div class="flex-grow">
+                <h3 class="font-label-bold text-body-sm text-white group-hover:underline">
+                    Isi/Lengkapi Formulir
+                </h3>
+                <p class="font-caption text-[11px] text-primary-fixed/80">Langkah 1 s.d 4 Pendaftaran</p>
+            </div>
+            <span class="material-symbols-outlined text-white/70 group-hover:text-white transition-colors">chevron_right</span>
+        </a>
+        <?php endif; ?>
+
         <!-- Download Form Action -->
         <a class="group flex items-center gap-sm p-sm bg-surface border border-outline-variant rounded-xl shadow-[0_4px_12px_rgba(0,32,69,0.04)] hover:shadow-[0_8px_20px_rgba(0,32,69,0.08)] hover:border-primary transition-all cursor-pointer"
             href="<?= base_url('siswa/download-form') ?>">
@@ -165,8 +267,9 @@ Dashboard Calon Siswa
         </a>
         
         <!-- WhatsApp Group Action -->
+        <?php $waLink = \App\Models\SettingsModel::getSetting('whatsapp_link', 'https://wa.me/6281234567890'); ?>
         <a class="group flex items-center gap-sm p-sm bg-surface border border-outline-variant rounded-xl shadow-[0_4px_12px_rgba(0,32,69,0.04)] hover:shadow-[0_8px_20px_rgba(0,32,69,0.08)] hover:border-[#25D366] transition-all cursor-pointer"
-            href="https://wa.me/6281234567890" target="_blank">
+            href="<?= esc($waLink) ?>" target="_blank">
             <div class="w-10 h-10 rounded-lg bg-[#25D366]/10 flex items-center justify-center text-[#25D366] group-hover:bg-[#25D366] group-hover:text-white transition-colors shrink-0">
                 <span class="material-symbols-outlined font-bold">chat</span>
             </div>
@@ -239,37 +342,39 @@ Dashboard Calon Siswa
             <h2 class="font-headline-sm text-headline-sm text-primary flex items-center gap-xs">
                 <span class="material-symbols-outlined text-2xl shrink-0 text-primary">campaign</span> Pengumuman Penting
             </h2>
-            <button class="text-body-sm font-label-bold text-primary hover:underline">Lihat Semua</button>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-sm">
-            <!-- Announcement Item 1 -->
-            <div class="p-sm bg-surface-container-low rounded-lg border border-outline-variant hover:bg-surface-container transition-colors">
-                <div class="flex items-start gap-sm">
-                    <div class="w-2 h-2 mt-2 rounded-full bg-secondary-container flex-shrink-0"></div>
-                    <div>
-                        <h3 class="font-label-bold text-body-sm text-on-surface mb-1">Jadwal Ujian Masuk Seleksi Akademik</h3>
-                        <p class="font-caption text-caption text-on-surface-variant mb-2">
-                            Ujian seleksi potensi akademik dan wawancara online akan diselenggarakan pada hari Selasa depan. Harap cetak bukti pendaftaran dan kartu ujian Anda terlebih dahulu.
-                        </p>
-                        <span class="font-caption text-[10px] text-outline">2 jam yang lalu</span>
+            <?php if (!empty($announcements)): ?>
+                <?php foreach ($announcements as $index => $ann): ?>
+                    <div class="p-sm bg-surface-container-low rounded-lg border border-outline-variant hover:bg-surface-container transition-colors shadow-sm">
+                        <div class="flex items-start gap-sm">
+                            <div class="w-2.5 h-2.5 mt-1.5 rounded-full flex-shrink-0 <?= $index === 0 ? 'bg-primary animate-[pulse_2s_infinite]' : 'bg-outline' ?>"></div>
+                            <div class="flex-grow">
+                                <h3 class="font-label-bold text-body-sm text-on-surface mb-1 flex items-center gap-xs">
+                                    <?= esc($ann['judul']) ?>
+                                    <?php if ($index === 0): ?>
+                                        <span class="px-1.5 py-0.5 bg-primary/10 text-primary text-[9px] font-bold uppercase rounded-md tracking-wider">Baru</span>
+                                    <?php endif; ?>
+                                </h3>
+                                <p class="font-caption text-caption text-on-surface-variant mb-2 whitespace-pre-line leading-relaxed">
+                                    <?= esc($ann['konten']) ?>
+                                </p>
+                                <span class="font-caption text-[10px] text-outline flex items-center gap-xs">
+                                    <span class="material-symbols-outlined text-[12px]">schedule</span>
+                                    <?= date('d M Y H:i', strtotime($ann['created_at'])) ?>
+                                </span>
+                            </div>
+                        </div>
                     </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="md:col-span-2 text-center py-8 text-on-surface-variant border border-dashed border-outline-variant rounded-xl bg-surface/30">
+                    <span class="material-symbols-outlined text-4xl block mb-2 text-outline">campaign</span>
+                    <p class="font-label-bold text-body-sm">Belum ada pengumuman penting</p>
+                    <p class="text-caption text-on-surface-variant mt-1">Pantau terus halaman ini untuk mendapatkan informasi terbaru dari panitia pendaftaran.</p>
                 </div>
-            </div>
-            
-            <!-- Announcement Item 2 -->
-            <div class="p-sm bg-surface-container-low rounded-lg border border-outline-variant hover:bg-surface-container transition-colors">
-                <div class="flex items-start gap-sm">
-                    <div class="w-2 h-2 mt-2 rounded-full bg-outline-variant flex-shrink-0"></div>
-                    <div>
-                        <h3 class="font-label-bold text-body-sm text-on-surface mb-1">Panduan Unggah Berkas Persyaratan</h3>
-                        <p class="font-caption text-caption text-on-surface-variant mb-2">
-                            Pastikan semua dokumen hasil scan (Ijazah/SKL, Kartu Keluarga, Rapor) terbaca dengan sangat jelas. Format file yang diterima hanya berupa gambar/PDF dengan batas ukuran maksimal 2MB per file.
-                        </p>
-                        <span class="font-caption text-[10px] text-outline">Kemarin</span>
-                    </div>
-                </div>
-            </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>

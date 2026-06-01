@@ -22,6 +22,22 @@ $routes->group('siswa', ['filter' => 'session'], static function ($routes) {
     $routes->get('dashboard', 'Siswa\Dashboard::index');
     $routes->post('finalize', 'Siswa\Dashboard::finalize');
     $routes->get('download-form', 'Siswa\Dashboard::downloadForm');
+
+    // Rute Langkah 1: Biodata Diri
+    $routes->get('biodata', 'Siswa\Dashboard::biodata');
+    $routes->post('biodata', 'Siswa\Dashboard::saveBiodata');
+
+    // Rute Langkah 2: Asal Sekolah
+    $routes->get('sekolah', 'Siswa\Dashboard::sekolah');
+    $routes->post('sekolah', 'Siswa\Dashboard::saveSekolah');
+
+    // Rute Langkah 3: Data Orang Tua
+    $routes->get('orang-tua', 'Siswa\Dashboard::orangTua');
+    $routes->post('orang-tua', 'Siswa\Dashboard::saveOrangTua');
+
+    // Rute Langkah 4: Kelengkapan Berkas
+    $routes->get('berkas', 'Siswa\Dashboard::berkas');
+    $routes->post('berkas', 'Siswa\Dashboard::saveBerkas');
 });
 
 // -----------------------------------------------------------------------
@@ -51,6 +67,10 @@ $routes->group('admin', ['filter' => 'group:admin,panitia'], static function ($r
     $routes->group('settings', ['filter' => 'group:admin'], static function ($routes) {
         $routes->get('/', 'Admin\Settings::index');
         $routes->post('save', 'Admin\Settings::save');
+        
+        // Rute Manajemen Pengumuman
+        $routes->post('announcement/add', 'Admin\Settings::addAnnouncement');
+        $routes->get('announcement/delete/(:num)', 'Admin\Settings::deleteAnnouncement/$1');
     });
 });
 

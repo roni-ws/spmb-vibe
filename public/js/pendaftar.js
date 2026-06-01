@@ -115,12 +115,26 @@ window.addEventListener('click', function (e) {
 });
 
 /* ── Verify Modal ────────────────────────────────────────── */
-function openVerifyModal(userId, status, kelulusan, nama) {
+function openVerifyModal(userId, status, kelulusan, nama, pasFotoUrl = '') {
     document.querySelectorAll('[id^="menu-"]').forEach(m => m.classList.add('hidden'));
     document.getElementById('modal-student-name').textContent = nama;
     document.getElementById('modal-status').value    = status || 'Pending';
     document.getElementById('modal-kelulusan').value = kelulusan || '';
     document.getElementById('verify-form').action    = window.BASE_URL + 'admin/verify/' + userId;
+    
+    // Manage Pas Foto preview
+    const imgEl = document.getElementById('modal-pas-foto');
+    const placeholderEl = document.getElementById('modal-pas-foto-placeholder');
+    if (pasFotoUrl) {
+        imgEl.src = pasFotoUrl;
+        imgEl.classList.remove('hidden');
+        placeholderEl.classList.add('hidden');
+    } else {
+        imgEl.src = '';
+        imgEl.classList.add('hidden');
+        placeholderEl.classList.remove('hidden');
+    }
+
     const modal = document.getElementById('verify-modal');
     modal.style.display = 'flex';
 }

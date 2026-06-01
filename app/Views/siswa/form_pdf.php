@@ -211,6 +211,15 @@
                 <h2>SMA UNGGUL BANGSA</h2>
                 <p>Alamat: Jl. Raya Pendidikan No. 45, Jakarta Pusat | Website: spmb.unggulbangsa.sch.id</p>
             </div>
+            <?php if (!empty($student['pas_foto'])): ?>
+            <div style="width: 70px; height: 90px; margin-left: 20px; border: 2px solid #002045; overflow: hidden; flex-shrink: 0;">
+                <img src="<?= base_url('uploads/berkas/' . $student['pas_foto']) ?>" style="width: 100%; height: 100%; object-fit: cover;" alt="Pas Foto Siswa">
+            </div>
+            <?php else: ?>
+            <div style="width: 70px; height: 90px; margin-left: 20px; border: 1px dashed #666; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #666; flex-shrink: 0;">
+                3 x 4
+            </div>
+            <?php endif; ?>
         </div>
 
         <div class="slip-title">
@@ -228,6 +237,11 @@
                         <td class="value">SPMB-2026-<?= sprintf('%04d', $student['id']) ?></td>
                     </tr>
                     <tr>
+                        <td class="label">NISN (Username)</td>
+                        <td class="colon">:</td>
+                        <td class="value"><?= esc($student['nisn'] ?: '-') ?></td>
+                    </tr>
+                    <tr>
                         <td class="label">Nama Lengkap</td>
                         <td class="colon">:</td>
                         <td class="value"><?= esc($student['nama_lengkap'] ?: 'Belum Mengisi') ?></td>
@@ -238,6 +252,11 @@
                         <td class="value"><?= esc($student['nik'] ?: '-') ?></td>
                     </tr>
                     <tr>
+                        <td class="label">No. Kartu Keluarga</td>
+                        <td class="colon">:</td>
+                        <td class="value"><?= esc($student['no_kk'] ?: '-') ?></td>
+                    </tr>
+                    <tr>
                         <td class="label">Tempat/Tgl Lahir</td>
                         <td class="colon">:</td>
                         <td class="value"><?= esc($student['tempat_lahir'] ?: '-') ?>, <?= $student['tanggal_lahir'] ? date('d F Y', strtotime($student['tanggal_lahir'])) : '-' ?></td>
@@ -246,6 +265,11 @@
                         <td class="label">Jenis Kelamin</td>
                         <td class="colon">:</td>
                         <td class="value"><?= ($student['jenis_kelamin'] === 'L') ? 'Laki-laki' : (($student['jenis_kelamin'] === 'P') ? 'Perempuan' : '-') ?></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Status Anak</td>
+                        <td class="colon">:</td>
+                        <td class="value">Anak ke-<?= esc($student['anak_ke'] ?: '0') ?> dari <?= esc($student['jumlah_saudara'] ?: '0') ?> bersaudara</td>
                     </tr>
                     <tr>
                         <td class="label">No. HP / WA</td>
@@ -260,7 +284,7 @@
                 </table>
             </div>
 
-            <!-- Right Column: Asal Sekolah & Wali -->
+            <!-- Right Column: Asal Sekolah, Wali, & Berkas -->
             <div class="col-6">
                 <div class="section-title">B. Data Orang Tua & Wali</div>
                 <table class="info-table">
@@ -294,19 +318,40 @@
                         <td class="value"><?= esc($student['nama_sekolah'] ?: '-') ?></td>
                     </tr>
                     <tr>
-                        <td class="label">NPSN Sekolah</td>
+                        <td class="label">Alamat Sekolah</td>
                         <td class="colon">:</td>
-                        <td class="value"><?= esc($student['npsn'] ?: '-') ?></td>
+                        <td class="value" style="font-size: 11px; font-weight: normal;"><?= esc($student['alamat_sekolah'] ?: '-') ?></td>
+                    </tr>
+                </table>
+
+                <div class="section-title">D. Kelengkapan Berkas Dokumen</div>
+                <table class="info-table">
+                    <tr>
+                        <td class="label">Scan Ijazah / SKL</td>
+                        <td class="colon">:</td>
+                        <td class="value">
+                            <span class="badge badge-<?= ($student['fc_ijazah_skl'] == 1) ? 'valid' : 'revisi' ?>">
+                                <?= ($student['fc_ijazah_skl'] == 1) ? 'SUDAH DIUNGGAH' : 'BELUM DIUNGGAH' ?>
+                            </span>
+                        </td>
                     </tr>
                     <tr>
-                        <td class="label">Tahun Lulus</td>
+                        <td class="label">Scan Kartu Keluarga</td>
                         <td class="colon">:</td>
-                        <td class="value"><?= esc($student['tahun_lulus'] ?: '-') ?></td>
+                        <td class="value">
+                            <span class="badge badge-<?= ($student['fc_kk'] == 1) ? 'valid' : 'revisi' ?>">
+                                <?= ($student['fc_kk'] == 1) ? 'SUDAH DIUNGGAH' : 'BELUM DIUNGGAH' ?>
+                            </span>
+                        </td>
                     </tr>
                     <tr>
-                        <td class="label">Rata-rata Rapor</td>
+                        <td class="label">Pas Foto 3x4</td>
                         <td class="colon">:</td>
-                        <td class="value"><?= esc($student['nilai_rata_rata'] ? number_format($student['nilai_rata_rata'], 2) : '-') ?></td>
+                        <td class="value">
+                            <span class="badge badge-<?= (!empty($student['pas_foto'])) ? 'valid' : 'revisi' ?>">
+                                <?= (!empty($student['pas_foto'])) ? 'SUDAH DIUNGGAH' : 'BELUM DIUNGGAH' ?>
+                            </span>
+                        </td>
                     </tr>
                 </table>
             </div>
