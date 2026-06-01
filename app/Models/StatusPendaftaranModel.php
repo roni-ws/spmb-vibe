@@ -13,7 +13,7 @@ class StatusPendaftaranModel extends Model
     protected $protectFields    = true;
     protected $allowedFields    = [
         'siswa_id',
-        'status_verifikasi',
+        'status_verifikasi_id',
         'is_finalized',
         'catatan_verifikasi',
     ];

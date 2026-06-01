@@ -4,7 +4,7 @@ namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-class CreateMasterSekolah extends Migration
+class CreateStatusVerifikasi extends Migration
 {
     public function up()
     {
@@ -15,21 +15,17 @@ class CreateMasterSekolah extends Migration
                 'unsigned'       => true,
                 'auto_increment' => true,
             ],
-            'nama_sekolah' => [
+            'nama_status' => [
                 'type'       => 'VARCHAR',
-                'constraint' => '150',
-            ],
-            'alamat_sekolah' => [
-                'type'       => 'TEXT',
-                'null'       => true,
+                'constraint' => 50,
             ],
         ]);
         $this->forge->addKey('id', true);
-        $this->forge->createTable('master_sekolah');
+        $this->forge->createTable('status_verifikasi');
     }
 
     public function down()
     {
-        $this->forge->dropTable('master_sekolah');
+        $this->forge->dropTable('status_verifikasi', true);
     }
 }

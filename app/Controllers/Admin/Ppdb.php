@@ -161,15 +161,26 @@ class Ppdb extends BaseController
             $administrasiModel = new \App\Models\AdministrasiModel();
             $administrasiData = [
                 'siswa_id'           => $siswaId,
-                'fc_ijazah_skl'      => isset($data['fc_ijazah_skl']) ? (int)$data['fc_ijazah_skl'] : 0,
-                'fc_kk'              => isset($data['fc_kk']) ? (int)$data['fc_kk'] : 0,
-                'status_verifikasi'  => $data['status_verifikasi'] ?? 'Belum Verifikasi',
-                'is_finalized'       => isset($data['is_finalized']) ? (int)$data['is_finalized'] : 0,
-                'catatan_verifikasi' => $data['catatan_verifikasi'] ?? null,
+                'fc_ijazah_skl'      => $data['fc_ijazah_skl'] ?? null,
+                'fc_kk'              => $data['fc_kk'] ?? null,
+                'pas_foto'           => $data['pas_foto'] ?? null,
             ];
 
             if (!$administrasiModel->insert($administrasiData)) {
                 throw new \Exception('Gagal menyimpan kelengkapan administrasi.');
+            }
+
+            // 6. Masukkan data ke tabel status_pendaftaran
+            $statusPendaftaranModel = new \App\Models\StatusPendaftaranModel();
+            $statusData = [
+                'siswa_id'             => $siswaId,
+                'status_verifikasi_id' => $data['status_verifikasi_id'] ?? 1,
+                'is_finalized'         => isset($data['is_finalized']) ? (int)$data['is_finalized'] : 0,
+                'catatan_verifikasi'   => $data['catatan_verifikasi'] ?? null,
+            ];
+
+            if (!$statusPendaftaranModel->insert($statusData)) {
+                throw new \Exception('Gagal menyimpan status pendaftaran.');
             }
 
             // Jika semua query berhasil, lakukan COMMIT

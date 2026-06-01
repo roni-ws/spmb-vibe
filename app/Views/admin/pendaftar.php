@@ -302,11 +302,11 @@
                 <!-- Status Berkas -->
                 <div>
                     <label class="block text-body-sm font-semibold text-on-surface mb-1.5">Status Verifikasi Berkas</label>
-                    <select name="status_verifikasi" id="modal-status"
+                    <select name="status_verifikasi_id" id="modal-status"
                             class="w-full px-3 py-2.5 rounded-xl border border-outline-variant focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-body-sm outline-none bg-surface-container-lowest">
-                        <option value="Belum Verifikasi">Belum Verifikasi</option>
-                        <option value="Valid">Valid – Berkas lengkap & sah</option>
-                        <option value="Revisi">Revisi – Perlu perbaikan</option>
+                        <option value="1">Belum Verifikasi</option>
+                        <option value="3">Valid – Berkas lengkap & sah</option>
+                        <option value="2">Revisi – Perlu perbaikan</option>
                     </select>
                 </div>
                 <!-- Catatan -->

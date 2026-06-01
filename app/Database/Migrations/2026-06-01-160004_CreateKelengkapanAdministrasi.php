@@ -15,36 +15,27 @@ class CreateKelengkapanAdministrasi extends Migration
                 'unsigned'   => true,
             ],
             'fc_ijazah_skl' => [
-                'type'       => 'TINYINT',
-                'constraint' => 1,
-                'default'    => 0,
+                'type'       => 'VARCHAR',
+                'constraint' => 255,
+                'null'       => true,
             ],
             'fc_kk' => [
-                'type'       => 'TINYINT',
-                'constraint' => 1,
-                'default'    => 0,
-            ],
-            'status_verifikasi' => [
                 'type'       => 'VARCHAR',
-                'constraint' => 50,
-                'default'    => 'Belum Verifikasi',
+                'constraint' => 255,
+                'null'       => true,
             ],
-            'is_finalized' => [
-                'type'       => 'TINYINT',
-                'constraint' => 1,
-                'default'    => 0,
-            ],
-            'catatan_verifikasi' => [
-                'type'       => 'TEXT',
+            'pas_foto' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 255,
                 'null'       => true,
             ],
             'created_at' => [
-                'type'       => 'DATETIME',
-                'null'       => true,
+                'type' => 'DATETIME',
+                'null' => true,
             ],
             'updated_at' => [
-                'type'       => 'DATETIME',
-                'null'       => true,
+                'type' => 'DATETIME',
+                'null' => true,
             ],
         ]);
         $this->forge->addKey('siswa_id', true);
@@ -54,6 +45,6 @@ class CreateKelengkapanAdministrasi extends Migration
 
     public function down()
     {
-        $this->forge->dropTable('kelengkapan_administrasi');
+        $this->forge->dropTable('kelengkapan_administrasi', true);
     }
 }

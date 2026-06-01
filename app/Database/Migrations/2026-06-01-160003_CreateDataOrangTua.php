@@ -16,19 +16,19 @@ class CreateDataOrangTua extends Migration
             ],
             'nama_ayah' => [
                 'type'       => 'VARCHAR',
-                'constraint' => '150',
+                'constraint' => 150,
             ],
             'pekerjaan_ayah' => [
                 'type'       => 'VARCHAR',
-                'constraint' => '100',
+                'constraint' => 100,
             ],
             'nama_ibu' => [
                 'type'       => 'VARCHAR',
-                'constraint' => '150',
+                'constraint' => 150,
             ],
             'pekerjaan_ibu' => [
                 'type'       => 'VARCHAR',
-                'constraint' => '100',
+                'constraint' => 100,
             ],
         ]);
         $this->forge->addKey('siswa_id', true);
@@ -38,6 +38,6 @@ class CreateDataOrangTua extends Migration
 
     public function down()
     {
-        $this->forge->dropTable('data_orang_tua');
+        $this->forge->dropTable('data_orang_tua', true);
     }
 }

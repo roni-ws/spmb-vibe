@@ -145,9 +145,10 @@ Dashboard Calon Siswa
                     <?php if ($is_finalized === 0): ?>
                         <a href="<?= base_url('siswa/biodata') ?>" 
                            class="flex items-center justify-between p-2 rounded-lg transition-all shadow-sm group hover:scale-[1.02] hover:border-primary
-                                  <?= $has_biodata ? 'bg-emerald-50 border border-emerald-200 text-emerald-800' : 'bg-amber-50 border border-amber-300 text-amber-900 animate-[pulse_3s_infinite]' ?>">
+                                  <?= $has_biodata ? 'bg-emerald-50 border border-emerald-200 text-emerald-800' : 'animate-[pulse_3s_infinite]' ?>"
+                           <?= !$has_biodata ? 'style="background-color: #fef3c7 !important; border: 1px solid #f59e0b !important; color: #78350f !important;"' : '' ?>>
                             <div class="flex items-center gap-xs font-semibold">
-                                <span class="material-symbols-outlined text-base <?= $has_biodata ? 'text-emerald-500' : 'text-amber-600' ?>">
+                                <span class="material-symbols-outlined text-base" style="color: <?= $has_biodata ? '#10b981' : '#b45309' ?> !important; font-weight: bold;">
                                     <?= $has_biodata ? 'check_circle' : 'edit_square' ?>
                                 </span>
                                 Biodata Diri
@@ -155,7 +156,7 @@ Dashboard Calon Siswa
                             <?php if ($has_biodata): ?>
                                 <span class="font-bold text-[9px] uppercase px-1.5 py-0.5 bg-emerald-200 text-emerald-900 rounded">Selesai</span>
                             <?php else: ?>
-                                <span class="font-bold text-[9px] uppercase px-1.5 py-0.5 bg-amber-200 text-amber-950 rounded group-hover:bg-primary group-hover:text-white transition-colors">Isi ➜</span>
+                                <span class="font-bold text-[9px] uppercase px-1.5 py-0.5 rounded text-white transition-colors" style="background-color: #d97706 !important;">Isi ➜</span>
                             <?php endif; ?>
                         </a>
                     <?php else: ?>
@@ -174,9 +175,10 @@ Dashboard Calon Siswa
                     <?php if ($is_finalized === 0): ?>
                         <a href="<?= base_url('siswa/sekolah') ?>" 
                            class="flex items-center justify-between p-2 rounded-lg transition-all shadow-sm group hover:scale-[1.02] hover:border-primary
-                                  <?= $has_sekolah ? 'bg-emerald-50 border border-emerald-200 text-emerald-800' : 'bg-amber-50 border border-amber-300 text-amber-900' ?>">
+                                  <?= $has_sekolah ? 'bg-emerald-50 border border-emerald-200 text-emerald-800' : '' ?>"
+                           <?= !$has_sekolah ? 'style="background-color: #fef3c7 !important; border: 1px solid #f59e0b !important; color: #78350f !important;"' : '' ?>>
                             <div class="flex items-center gap-xs font-semibold">
-                                <span class="material-symbols-outlined text-base <?= $has_sekolah ? 'text-emerald-500' : 'text-amber-600' ?>">
+                                <span class="material-symbols-outlined text-base" style="color: <?= $has_sekolah ? '#10b981' : '#b45309' ?> !important; font-weight: bold;">
                                     <?= $has_sekolah ? 'check_circle' : 'school' ?>
                                 </span>
                                 Asal Sekolah
@@ -184,7 +186,7 @@ Dashboard Calon Siswa
                             <?php if ($has_sekolah): ?>
                                 <span class="font-bold text-[9px] uppercase px-1.5 py-0.5 bg-emerald-200 text-emerald-900 rounded">Selesai</span>
                             <?php else: ?>
-                                <span class="font-bold text-[9px] uppercase px-1.5 py-0.5 bg-amber-200 text-amber-950 rounded group-hover:bg-primary group-hover:text-white transition-colors">Isi ➜</span>
+                                <span class="font-bold text-[9px] uppercase px-1.5 py-0.5 rounded text-white transition-colors" style="background-color: #d97706 !important;">Isi ➜</span>
                             <?php endif; ?>
                         </a>
                     <?php else: ?>
@@ -203,9 +205,10 @@ Dashboard Calon Siswa
                     <?php if ($is_finalized === 0): ?>
                         <a href="<?= base_url('siswa/berkas') ?>" 
                            class="flex items-center justify-between p-2 rounded-lg transition-all shadow-sm group hover:scale-[1.02] hover:border-primary
-                                  <?= $has_berkas ? 'bg-emerald-50 border border-emerald-200 text-emerald-800' : 'bg-amber-50 border border-amber-300 text-amber-900' ?>">
+                                  <?= $has_berkas ? 'bg-emerald-50 border border-emerald-200 text-emerald-800' : '' ?>"
+                           <?= !$has_berkas ? 'style="background-color: #fef3c7 !important; border: 1px solid #f59e0b !important; color: #78350f !important;"' : '' ?>>
                             <div class="flex items-center gap-xs font-semibold">
-                                <span class="material-symbols-outlined text-base <?= $has_berkas ? 'text-emerald-500' : 'text-amber-600' ?>">
+                                <span class="material-symbols-outlined text-base" style="color: <?= $has_berkas ? '#10b981' : '#b45309' ?> !important; font-weight: bold;">
                                     <?= $has_berkas ? 'check_circle' : 'upload_file' ?>
                                 </span>
                                 Berkas Dokumen
@@ -213,7 +216,7 @@ Dashboard Calon Siswa
                             <?php if ($has_berkas): ?>
                                 <span class="font-bold text-[9px] uppercase px-1.5 py-0.5 bg-emerald-200 text-emerald-900 rounded">Selesai</span>
                             <?php else: ?>
-                                <span class="font-bold text-[9px] uppercase px-1.5 py-0.5 bg-amber-200 text-amber-950 rounded group-hover:bg-primary group-hover:text-white transition-colors">Isi ➜</span>
+                                <span class="font-bold text-[9px] uppercase px-1.5 py-0.5 rounded text-white transition-colors" style="background-color: #d97706 !important;">Isi ➜</span>
                             <?php endif; ?>
                         </a>
                     <?php else: ?>
@@ -234,24 +237,63 @@ Dashboard Calon Siswa
 
     <!-- Action Cards Container -->
     <div class="md:col-span-4 flex flex-col gap-md">
+        <!-- Status Action Alert Banner -->
+        <?php if ($is_finalized === 0): ?>
+            <div class="p-sm bg-amber-50 border border-amber-200 rounded-xl flex gap-xs items-start shadow-sm text-amber-800 animate-slide-up">
+                <span class="material-symbols-outlined text-amber-600 text-lg shrink-0">info</span>
+                <div class="flex-grow">
+                    <h4 class="font-label-bold text-[11px] text-amber-900 mb-0.5">Tombol Tindakan Terkunci</h4>
+                    <p class="text-[10px] leading-normal text-amber-800/90">
+                        Selesaikan isian data Anda (Langkah 1 s.d 4) lalu lakukan **Finalisasi Pendaftaran** agar tombol cetak & grup WA aktif.
+                    </p>
+                </div>
+            </div>
+        <?php elseif ($is_finalized === 1 && $status_verifikasi !== 'Valid'): ?>
+            <?php if ($status_verifikasi === 'Tidak Valid' || $status_verifikasi === 'Revisi'): ?>
+                <div class="p-sm bg-red-50 border border-red-200 rounded-xl flex gap-xs items-start shadow-sm text-red-800 animate-slide-up">
+                    <span class="material-symbols-outlined text-red-600 text-lg shrink-0">gpp_bad</span>
+                    <div class="flex-grow">
+                        <h4 class="font-label-bold text-[11px] text-red-900 mb-0.5">Berkas Perlu Revisi</h4>
+                        <p class="text-[10px] leading-normal text-red-800/90">
+                            Berkas Anda dinyatakan **Butuh Revisi** oleh panitia. Silakan baca catatan di bawah atau hubungi Admin.
+                        </p>
+                    </div>
+                </div>
+            <?php else: ?>
+                <div class="p-sm bg-blue-50 border border-blue-200 rounded-xl flex gap-xs items-start shadow-sm text-blue-800 animate-slide-up">
+                    <span class="material-symbols-outlined text-blue-600 text-lg shrink-0">pending_actions</span>
+                    <div class="flex-grow">
+                        <h4 class="font-label-bold text-[11px] text-blue-900 mb-0.5">Menunggu Verifikasi</h4>
+                        <p class="text-[10px] leading-normal text-blue-800/90">
+                            Berkas Anda sedang **diverifikasi oleh Panitia**. Tombol cetak & grup WA akan terbuka setelah berkas dinyatakan **Valid**.
+                        </p>
+                    </div>
+                </div>
+            <?php endif; ?>
+        <?php endif; ?>
+
         <!-- Lengkapi Formulir Action -->
         <?php if ($is_finalized === 0): ?>
-        <a class="group flex items-center gap-sm p-sm bg-gradient-to-r from-primary to-primary-container text-white border border-primary/20 rounded-xl shadow-[0_4px_12px_rgba(0,32,69,0.08)] hover:shadow-[0_8px_24px_rgba(0,32,69,0.16)] transition-all cursor-pointer"
+        <a class="group flex items-center gap-sm p-sm text-white border border-amber-600/20 rounded-xl shadow-[0_4px_12px_rgba(217,119,6,0.15)] hover:shadow-[0_8px_24px_rgba(217,119,6,0.25)] transition-all cursor-pointer"
+            style="background: linear-gradient(to right, #f59e0b, #d97706) !important;"
             href="<?= base_url('siswa/biodata') ?>">
-            <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center text-white group-hover:bg-white group-hover:text-primary transition-colors shrink-0 shadow-inner">
+            <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center text-white group-hover:bg-white group-hover:text-amber-600 transition-colors shrink-0 shadow-inner">
                 <span class="material-symbols-outlined">edit_document</span>
             </div>
             <div class="flex-grow">
                 <h3 class="font-label-bold text-body-sm text-white group-hover:underline">
                     Isi/Lengkapi Formulir
                 </h3>
-                <p class="font-caption text-[11px] text-primary-fixed/80">Langkah 1 s.d 4 Pendaftaran</p>
+                <p class="font-caption text-[11px] text-white/90">Langkah 1 s.d 4 Pendaftaran</p>
             </div>
             <span class="material-symbols-outlined text-white/70 group-hover:text-white transition-colors">chevron_right</span>
         </a>
         <?php endif; ?>
 
+        <?php $can_action = ($is_finalized === 1 && $status_verifikasi === 'Valid'); ?>
+
         <!-- Download Form Action -->
+        <?php if ($can_action): ?>
         <a class="group flex items-center gap-sm p-sm bg-surface border border-outline-variant rounded-xl shadow-[0_4px_12px_rgba(0,32,69,0.04)] hover:shadow-[0_8px_20px_rgba(0,32,69,0.08)] hover:border-primary transition-all cursor-pointer"
             href="<?= base_url('siswa/download-form') ?>">
             <div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors shrink-0">
@@ -265,8 +307,23 @@ Dashboard Calon Siswa
             </div>
             <span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors">chevron_right</span>
         </a>
+        <?php else: ?>
+        <div class="group flex items-center gap-sm p-sm bg-slate-50 border border-slate-200 rounded-xl opacity-60 cursor-not-allowed select-none">
+            <div class="w-10 h-10 rounded-lg bg-slate-200 flex items-center justify-center text-slate-400 shrink-0">
+                <span class="material-symbols-outlined">lock</span>
+            </div>
+            <div class="flex-grow">
+                <h3 class="font-label-bold text-body-sm text-slate-500">
+                    Cetak Bukti Pendaftaran
+                </h3>
+                <p class="font-caption text-caption text-slate-400">Terkunci (Belum Terverifikasi)</p>
+            </div>
+            <span class="material-symbols-outlined text-slate-300">lock</span>
+        </div>
+        <?php endif; ?>
         
         <!-- WhatsApp Group Action -->
+        <?php if ($can_action): ?>
         <?php $waLink = \App\Models\SettingsModel::getSetting('whatsapp_link', 'https://wa.me/6281234567890'); ?>
         <a class="group flex items-center gap-sm p-sm bg-surface border border-outline-variant rounded-xl shadow-[0_4px_12px_rgba(0,32,69,0.04)] hover:shadow-[0_8px_20px_rgba(0,32,69,0.08)] hover:border-[#25D366] transition-all cursor-pointer"
             href="<?= esc($waLink) ?>" target="_blank">
@@ -281,6 +338,20 @@ Dashboard Calon Siswa
             </div>
             <span class="material-symbols-outlined text-outline-variant group-hover:text-[#25D366] transition-colors">chevron_right</span>
         </a>
+        <?php else: ?>
+        <div class="group flex items-center gap-sm p-sm bg-slate-50 border border-slate-200 rounded-xl opacity-60 cursor-not-allowed select-none">
+            <div class="w-10 h-10 rounded-lg bg-slate-200 flex items-center justify-center text-slate-400 shrink-0">
+                <span class="material-symbols-outlined">lock</span>
+            </div>
+            <div class="flex-grow">
+                <h3 class="font-label-bold text-body-sm text-slate-500">
+                    Grup WhatsApp Resmi
+                </h3>
+                <p class="font-caption text-caption text-slate-400">Terkunci (Belum Terverifikasi)</p>
+            </div>
+            <span class="material-symbols-outlined text-slate-300">lock</span>
+        </div>
+        <?php endif; ?>
     </div>
 
     <!-- Finalisasi Pendaftaran Card -->

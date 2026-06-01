@@ -75,6 +75,18 @@ $routes->group('admin', ['filter' => 'group:admin,panitia'], static function ($r
 });
 
 // -----------------------------------------------------------------------
+// Rute API (JWT Authentication & Testing)
+// -----------------------------------------------------------------------
+$routes->group('api', static function ($routes) {
+    $routes->post('admin/login', 'Api\Admin\AuthController::loginAction');
+    $routes->post('siswa/login', 'Api\Siswa\AuthController::loginAction');
+
+    // Endpoint testing terproteksi filter JWT bawaan Shield
+    $routes->get('admin/profile', 'Api\Admin\AuthController::profile', ['filter' => 'jwt']);
+    $routes->get('siswa/profile', 'Api\Siswa\AuthController::profile', ['filter' => 'jwt']);
+});
+
+// -----------------------------------------------------------------------
 // Rute Shield bawaan (magic link, 2FA, token, dsb.)
 // -----------------------------------------------------------------------
 service('auth')->routes($routes);

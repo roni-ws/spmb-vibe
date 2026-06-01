@@ -67,6 +67,11 @@
             <span class="material-symbols-outlined text-[18px]">campaign</span>
             Pengumuman & WA
         </button>
+        <button type="button" onclick="switchSubTab('tab-kop')" id="btn-tab-kop"
+                class="tab-btn px-4 py-2.5 rounded-xl text-label-bold font-semibold transition-all flex items-center gap-2 border-b-2 border-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container">
+            <span class="material-symbols-outlined text-[18px]">print</span>
+            Kop & Cetak Bukti
+        </button>
     </nav>
 
     <!-- ==========================================
@@ -470,6 +475,55 @@
         </div>
 
         <!-- ==========================================
+             SUB-TAB 6: KOP SURAT & CETAK BUKTI
+             ========================================== -->
+        <div id="tab-kop" class="tab-pane hidden flex flex-col gap-md">
+            <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-md md:p-lg shadow-sm">
+                <h3 class="font-headline-sm text-headline-sm text-primary mb-sm flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">print</span> Pengaturan Kop Cetak Bukti Pendaftaran
+                </h3>
+                <p class="text-caption text-on-surface-variant mb-6">Ubah data kop surat dinamis yang akan dicetak pada lembar Bukti Pendaftaran PDF oleh calon siswa.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+                    <!-- Nama Instansi / Sekolah -->
+                    <div class="flex flex-col gap-2 md:col-span-2">
+                        <label for="kop_nama" class="text-body-sm font-semibold text-on-surface">Nama Instansi / Yayasan & Sekolah</label>
+                        <textarea name="kop_nama" id="kop_nama" rows="2" placeholder="Contoh: PANITIA PENERIMAAN SISWA BARU (SPMB)&#10;SMA UNGGUL BANGSA"
+                               class="w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 text-body-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"><?= esc($settings['kop_nama'] ?? '') ?></textarea>
+                        <p class="text-caption text-on-surface-variant">Gunakan baris baru (Enter) jika ingin tulisan instansi ditampilkan bertumpuk/bertingkat.</p>
+                    </div>
+
+                    <!-- Alamat Lengkap -->
+                    <div class="flex flex-col gap-2 md:col-span-2">
+                        <label for="kop_alamat" class="text-body-sm font-semibold text-on-surface">Alamat Lengkap Instansi</label>
+                        <input type="text" name="kop_alamat" id="kop_alamat" value="<?= esc($settings['kop_alamat'] ?? '') ?>"
+                               placeholder="Contoh: Jl. Raya Pendidikan No. 45, Jakarta Pusat"
+                               class="w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 text-body-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
+                    </div>
+
+                    <!-- Telepon / Fax / Kontak -->
+                    <div class="flex flex-col gap-2">
+                        <label for="kop_telepon" class="text-body-sm font-semibold text-on-surface">Telepon / Fax / Kontak Sekolah</label>
+                        <input type="text" name="kop_telepon" id="kop_telepon" value="<?= esc($settings['kop_telepon'] ?? '') ?>"
+                               placeholder="Contoh: Telp: (021) 555 0123"
+                               class="w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 text-body-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
+                    </div>
+
+                    <!-- Website / Email -->
+                    <div class="flex flex-col gap-2">
+                        <label for="kop_website" class="text-body-sm font-semibold text-on-surface">Website / Email Sekolah</label>
+                        <input type="text" name="kop_website" id="kop_website" value="<?= esc($settings['kop_website'] ?? '') ?>"
+                               placeholder="Contoh: Website: spmb.unggulbangsa.sch.id"
+                               class="w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 text-body-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+
              SUBMIT TOOLBAR (Sticky at Bottom)
              ========================================== -->
         <div class="sticky bottom-6 mt-md p-4 rounded-2xl bg-surface border border-outline-variant/80 shadow-lg flex justify-between items-center backdrop-blur-md bg-opacity-95 z-10 animate-slide-up">

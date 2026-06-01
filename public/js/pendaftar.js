@@ -118,8 +118,16 @@ window.addEventListener('click', function (e) {
 function openVerifyModal(userId, status, kelulusan, nama, pasFotoUrl = '') {
     document.querySelectorAll('[id^="menu-"]').forEach(m => m.classList.add('hidden'));
     document.getElementById('modal-student-name').textContent = nama;
-    document.getElementById('modal-status').value    = status || 'Pending';
-    document.getElementById('modal-kelulusan').value = kelulusan || '';
+    const statusMap = {
+        'Belum Verifikasi': 1,
+        'Revisi': 2,
+        'Valid': 3
+    };
+    document.getElementById('modal-status').value    = statusMap[status] || 1;
+    const kelulusanEl = document.getElementById('modal-kelulusan');
+    if (kelulusanEl) {
+        kelulusanEl.value = kelulusan || '';
+    }
     document.getElementById('verify-form').action    = window.BASE_URL + 'admin/verify/' + userId;
     
     // Manage Pas Foto preview
@@ -193,8 +201,10 @@ function openEditModal(userId, nama, nik, sekolah, nilai, noHp) {
     document.getElementById('edit-nama').value = nama || '';
     document.getElementById('edit-nik').value = nik || '';
     document.getElementById('edit-sekolah').value = sekolah || '';
-    document.getElementById('edit-nilai').value = nilai || '';
-    document.getElementById('edit-nohp').value = noHp || '';
+    const nilaiEl = document.getElementById('edit-nilai');
+    if (nilaiEl) nilaiEl.value = nilai || '';
+    const nohpEl = document.getElementById('edit-nohp');
+    if (nohpEl) nohpEl.value = noHp || '';
     document.getElementById('edit-form').action = window.BASE_URL + 'admin/edit-student/' + userId;
 
     const modal = document.getElementById('edit-modal');

@@ -198,7 +198,7 @@ class Auth extends BaseController
             $siswaModel = new \App\Models\SiswaModel();
             $siswaModel->insert([
                 'nisn'             => $this->request->getPost('username'),
-                'nik'              => 'REG-' . $userId . '-' . time(), // Unique placeholder NIK
+                'nik'              => str_pad((string)$userId, 16, '0', STR_PAD_LEFT), // Unique placeholder NIK 16 digit
                 'nama_lengkap'     => $this->request->getPost('fullName'),
                 'no_kk'            => '0000000000000000',
                 'tempat_lahir'     => '',
@@ -227,11 +227,18 @@ class Auth extends BaseController
             $administrasiModel = new \App\Models\AdministrasiModel();
             $administrasiModel->insert([
                 'siswa_id'           => $siswaId,
-                'fc_ijazah_skl'      => 0,
-                'fc_kk'              => 0,
-                'status_verifikasi'  => 'Belum Verifikasi',
-                'is_finalized'       => 0,
-                'catatan_verifikasi' => null,
+                'fc_ijazah_skl'      => null,
+                'fc_kk'              => null,
+                'pas_foto'           => null,
+            ]);
+
+            // Buat record status_pendaftaran
+            $statusPendaftaranModel = new \App\Models\StatusPendaftaranModel();
+            $statusPendaftaranModel->insert([
+                'siswa_id'             => $siswaId,
+                'status_verifikasi_id' => 1,
+                'is_finalized'         => 0,
+                'catatan_verifikasi'   => null,
             ]);
 
             // 4. Login Otomatis & Redirect ke Dashboard

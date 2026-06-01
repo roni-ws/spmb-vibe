@@ -33,8 +33,9 @@ class Dashboard extends BaseController
         $siswaModel = new SiswaModel();
         $biodata = $siswaModel->where('nisn', $shieldUser->username)->first();
 
-        $sekolah = null;
-        $berkas  = null;
+        $sekolah            = null;
+        $berkas             = null;
+        $statusPendaftaran  = null;
 
         if ($biodata) {
             $sekolahModel = new MasterSekolahModel();
@@ -44,13 +45,17 @@ class Dashboard extends BaseController
             $berkas = $berkasModel->where('siswa_id', $biodata['id'])->first();
 
             $statusPendaftaranModel = new \App\Models\StatusPendaftaranModel();
-            $statusPendaftaran = $statusPendaftaranModel->where('siswa_id', $biodata['id'])->first();
+            $statusPendaftaran = $statusPendaftaranModel
+                ->select('status_pendaftaran.*, status_verifikasi.nama_status as status_verifikasi')
+                ->join('status_verifikasi', 'status_verifikasi.id = status_pendaftaran.status_verifikasi_id', 'left')
+                ->where('siswa_id', $biodata['id'])
+                ->first();
         }
 
         // 4. Kalkulasi Status Kelengkapan Formulir
         $hasBiodata = ! empty($biodata) && ! empty($biodata['nik']) && ! str_contains($biodata['nik'], 'REG-');
         $hasSekolah = ! empty($sekolah) && $sekolah['nama_sekolah'] !== 'Belum Diisi';
-        $hasBerkas  = ! empty($berkas) && ((int)$berkas['fc_ijazah_skl'] === 1 && (int)$berkas['fc_kk'] === 1 && !empty($berkas['pas_foto']));
+        $hasBerkas  = ! empty($berkas) && (!empty($berkas['fc_ijazah_skl']) && !empty($berkas['fc_kk']) && !empty($berkas['pas_foto']));
 
         // 5. Hitung Progres Pendaftaran (4 Langkah, masing-masing 25%)
         //    Langkah 1: Akun Terdaftar       → +25% (selalu terpenuhi jika bisa login)
@@ -136,11 +141,11 @@ class Dashboard extends BaseController
             ]);
         } else {
             $db->table('status_pendaftaran')->insert([
-                'siswa_id'           => $siswaId,
-                'is_finalized'       => 1,
-                'status_verifikasi'  => 'Belum Verifikasi',
-                'created_at'         => date('Y-m-d H:i:s'),
-                'updated_at'         => date('Y-m-d H:i:s')
+                'siswa_id'             => $siswaId,
+                'is_finalized'         => 1,
+                'status_verifikasi_id' => 1,
+                'created_at'           => date('Y-m-d H:i:s'),
+                'updated_at'           => date('Y-m-d H:i:s')
             ]);
         }
 
@@ -186,13 +191,14 @@ class Dashboard extends BaseController
                 kelengkapan_administrasi.fc_ijazah_skl,
                 kelengkapan_administrasi.fc_kk,
                 kelengkapan_administrasi.pas_foto,
-                status_pendaftaran.status_verifikasi, 
+                status_verifikasi.nama_status as status_verifikasi, 
                 status_pendaftaran.is_finalized,
                 \'Belum Pengumuman\' as status_kelulusan
             ')
             ->join('master_sekolah', 'master_sekolah.id = calon_siswa.sekolah_id', 'left')
             ->join('kelengkapan_administrasi', 'kelengkapan_administrasi.siswa_id = calon_siswa.id', 'left')
             ->join('status_pendaftaran', 'status_pendaftaran.siswa_id = calon_siswa.id', 'left')
+            ->join('status_verifikasi', 'status_verifikasi.id = status_pendaftaran.status_verifikasi_id', 'left')
             ->join('data_orang_tua', 'data_orang_tua.siswa_id = calon_siswa.id', 'left')
             ->where('calon_siswa.nisn', $user->username);
 
@@ -200,6 +206,14 @@ class Dashboard extends BaseController
 
         if (!$student) {
             return redirect()->back()->with('error', 'Data pendaftar tidak ditemukan.');
+        }
+
+        // Proteksi download berkas: Harus sudah finalisasi dan status verifikasi Valid
+        $isFinalized = isset($student['is_finalized']) ? (int)$student['is_finalized'] : 0;
+        $statusVerifikasi = $student['status_verifikasi'] ?? 'Belum Verifikasi';
+
+        if ($isFinalized === 0 || $statusVerifikasi !== 'Valid') {
+            return redirect()->to(base_url('siswa/dashboard'))->with('error', 'Anda harus memfinalisasi data dan berkas Anda telah diverifikasi oleh Panitia sebelum dapat mengunduh bukti pendaftaran.');
         }
 
         // Render beautiful clean printable card
@@ -229,8 +243,8 @@ class Dashboard extends BaseController
 
         // Cek apakah data sudah difinalisasi
         $db = \Config\Database::connect();
-        $berkas = $db->table('kelengkapan_administrasi')->where('siswa_id', $biodata['id'])->get()->getRowArray();
-        if ($berkas && (int)$berkas['is_finalized'] === 1) {
+        $statusPendaftaran = $db->table('status_pendaftaran')->where('siswa_id', $biodata['id'])->get()->getRowArray();
+        if ($statusPendaftaran && (int)$statusPendaftaran['is_finalized'] === 1) {
             return redirect()->to(base_url('siswa/dashboard'))
                 ->with('error', 'Data pendaftar Anda telah difinalisasi secara permanen.');
         }
@@ -629,6 +643,9 @@ class Dashboard extends BaseController
                 ->with('error', 'Data pendaftar Anda telah difinalisasi secara permanen.');
         }
 
+        $berkasModel = new AdministrasiModel();
+        $berkas = $berkasModel->where('siswa_id', $biodata['id'])->first();
+
         $data = [
             'berkas' => $berkas,
             'nama_lengkap' => !empty($biodata['nama_lengkap']) ? $biodata['nama_lengkap'] : $user->username,
@@ -669,12 +686,15 @@ class Dashboard extends BaseController
             'pas_foto'      => 'uploaded[pas_foto]|max_size[pas_foto,2048]|ext_in[pas_foto,jpg,jpeg,png]',
         ];
 
+        $berkasModel = new AdministrasiModel();
+        $berkas = $berkasModel->where('siswa_id', $biodata['id'])->first();
+
         // Jika data berkas sudah pernah diunggah sebelumnya, upload berkas baru bersifat opsional
         if ($berkas) {
-            if ((int)$berkas['fc_ijazah_skl'] === 1) {
+            if (!empty($berkas['fc_ijazah_skl'])) {
                 $rules['fc_ijazah_skl'] = 'max_size[fc_ijazah_skl,2048]|ext_in[fc_ijazah_skl,pdf,jpg,jpeg,png]';
             }
-            if ((int)$berkas['fc_kk'] === 1) {
+            if (!empty($berkas['fc_kk'])) {
                 $rules['fc_kk'] = 'max_size[fc_kk,2048]|ext_in[fc_kk,pdf,jpg,jpeg,png]';
             }
             if (!empty($berkas['pas_foto'])) {
@@ -726,7 +746,7 @@ class Dashboard extends BaseController
             // Simpan file baru
             $newName = 'ijazah_' . $biodata['id'] . '_' . time() . '.' . $fileIjazah->getClientExtension();
             $fileIjazah->move($uploadPath, $newName);
-            $updateData['fc_ijazah_skl'] = 1;
+            $updateData['fc_ijazah_skl'] = $newName;
         }
 
         // Proses scan Kartu Keluarga
@@ -743,7 +763,7 @@ class Dashboard extends BaseController
             // Simpan file baru
             $newName = 'kk_' . $biodata['id'] . '_' . time() . '.' . $fileKk->getClientExtension();
             $fileKk->move($uploadPath, $newName);
-            $updateData['fc_kk'] = 1;
+            $updateData['fc_kk'] = $newName;
         }
 
         // Proses Pas Foto 3x4

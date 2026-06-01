@@ -17,25 +17,25 @@ class CreateCalonSiswa extends Migration
             ],
             'nisn' => [
                 'type'       => 'VARCHAR',
-                'constraint' => '10',
+                'constraint' => 10,
                 'unique'     => true,
             ],
             'nik' => [
                 'type'       => 'VARCHAR',
-                'constraint' => '16',
+                'constraint' => 16,
                 'unique'     => true,
             ],
             'nama_lengkap' => [
                 'type'       => 'VARCHAR',
-                'constraint' => '150',
+                'constraint' => 150,
             ],
             'no_kk' => [
                 'type'       => 'VARCHAR',
-                'constraint' => '16',
+                'constraint' => 16,
             ],
             'tempat_lahir' => [
                 'type'       => 'VARCHAR',
-                'constraint' => '100',
+                'constraint' => 100,
             ],
             'tanggal_lahir' => [
                 'type' => 'DATE',
@@ -59,15 +59,15 @@ class CreateCalonSiswa extends Migration
             ],
             'alamat_desa' => [
                 'type'       => 'VARCHAR',
-                'constraint' => '100',
+                'constraint' => 100,
             ],
             'alamat_kecamatan' => [
                 'type'       => 'VARCHAR',
-                'constraint' => '100',
+                'constraint' => 100,
             ],
             'alamat_kabupaten' => [
                 'type'       => 'VARCHAR',
-                'constraint' => '100',
+                'constraint' => 100,
             ],
         ]);
         $this->forge->addKey('id', true);
@@ -77,7 +77,6 @@ class CreateCalonSiswa extends Migration
 
     public function down()
     {
-        // Drop foreign keys first if RDBMS is strict, or dropTable takes care of it depending on order.
-        $this->forge->dropTable('calon_siswa');
+        $this->forge->dropTable('calon_siswa', true);
     }
 }

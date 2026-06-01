@@ -32,6 +32,12 @@ class Settings extends BaseController
             'logo_img'          => SettingsModel::getSetting('logo_img', ''),
             'hero_img'          => SettingsModel::getSetting('hero_img', ''),
 
+            // Kop Surat Settings
+            'kop_nama'          => SettingsModel::getSetting('kop_nama', "PANITIA PENERIMAAN SISWA BARU (SPMB)\nSMA UNGGUL BANGSA"),
+            'kop_alamat'        => SettingsModel::getSetting('kop_alamat', 'Jl. Raya Pendidikan No. 45, Jakarta Pusat'),
+            'kop_telepon'       => SettingsModel::getSetting('kop_telepon', 'Telp: (021) 555 0123'),
+            'kop_website'       => SettingsModel::getSetting('kop_website', 'Website: spmb.unggulbangsa.sch.id'),
+
             // Alur Pendaftaran (Steps 1-4)
             'step1_title'       => SettingsModel::getSetting('step1_title', '1. Registrasi Akun'),
             'step1_desc'        => SettingsModel::getSetting('step1_desc', 'Buat akun pendaftar secara online menggunakan username, email aktif, dan password Anda.'),
@@ -70,12 +76,6 @@ class Settings extends BaseController
 
             // Pengumuman & WhatsApp Group Settings
             'whatsapp_link'        => SettingsModel::getSetting('whatsapp_link', 'https://wa.me/6281234567890'),
-            'announcement_title_1' => SettingsModel::getSetting('announcement_title_1', 'Jadwal Ujian Masuk Seleksi Akademik'),
-            'announcement_desc_1'  => SettingsModel::getSetting('announcement_desc_1', 'Ujian seleksi potensi akademik dan wawancara online akan diselenggarakan pada hari Selasa depan. Harap cetak bukti pendaftaran dan kartu ujian Anda terlebih dahulu.'),
-            'announcement_time_1'  => SettingsModel::getSetting('announcement_time_1', '2 jam yang lalu'),
-            'announcement_title_2' => SettingsModel::getSetting('announcement_title_2', 'Panduan Unggah Berkas Persyaratan'),
-            'announcement_desc_2'  => SettingsModel::getSetting('announcement_desc_2', 'Pastikan semua dokumen hasil scan (Ijazah/SKL, Kartu Keluarga, Rapor) terbaca dengan sangat jelas. Format file yang diterima hanya berupa gambar/PDF dengan batas ukuran maksimal 2MB per file.'),
-            'announcement_time_2'  => SettingsModel::getSetting('announcement_time_2', 'Kemarin'),
         ];
 
         $pengumumanModel = new PengumumanModel();
@@ -146,12 +146,12 @@ class Settings extends BaseController
 
             // Pengumuman & WA Rules
             'whatsapp_link'        => 'required|valid_url',
-            'announcement_title_1' => 'required|min_length[3]|max_length[255]',
-            'announcement_desc_1'  => 'required|min_length[5]',
-            'announcement_time_1'  => 'required|min_length[2]|max_length[50]',
-            'announcement_title_2' => 'required|min_length[3]|max_length[255]',
-            'announcement_desc_2'  => 'required|min_length[5]',
-            'announcement_time_2'  => 'required|min_length[2]|max_length[50]',
+
+            // Kop Surat Rules
+            'kop_nama'             => 'permit_empty|min_length[3]|max_length[255]',
+            'kop_alamat'           => 'permit_empty|min_length[5]|max_length[255]',
+            'kop_telepon'          => 'permit_empty|min_length[3]|max_length[100]',
+            'kop_website'          => 'permit_empty|min_length[3]|max_length[255]',
         ];
 
         // Validate logo file only if a file was selected/uploaded
@@ -164,6 +164,12 @@ class Settings extends BaseController
         $heroFile = $this->request->getFile('hero_file');
         if ($heroFile && $heroFile->isValid()) {
             $rules['hero_file'] = 'is_image[hero_file]|mime_in[hero_file,image/png,image/jpg,image/jpeg]|max_size[hero_file,4096]';
+        }
+
+        // Validate kop logo file only if a file was selected/uploaded
+        $kopLogoFile = $this->request->getFile('kop_logo_file');
+        if ($kopLogoFile && $kopLogoFile->isValid()) {
+            $rules['kop_logo_file'] = 'is_image[kop_logo_file]|mime_in[kop_logo_file,image/png,image/jpg,image/jpeg]|max_size[kop_logo_file,2048]';
         }
 
         if (! $this->validate($rules)) {
@@ -217,12 +223,12 @@ class Settings extends BaseController
 
         // Simpan Pengumuman & WA
         SettingsModel::setSetting('whatsapp_link', $this->request->getPost('whatsapp_link'));
-        SettingsModel::setSetting('announcement_title_1', $this->request->getPost('announcement_title_1'));
-        SettingsModel::setSetting('announcement_desc_1', $this->request->getPost('announcement_desc_1'));
-        SettingsModel::setSetting('announcement_time_1', $this->request->getPost('announcement_time_1'));
-        SettingsModel::setSetting('announcement_title_2', $this->request->getPost('announcement_title_2'));
-        SettingsModel::setSetting('announcement_desc_2', $this->request->getPost('announcement_desc_2'));
-        SettingsModel::setSetting('announcement_time_2', $this->request->getPost('announcement_time_2'));
+
+        // Simpan Kop Surat Settings
+        SettingsModel::setSetting('kop_nama', $this->request->getPost('kop_nama'));
+        SettingsModel::setSetting('kop_alamat', $this->request->getPost('kop_alamat'));
+        SettingsModel::setSetting('kop_telepon', $this->request->getPost('kop_telepon'));
+        SettingsModel::setSetting('kop_website', $this->request->getPost('kop_website'));
 
         // 4. Proses File Upload Logo
         $logoFile = $this->request->getFile('logo_file');

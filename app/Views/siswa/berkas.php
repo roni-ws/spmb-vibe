@@ -79,7 +79,7 @@ Kelengkapan Berkas (Langkah 4 dari 4)
                         <h3 class="font-label-bold text-body-sm text-on-surface">Scan Ijazah / Surat Keterangan Lulus (SKL) <span class="text-error">*</span></h3>
                         <p class="text-caption text-on-surface-variant">Pastikan tulisan terbaca jelas. Format: PDF/JPG/PNG max 2MB.</p>
                     </div>
-                    <?php if ($berkas && (int)$berkas['fc_ijazah_skl'] === 1): ?>
+                    <?php if ($berkas && !empty($berkas['fc_ijazah_skl'])): ?>
                         <div class="inline-flex items-center gap-xs px-3 py-1 bg-emerald-100 border border-emerald-300 text-emerald-800 rounded-full font-label-bold text-[11px] shadow-sm select-none">
                             <span class="material-symbols-outlined text-[16px] text-emerald-700">check_circle</span> Sudah Terunggah
                         </div>
@@ -92,7 +92,7 @@ Kelengkapan Berkas (Langkah 4 dari 4)
 
                 <div class="flex flex-col gap-xs mt-1">
                     <input class="w-full text-body-sm file:mr-md file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-body-sm file:font-semibold file:bg-primary-fixed file:text-on-primary-fixed hover:file:bg-primary-fixed-dim cursor-pointer" 
-                           id="fc_ijazah_skl" name="fc_ijazah_skl" type="file" <?= ($berkas && (int)$berkas['fc_ijazah_skl'] === 1) ? '' : 'required' ?> />
+                           id="fc_ijazah_skl" name="fc_ijazah_skl" type="file" <?= ($berkas && !empty($berkas['fc_ijazah_skl'])) ? '' : 'required' ?> />
                     <?php if (isset($errors['fc_ijazah_skl'])): ?>
                         <span class="text-xs text-error mt-xs font-semibold"><?= esc($errors['fc_ijazah_skl']) ?></span>
                     <?php endif; ?>
@@ -106,7 +106,7 @@ Kelengkapan Berkas (Langkah 4 dari 4)
                         <h3 class="font-label-bold text-body-sm text-on-surface">Scan Kartu Keluarga (KK) <span class="text-error">*</span></h3>
                         <p class="text-caption text-on-surface-variant">Seluruh anggota keluarga harus terlihat jelas. Format: PDF/JPG/PNG max 2MB.</p>
                     </div>
-                    <?php if ($berkas && (int)$berkas['fc_kk'] === 1): ?>
+                    <?php if ($berkas && !empty($berkas['fc_kk'])): ?>
                         <div class="inline-flex items-center gap-xs px-3 py-1 bg-emerald-100 border border-emerald-300 text-emerald-800 rounded-full font-label-bold text-[11px] shadow-sm select-none">
                             <span class="material-symbols-outlined text-[16px] text-emerald-700">check_circle</span> Sudah Terunggah
                         </div>
@@ -119,7 +119,7 @@ Kelengkapan Berkas (Langkah 4 dari 4)
 
                 <div class="flex flex-col gap-xs mt-1">
                     <input class="w-full text-body-sm file:mr-md file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-body-sm file:font-semibold file:bg-primary-fixed file:text-on-primary-fixed hover:file:bg-primary-fixed-dim cursor-pointer" 
-                           id="fc_kk" name="fc_kk" type="file" <?= ($berkas && (int)$berkas['fc_kk'] === 1) ? '' : 'required' ?> />
+                           id="fc_kk" name="fc_kk" type="file" <?= ($berkas && !empty($berkas['fc_kk'])) ? '' : 'required' ?> />
                     <?php if (isset($errors['fc_kk'])): ?>
                         <span class="text-xs text-error mt-xs font-semibold"><?= esc($errors['fc_kk']) ?></span>
                     <?php endif; ?>
@@ -155,11 +155,14 @@ Kelengkapan Berkas (Langkah 4 dari 4)
 
             <!-- Tombol Aksi -->
             <div class="flex flex-col sm:flex-row justify-between items-center gap-md border-t border-outline-variant pt-md mt-lg">
-                <a href="<?= base_url('siswa/orang-tua') ?>" class="w-full sm:w-auto px-lg py-3 rounded-lg border border-outline text-on-surface-variant hover:bg-surface-container-high transition-colors flex items-center justify-center gap-xs font-label-bold text-body-sm text-center">
+                <a href="<?= base_url('siswa/orang-tua') ?>" class="w-full sm:w-auto rounded-lg border border-outline text-on-surface-variant hover:bg-surface-container-high transition-colors flex items-center justify-center gap-xs font-label-bold text-body-sm text-center"
+                   style="padding: 12px 36px !important; min-width: 160px;">
                     <span class="material-symbols-outlined text-[20px]">arrow_back</span>
                     Kembali
                 </a>
-                <button class="w-full sm:w-auto px-lg py-3 rounded-lg bg-primary text-on-primary font-label-bold text-body-sm hover:bg-primary-container transition-colors shadow-sm hover:shadow-md flex items-center justify-center gap-xs group" type="submit">
+                <button class="w-full sm:w-auto rounded-lg bg-primary text-on-primary font-label-bold text-body-sm hover:bg-primary-container transition-colors shadow-sm hover:shadow-md flex items-center justify-center gap-xs group" 
+                        style="padding: 12px 36px !important; min-width: 160px; cursor: pointer;"
+                        type="submit">
                     Simpan & Selesai
                     <span class="material-symbols-outlined text-[20px]">check</span>
                 </button>

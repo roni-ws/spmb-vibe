@@ -97,11 +97,14 @@ Asal Sekolah (Langkah 2 dari 4)
 
             <!-- Tombol Aksi -->
             <div class="flex flex-col sm:flex-row justify-between items-center gap-md border-t border-outline-variant pt-md mt-lg">
-                <a href="<?= base_url('siswa/biodata') ?>" class="w-full sm:w-auto px-lg py-3 rounded-lg border border-outline text-on-surface-variant hover:bg-surface-container-high transition-colors flex items-center justify-center gap-xs font-label-bold text-body-sm text-center">
+                <a href="<?= base_url('siswa/biodata') ?>" class="w-full sm:w-auto rounded-lg border border-outline text-on-surface-variant hover:bg-surface-container-high transition-colors flex items-center justify-center gap-xs font-label-bold text-body-sm text-center"
+                   style="padding: 12px 36px !important; min-width: 160px;">
                     <span class="material-symbols-outlined text-[20px]">arrow_back</span>
                     Kembali
                 </a>
-                <button class="w-full sm:w-auto px-lg py-3 rounded-lg bg-primary text-on-primary font-label-bold text-body-sm hover:bg-primary-container transition-colors shadow-sm hover:shadow-md flex items-center justify-center gap-xs group" type="submit">
+                <button class="w-full sm:w-auto rounded-lg bg-primary text-on-primary font-label-bold text-body-sm hover:bg-primary-container transition-colors shadow-sm hover:shadow-md flex items-center justify-center gap-xs group" 
+                        style="padding: 12px 36px !important; min-width: 160px; cursor: pointer;"
+                        type="submit">
                     Simpan & Lanjutkan
                     <span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
                 </button>
