@@ -7,8 +7,8 @@
     "test": "tests"
   },
   "scripts": {
-    "build": "npx @tailwindcss/cli -i public/css/input.css -o public/css/landingpage.css",
-    "watch": "npx @tailwindcss/cli -i public/css/input.css -o public/css/landingpage.css --watch",
+    "build": "npx @tailwindcss/cli -i public/css/input.css -o public/css/landing-page.css",
+    "watch": "npx @tailwindcss/cli -i public/css/input.css -o public/css/landing-page.css --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

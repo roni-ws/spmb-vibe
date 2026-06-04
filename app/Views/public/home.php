@@ -1,14 +1,13 @@
-<?= $this->extend('layouts/frontend') ?>
+<?= $this->extend('layouts/public') ?>
 
-<?= $this->section('title') ?>SPMB SMA Unggul Bangsa | Penerimaan Siswa Baru<?= $this->endSection() ?>
+<?= $this->section('title') ?>SPMB <?= esc(\App\Models\SettingsModel::getSetting('logo_text', 'SMA Unggul Bangsa')) ?> | Penerimaan Siswa Baru<?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
     <main class="flex-grow">
         <!-- Hero Section -->
         <section id="home" class="relative bg-surface-container-lowest py-24 md:py-32 overflow-hidden">
             <?php
-            $heroImg = \App\Models\SettingsModel::getSetting('hero_img', '');
-            $heroSrc = ($heroImg && file_exists(FCPATH . $heroImg)) ? base_url($heroImg) : base_url('images/school_campus.png');
+            $heroSrc = ($hero_img && file_exists(FCPATH . $hero_img)) ? base_url($hero_img) : base_url('images/school-campus.png');
             ?>
             <div class="absolute inset-0 z-0">
                 <img alt="Siswa berjalan di kampus modern"
@@ -73,28 +72,9 @@
                     <div class="hidden md:block absolute top-12 left-[12.5%] right-[12.5%] h-px bg-outline-variant z-0">
                     </div>
                     <?php for($i = 1; $i <= 4; $i++): 
-                        $stepTitle = \App\Models\SettingsModel::getSetting("step{$i}_title");
-                        $stepDesc = \App\Models\SettingsModel::getSetting("step{$i}_desc");
-                        $stepIcon = \App\Models\SettingsModel::getSetting("step{$i}_icon");
-                        
-                        // Default Fallbacks
-                        if ($i === 1) {
-                            $stepTitle = $stepTitle ?: "1. Registrasi Akun";
-                            $stepDesc = $stepDesc ?: "Buat akun pendaftar secara online menggunakan username, email aktif, dan password Anda.";
-                            $stepIcon = $stepIcon ?: "app_registration";
-                        } elseif ($i === 2) {
-                            $stepTitle = $stepTitle ?: "2. Isi Formulir";
-                            $stepDesc = $stepDesc ?: "Masuk ke sistem, lengkapi formulir biodata pribadi, data kedua orang tua/wali, serta asal sekolah.";
-                            $stepIcon = $stepIcon ?: "description";
-                        } elseif ($i === 3) {
-                            $stepTitle = $stepTitle ?: "3. Upload & Verifikasi";
-                            $stepDesc = $stepDesc ?: "Unggah pas foto, ijazah/SKL, dan Kartu Keluarga (KK). Pantau proses verifikasi berkas oleh admin.";
-                            $stepIcon = $stepIcon ?: "fact_check";
-                        } else {
-                            $stepTitle = $stepTitle ?: "4. Hasil & Dashboard";
-                            $stepDesc = $stepDesc ?: "Unduh formulir pendaftaran PDF, gabung grup WhatsApp resmi, dan cek hasil pengumuman kelulusan.";
-                            $stepIcon = $stepIcon ?: "celebration";
-                        }
+                        $stepTitle = $step_data[$i]['title'];
+                        $stepDesc = $step_data[$i]['desc'];
+                        $stepIcon = $step_data[$i]['icon'];
                         
                         $isLast = ($i === 4);
                         $bgClass = $isLast ? 'bg-secondary-container border border-secondary-container/50' : 'bg-surface-container-high border border-outline-variant/30';
@@ -137,24 +117,9 @@
                         </h3>
                         <ul class="space-y-4">
                             <?php for($i = 1; $i <= 3; $i++): 
-                                $reqTitle = \App\Models\SettingsModel::getSetting("req{$i}_title");
-                                $reqDesc = \App\Models\SettingsModel::getSetting("req{$i}_desc");
-                                $reqIcon = \App\Models\SettingsModel::getSetting("req{$i}_icon");
-                                
-                                // Default Fallbacks
-                                if ($i === 1) {
-                                    $reqTitle = $reqTitle ?: "Pas Foto Terbaru";
-                                    $reqDesc = $reqDesc ?: "Pas foto berwarna ukuran 3x4 cm dengan latar belakang merah (format JPG/PNG, ukuran maks. 2MB, diambil dalam 3 bulan terakhir).";
-                                    $reqIcon = $reqIcon ?: "portrait";
-                                } elseif ($i === 2) {
-                                    $reqTitle = $reqTitle ?: "Ijazah SMP / SKL";
-                                    $reqDesc = $reqDesc ?: "Salinan ijazah asli atau Surat Keterangan Lulus (SKL) sementara jika ijazah resmi belum diterbitkan sekolah (format PDF/Gambar).";
-                                    $reqIcon = $reqIcon ?: "school";
-                                } else {
-                                    $reqTitle = $reqTitle ?: "Kartu Keluarga (KK)";
-                                    $reqDesc = $reqDesc ?: "Salinan dokumen Kartu Keluarga resmi dari Dinas Kependudukan dan Catatan Sipil setempat.";
-                                    $reqIcon = $reqIcon ?: "family_history";
-                                }
+                                $reqTitle = $req_data[$i]['title'];
+                                $reqDesc = $req_data[$i]['desc'];
+                                $reqIcon = $req_data[$i]['icon'];
                             ?>
                                 <li class="flex items-start gap-4 pb-4 border-b border-outline-variant/50 last:border-0 last:pb-0">
                                     <div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center shrink-0">

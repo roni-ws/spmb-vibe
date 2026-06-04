@@ -8,34 +8,34 @@ use App\Models\MasterSekolahModel;
 use App\Models\AdministrasiModel;
 use App\Models\OrangTuaModel;
 use App\Models\PengumumanModel;
+use Config\Database;
 
 class Dashboard extends BaseController
 {
     protected $helpers = ['url', 'html'];
 
+    protected function renderSiswaView(string $view, array $data = []): string
+    {
+        $username = auth()->loggedIn() ? auth()->user()->username : null;
+
+        return view($view, array_merge($this->getSiswaLayoutData($username), $data));
+    }
+
     public function index()
     {
-        // 1. Proteksi rute: Harus sudah login sebagai student
-        if (! auth()->loggedIn()) {
-            return redirect()->to(base_url('login'))
-                ->with('error', 'Silakan login terlebih dahulu untuk mengakses dashboard.');
-        }
+        $this->requireLoggedIn();
+        $this->redirectAdminIfNeeded();
 
-        // 2. Ambil user yang sedang login melalui CodeIgniter Shield
         $shieldUser = auth()->user();
+        $db         = Database::connect();
 
-        // Pastikan bukan admin yang mengakses dashboard siswa
-        if ($shieldUser->inGroup('admin')) {
-            return redirect()->to(base_url('admin/dashboard'));
-        }
-
-        // 3. Tarik Data dari Database Baru berdasarkan username (NISN)
+        // 3. Tarik Data dari Database berdasarkan username (NISN)
         $siswaModel = new SiswaModel();
         $biodata = $siswaModel->where('nisn', $shieldUser->username)->first();
 
-        $sekolah            = null;
-        $berkas             = null;
-        $statusPendaftaran  = null;
+        $sekolah           = null;
+        $berkas            = null;
+        $statusPendaftaran = null;
 
         if ($biodata) {
             $sekolahModel = new MasterSekolahModel();
@@ -44,12 +44,12 @@ class Dashboard extends BaseController
             $berkasModel = new AdministrasiModel();
             $berkas = $berkasModel->where('siswa_id', $biodata['id'])->first();
 
-            $statusPendaftaranModel = new \App\Models\StatusPendaftaranModel();
-            $statusPendaftaran = $statusPendaftaranModel
+            $statusPendaftaran = $db->table('status_pendaftaran')
                 ->select('status_pendaftaran.*, status_verifikasi.nama_status as status_verifikasi')
                 ->join('status_verifikasi', 'status_verifikasi.id = status_pendaftaran.status_verifikasi_id', 'left')
-                ->where('siswa_id', $biodata['id'])
-                ->first();
+                ->where('status_pendaftaran.siswa_id', $biodata['id'])
+                ->get()
+                ->getRowArray();
         }
 
         // 4. Kalkulasi Status Kelengkapan Formulir
@@ -82,15 +82,26 @@ class Dashboard extends BaseController
         $namaLengkap       = $hasBiodata ? $biodata['nama_lengkap'] : ucfirst($shieldUser->username ?? 'Siswa');
         $statusVerifikasi  = $statusPendaftaran ? $statusPendaftaran['status_verifikasi'] : 'Belum Verifikasi';
         $catatanVerifikasi = $statusPendaftaran ? $statusPendaftaran['catatan_verifikasi'] : null;
-        $isFinalized       = $statusPendaftaran ? (int)$statusPendaftaran['is_finalized'] : 0;
-        $statusKelulusan   = 'Belum Pengumuman';
+        $isFinalized       = $statusPendaftaran ? (int) $statusPendaftaran['is_finalized'] : 0;
+        $needsRevision     = $this->needsRevision($statusVerifikasi);
+
+        // Sinkronkan DB: status Revisi harus membuka kembali finalisasi
+        if ($needsRevision && $isFinalized === 1 && $biodata) {
+            $db->table('status_pendaftaran')->where('siswa_id', $biodata['id'])->update([
+                'is_finalized' => 0,
+                'updated_at'   => date('Y-m-d H:i:s'),
+            ]);
+            $isFinalized = 0;
+        }
+
+        $canEdit = $isFinalized === 0;
 
         // Fetch active announcements from database
         $pengumumanModel = new PengumumanModel();
         $announcements   = $pengumumanModel->orderBy('created_at', 'DESC')->findAll();
 
         // 7. Siapkan Data untuk View
-        $data = [
+        return $this->renderSiswaView('siswa/dashboard', [
             'username'           => $shieldUser->username,
             'nama_lengkap'       => $namaLengkap,
             'has_biodata'        => $hasBiodata,
@@ -101,26 +112,20 @@ class Dashboard extends BaseController
             'status_verifikasi'  => $statusVerifikasi,
             'catatan_verifikasi' => $catatanVerifikasi,
             'is_finalized'       => $isFinalized,
-            'status_kelulusan'   => $statusKelulusan,
+            'needs_revision'     => $needsRevision,
+            'can_edit'           => $canEdit,
             'announcements'      => $announcements,
-        ];
-
-        return view('siswa/dashboard', $data);
+        ]);
     }
 
     public function finalize()
     {
-        // Proteksi rute: Harus sudah login sebagai student
-        if (! auth()->loggedIn()) {
-            return redirect()->to(base_url('login'))->with('error', 'Silakan login terlebih dahulu.');
-        }
+        $this->requireLoggedIn();
+        $this->redirectAdminIfNeeded();
 
         $user = auth()->user();
-        if ($user->inGroup('admin')) {
-            return redirect()->to(base_url('admin/dashboard'));
-        }
 
-        $db = \Config\Database::connect();
+        $db = Database::connect();
 
         // Cari calon_siswa berdasarkan username pendaftar (NISN)
         $siswa = $db->table('calon_siswa')->where('nisn', $user->username)->get()->getRowArray();
@@ -152,36 +157,31 @@ class Dashboard extends BaseController
         return redirect()->to(base_url('siswa/dashboard'))->with('success', 'Pendaftaran Anda berhasil difinalisasi! Data Anda telah dikunci dan tidak dapat diubah lagi.');
     }
 
-    public function downloadForm()
+    public function cetakFormulir()
     {
-        // Proteksi rute: Harus sudah login sebagai student
-        if (! auth()->loggedIn()) {
-            return redirect()->to(base_url('login'))->with('error', 'Silakan login terlebih dahulu.');
-        }
+        $this->requireLoggedIn();
+        $this->redirectAdminIfNeeded();
 
         $user = auth()->user();
-        if ($user->inGroup('admin')) {
-            return redirect()->to(base_url('admin/dashboard'));
-        }
 
-        $db = \Config\Database::connect();
+        $db = Database::connect();
         $builder = $db->table('calon_siswa')
             ->select('
                 calon_siswa.id, 
                 calon_siswa.nisn, 
                 calon_siswa.nisn as username, 
                 calon_siswa.nisn as email, 
-                COALESCE(kelengkapan_administrasi.created_at, NOW()) as created_at,
+                calon_siswa.created_at as created_at,
                 calon_siswa.nama_lengkap, 
                 calon_siswa.nik, 
                 calon_siswa.no_kk,
                 calon_siswa.tempat_lahir,
                 calon_siswa.tanggal_lahir,
                 calon_siswa.jenis_kelamin,
-                calon_siswa.nisn as no_hp,
+                calon_siswa.no_hp,
                 calon_siswa.anak_ke,
                 calon_siswa.jumlah_saudara,
-                CONCAT(calon_siswa.alamat_desa, \', \', calon_siswa.alamat_kabupaten, \', \', calon_siswa.alamat_kecamatan) as alamat,
+                CONCAT(calon_siswa.alamat_desa, \', \', calon_siswa.alamat_kecamatan, \', \', calon_siswa.alamat_kabupaten) as alamat,
                 data_orang_tua.nama_ayah,
                 data_orang_tua.pekerjaan_ayah,
                 data_orang_tua.nama_ibu,
@@ -208,16 +208,14 @@ class Dashboard extends BaseController
             return redirect()->back()->with('error', 'Data pendaftar tidak ditemukan.');
         }
 
-        // Proteksi download berkas: Harus sudah finalisasi dan status verifikasi Valid
-        $isFinalized = isset($student['is_finalized']) ? (int)$student['is_finalized'] : 0;
-        $statusVerifikasi = $student['status_verifikasi'] ?? 'Belum Verifikasi';
-
-        if ($isFinalized === 0 || $statusVerifikasi !== 'Valid') {
-            return redirect()->to(base_url('siswa/dashboard'))->with('error', 'Anda harus memfinalisasi data dan berkas Anda telah diverifikasi oleh Panitia sebelum dapat mengunduh bukti pendaftaran.');
+        $statusRow = $this->getStatusPendaftaranBySiswaId((int) $student['id']);
+        if (! $this->canCetakBukti($statusRow)) {
+            return redirect()->to(base_url('siswa/dashboard'))
+                ->with('error', 'Cetak bukti pendaftaran hanya tersedia setelah berkas dinyatakan Valid oleh panitia.');
         }
 
         // Render beautiful clean printable card
-        return view('siswa/form_pdf', ['student' => $student]);
+        return view('siswa/cetak-formulir', ['student' => $student]);
     }
 
     // =========================================================================
@@ -225,15 +223,10 @@ class Dashboard extends BaseController
     // =========================================================================
     public function biodata()
     {
-        if (!auth()->loggedIn()) {
-            return redirect()->to(base_url('login'))->with('error', 'Silakan login terlebih dahulu.');
-        }
+        $this->requireLoggedIn();
+        $this->redirectAdminIfNeeded();
 
         $user = auth()->user();
-        if ($user->inGroup('admin')) {
-            return redirect()->to(base_url('admin/dashboard'));
-        }
-
         $siswaModel = new SiswaModel();
         $biodata = $siswaModel->where('nisn', $user->username)->first();
 
@@ -241,10 +234,7 @@ class Dashboard extends BaseController
             return redirect()->to(base_url('siswa/dashboard'))->with('error', 'Data pendaftar tidak ditemukan.');
         }
 
-        // Cek apakah data sudah difinalisasi
-        $db = \Config\Database::connect();
-        $statusPendaftaran = $db->table('status_pendaftaran')->where('siswa_id', $biodata['id'])->get()->getRowArray();
-        if ($statusPendaftaran && (int)$statusPendaftaran['is_finalized'] === 1) {
+        if ($this->checkFinalized($biodata['id'])) {
             return redirect()->to(base_url('siswa/dashboard'))
                 ->with('error', 'Data pendaftar Anda telah difinalisasi secara permanen.');
         }
@@ -255,7 +245,7 @@ class Dashboard extends BaseController
             'errors' => session('errors'),
         ];
 
-        return view('siswa/biodata', $data);
+        return $this->renderSiswaView('siswa/form-biodata', $data);
     }
 
     // =========================================================================
@@ -263,9 +253,7 @@ class Dashboard extends BaseController
     // =========================================================================
     public function saveBiodata()
     {
-        if (!auth()->loggedIn()) {
-            return redirect()->to(base_url('login'));
-        }
+        $this->requireLoggedIn();
 
         $user = auth()->user();
         $siswaModel = new SiswaModel();
@@ -275,10 +263,7 @@ class Dashboard extends BaseController
             return redirect()->to(base_url('siswa/dashboard'))->with('error', 'Data pendaftar tidak ditemukan.');
         }
 
-        // Cek finalisasi
-        $db = \Config\Database::connect();
-        $statusPendaftaran = $db->table('status_pendaftaran')->where('siswa_id', $biodata['id'])->get()->getRowArray();
-        if ($statusPendaftaran && (int)$statusPendaftaran['is_finalized'] === 1) {
+        if ($this->checkFinalized($biodata['id'])) {
             return redirect()->to(base_url('siswa/dashboard'))
                 ->with('error', 'Data pendaftar Anda telah difinalisasi secara permanen.');
         }
@@ -292,6 +277,7 @@ class Dashboard extends BaseController
             'jenis_kelamin'    => 'required|in_list[L,P]',
             'anak_ke'          => 'required|integer|greater_than_equal_to[1]',
             'jumlah_saudara'   => 'required|integer|greater_than_equal_to[0]',
+            'no_hp'            => 'required|min_length[10]|max_length[15]',
             'alamat_desa'      => 'required',
             'alamat_kabupaten' => 'required',
             'alamat_kecamatan' => 'required',
@@ -335,14 +321,19 @@ class Dashboard extends BaseController
                 'integer'               => 'Jumlah saudara kandung harus berupa angka.',
                 'greater_than_equal_to' => 'Jumlah saudara kandung minimal bernilai 0.',
             ],
-            'alamat_desa' => [
-                'required' => 'Alamat jalan/desa wajib diisi.',
+            'no_hp' => [
+                'required'   => 'Nomor HP wajib diisi.',
+                'min_length' => 'Nomor HP minimal 10 digit.',
+                'max_length' => 'Nomor HP maksimal 15 digit.',
             ],
-            'alamat_kabupaten' => [
-                'required' => 'Kota/Kabupaten wajib diisi.',
+            'alamat_desa' => [
+                'required' => 'Desa/Dusun wajib diisi.',
             ],
             'alamat_kecamatan' => [
-                'required' => 'Provinsi wajib diisi.',
+                'required' => 'Kecamatan wajib diisi.',
+            ],
+            'alamat_kabupaten' => [
+                'required' => 'Kabupaten/Kota wajib diisi.',
             ],
         ];
 
@@ -357,6 +348,7 @@ class Dashboard extends BaseController
             'tempat_lahir'     => $this->request->getPost('tempat_lahir'),
             'tanggal_lahir'    => $this->request->getPost('tanggal_lahir'),
             'jenis_kelamin'    => $this->request->getPost('jenis_kelamin'),
+            'no_hp'            => $this->request->getPost('no_hp'),
             'anak_ke'          => $this->request->getPost('anak_ke'),
             'jumlah_saudara'   => $this->request->getPost('jumlah_saudara'),
             'alamat_desa'      => $this->request->getPost('alamat_desa'),
@@ -374,15 +366,10 @@ class Dashboard extends BaseController
     // =========================================================================
     public function sekolah()
     {
-        if (!auth()->loggedIn()) {
-            return redirect()->to(base_url('login'))->with('error', 'Silakan login terlebih dahulu.');
-        }
+        $this->requireLoggedIn();
+        $this->redirectAdminIfNeeded();
 
         $user = auth()->user();
-        if ($user->inGroup('admin')) {
-            return redirect()->to(base_url('admin/dashboard'));
-        }
-
         $siswaModel = new SiswaModel();
         $biodata = $siswaModel->where('nisn', $user->username)->first();
 
@@ -390,10 +377,7 @@ class Dashboard extends BaseController
             return redirect()->to(base_url('siswa/dashboard'))->with('error', 'Data pendaftar tidak ditemukan.');
         }
 
-        // Cek finalisasi
-        $db = \Config\Database::connect();
-        $statusPendaftaran = $db->table('status_pendaftaran')->where('siswa_id', $biodata['id'])->get()->getRowArray();
-        if ($statusPendaftaran && (int)$statusPendaftaran['is_finalized'] === 1) {
+        if ($this->checkFinalized($biodata['id'])) {
             return redirect()->to(base_url('siswa/dashboard'))
                 ->with('error', 'Data pendaftar Anda telah difinalisasi secara permanen.');
         }
@@ -413,7 +397,7 @@ class Dashboard extends BaseController
             'errors' => session('errors'),
         ];
 
-        return view('siswa/sekolah', $data);
+        return $this->renderSiswaView('siswa/form-sekolah', $data);
     }
 
     // =========================================================================
@@ -421,9 +405,7 @@ class Dashboard extends BaseController
     // =========================================================================
     public function saveSekolah()
     {
-        if (!auth()->loggedIn()) {
-            return redirect()->to(base_url('login'));
-        }
+        $this->requireLoggedIn();
 
         $user = auth()->user();
         $siswaModel = new SiswaModel();
@@ -433,10 +415,7 @@ class Dashboard extends BaseController
             return redirect()->to(base_url('siswa/dashboard'))->with('error', 'Data pendaftar tidak ditemukan.');
         }
 
-        // Cek finalisasi
-        $db = \Config\Database::connect();
-        $statusPendaftaran = $db->table('status_pendaftaran')->where('siswa_id', $biodata['id'])->get()->getRowArray();
-        if ($statusPendaftaran && (int)$statusPendaftaran['is_finalized'] === 1) {
+        if ($this->checkFinalized($biodata['id'])) {
             return redirect()->to(base_url('siswa/dashboard'))
                 ->with('error', 'Data pendaftar Anda telah difinalisasi secara permanen.');
         }
@@ -464,7 +443,10 @@ class Dashboard extends BaseController
         $namaSekolah = trim($this->request->getPost('nama_sekolah'));
         $alamatSekolah = trim($this->request->getPost('alamat_sekolah'));
 
+        $db = Database::connect();
         $sekolahModel = new MasterSekolahModel();
+
+        $db->transBegin();
 
         // 1. Cek apakah sekolah dengan nama tersebut sudah ada (case-insensitive)
         $existingSekolah = $sekolahModel->where('LOWER(nama_sekolah)', strtolower($namaSekolah))->first();
@@ -497,6 +479,13 @@ class Dashboard extends BaseController
         // Perbarui sekolah_id siswa aktif
         $siswaModel->update($biodata['id'], ['sekolah_id' => $sekolahId]);
 
+        if ($db->transStatus() === false) {
+            $db->transRollback();
+            return redirect()->back()->withInput()->with('error', 'Gagal menyimpan data sekolah. Silakan coba lagi.');
+        }
+
+        $db->transCommit();
+
         return redirect()->to(base_url('siswa/orang-tua'))->with('success', 'Data asal sekolah berhasil disimpan! Silakan lanjutkan mengisi data orang tua.');
     }
 
@@ -505,15 +494,10 @@ class Dashboard extends BaseController
     // =========================================================================
     public function orangTua()
     {
-        if (!auth()->loggedIn()) {
-            return redirect()->to(base_url('login'))->with('error', 'Silakan login terlebih dahulu.');
-        }
+        $this->requireLoggedIn();
+        $this->redirectAdminIfNeeded();
 
         $user = auth()->user();
-        if ($user->inGroup('admin')) {
-            return redirect()->to(base_url('admin/dashboard'));
-        }
-
         $siswaModel = new SiswaModel();
         $biodata = $siswaModel->where('nisn', $user->username)->first();
 
@@ -521,10 +505,7 @@ class Dashboard extends BaseController
             return redirect()->to(base_url('siswa/dashboard'))->with('error', 'Data pendaftar tidak ditemukan.');
         }
 
-        // Cek finalisasi
-        $db = \Config\Database::connect();
-        $statusPendaftaran = $db->table('status_pendaftaran')->where('siswa_id', $biodata['id'])->get()->getRowArray();
-        if ($statusPendaftaran && (int)$statusPendaftaran['is_finalized'] === 1) {
+        if ($this->checkFinalized($biodata['id'])) {
             return redirect()->to(base_url('siswa/dashboard'))
                 ->with('error', 'Data pendaftar Anda telah difinalisasi secara permanen.');
         }
@@ -538,7 +519,7 @@ class Dashboard extends BaseController
             'errors' => session('errors'),
         ];
 
-        return view('siswa/orang_tua', $data);
+        return $this->renderSiswaView('siswa/form-orang-tua', $data);
     }
 
     // =========================================================================
@@ -546,9 +527,7 @@ class Dashboard extends BaseController
     // =========================================================================
     public function saveOrangTua()
     {
-        if (!auth()->loggedIn()) {
-            return redirect()->to(base_url('login'));
-        }
+        $this->requireLoggedIn();
 
         $user = auth()->user();
         $siswaModel = new SiswaModel();
@@ -558,10 +537,7 @@ class Dashboard extends BaseController
             return redirect()->to(base_url('siswa/dashboard'))->with('error', 'Data pendaftar tidak ditemukan.');
         }
 
-        // Cek finalisasi
-        $db = \Config\Database::connect();
-        $statusPendaftaran = $db->table('status_pendaftaran')->where('siswa_id', $biodata['id'])->get()->getRowArray();
-        if ($statusPendaftaran && (int)$statusPendaftaran['is_finalized'] === 1) {
+        if ($this->checkFinalized($biodata['id'])) {
             return redirect()->to(base_url('siswa/dashboard'))
                 ->with('error', 'Data pendaftar Anda telah difinalisasi secara permanen.');
         }
@@ -619,15 +595,10 @@ class Dashboard extends BaseController
     // =========================================================================
     public function berkas()
     {
-        if (!auth()->loggedIn()) {
-            return redirect()->to(base_url('login'))->with('error', 'Silakan login terlebih dahulu.');
-        }
+        $this->requireLoggedIn();
+        $this->redirectAdminIfNeeded();
 
         $user = auth()->user();
-        if ($user->inGroup('admin')) {
-            return redirect()->to(base_url('admin/dashboard'));
-        }
-
         $siswaModel = new SiswaModel();
         $biodata = $siswaModel->where('nisn', $user->username)->first();
 
@@ -635,10 +606,7 @@ class Dashboard extends BaseController
             return redirect()->to(base_url('siswa/dashboard'))->with('error', 'Data pendaftar tidak ditemukan.');
         }
 
-        // Cek finalisasi
-        $db = \Config\Database::connect();
-        $statusPendaftaran = $db->table('status_pendaftaran')->where('siswa_id', $biodata['id'])->get()->getRowArray();
-        if ($statusPendaftaran && (int)$statusPendaftaran['is_finalized'] === 1) {
+        if ($this->checkFinalized($biodata['id'])) {
             return redirect()->to(base_url('siswa/dashboard'))
                 ->with('error', 'Data pendaftar Anda telah difinalisasi secara permanen.');
         }
@@ -652,7 +620,7 @@ class Dashboard extends BaseController
             'errors' => session('errors'),
         ];
 
-        return view('siswa/berkas', $data);
+        return $this->renderSiswaView('siswa/form-berkas', $data);
     }
 
     // =========================================================================
@@ -660,9 +628,7 @@ class Dashboard extends BaseController
     // =========================================================================
     public function saveBerkas()
     {
-        if (!auth()->loggedIn()) {
-            return redirect()->to(base_url('login'));
-        }
+        $this->requireLoggedIn();
 
         $user = auth()->user();
         $siswaModel = new SiswaModel();
@@ -672,18 +638,15 @@ class Dashboard extends BaseController
             return redirect()->to(base_url('siswa/dashboard'))->with('error', 'Data pendaftar tidak ditemukan.');
         }
 
-        // Cek finalisasi
-        $db = \Config\Database::connect();
-        $statusPendaftaran = $db->table('status_pendaftaran')->where('siswa_id', $biodata['id'])->get()->getRowArray();
-        if ($statusPendaftaran && (int)$statusPendaftaran['is_finalized'] === 1) {
+        if ($this->checkFinalized($biodata['id'])) {
             return redirect()->to(base_url('siswa/dashboard'))
                 ->with('error', 'Data pendaftar Anda telah difinalisasi secara permanen.');
         }
 
         $rules = [
-            'fc_ijazah_skl' => 'uploaded[fc_ijazah_skl]|max_size[fc_ijazah_skl,2048]|ext_in[fc_ijazah_skl,pdf,jpg,jpeg,png]',
-            'fc_kk'         => 'uploaded[fc_kk]|max_size[fc_kk,2048]|ext_in[fc_kk,pdf,jpg,jpeg,png]',
-            'pas_foto'      => 'uploaded[pas_foto]|max_size[pas_foto,2048]|ext_in[pas_foto,jpg,jpeg,png]',
+            'fc_ijazah_skl' => 'uploaded[fc_ijazah_skl]|max_size[fc_ijazah_skl,2048]|ext_in[fc_ijazah_skl,pdf,jpg,jpeg,png]|mime_in[fc_ijazah_skl,application/pdf,image/jpg,image/jpeg,image/png]',
+            'fc_kk'         => 'uploaded[fc_kk]|max_size[fc_kk,2048]|ext_in[fc_kk,pdf,jpg,jpeg,png]|mime_in[fc_kk,application/pdf,image/jpg,image/jpeg,image/png]',
+            'pas_foto'      => 'uploaded[pas_foto]|max_size[pas_foto,2048]|ext_in[pas_foto,jpg,jpeg,png]|mime_in[pas_foto,image/jpg,image/jpeg,image/png]',
         ];
 
         $berkasModel = new AdministrasiModel();
@@ -692,13 +655,13 @@ class Dashboard extends BaseController
         // Jika data berkas sudah pernah diunggah sebelumnya, upload berkas baru bersifat opsional
         if ($berkas) {
             if (!empty($berkas['fc_ijazah_skl'])) {
-                $rules['fc_ijazah_skl'] = 'max_size[fc_ijazah_skl,2048]|ext_in[fc_ijazah_skl,pdf,jpg,jpeg,png]';
+                $rules['fc_ijazah_skl'] = 'max_size[fc_ijazah_skl,2048]|ext_in[fc_ijazah_skl,pdf,jpg,jpeg,png]|mime_in[fc_ijazah_skl,application/pdf,image/jpg,image/jpeg,image/png]';
             }
             if (!empty($berkas['fc_kk'])) {
-                $rules['fc_kk'] = 'max_size[fc_kk,2048]|ext_in[fc_kk,pdf,jpg,jpeg,png]';
+                $rules['fc_kk'] = 'max_size[fc_kk,2048]|ext_in[fc_kk,pdf,jpg,jpeg,png]|mime_in[fc_kk,application/pdf,image/jpg,image/jpeg,image/png]';
             }
             if (!empty($berkas['pas_foto'])) {
-                $rules['pas_foto'] = 'max_size[pas_foto,2048]|ext_in[pas_foto,jpg,jpeg,png]';
+                $rules['pas_foto'] = 'max_size[pas_foto,2048]|ext_in[pas_foto,jpg,jpeg,png]|mime_in[pas_foto,image/jpg,image/jpeg,image/png]';
             }
         }
 
@@ -707,16 +670,19 @@ class Dashboard extends BaseController
                 'uploaded' => 'File scan Ijazah / SKL wajib diunggah.',
                 'max_size' => 'Ukuran file Ijazah / SKL maksimal adalah 2MB.',
                 'ext_in'   => 'Format file Ijazah / SKL harus berupa PDF, JPG, JPEG, atau PNG.',
+                'mime_in'  => 'Format file Ijazah / SKL harus berupa PDF, JPG, JPEG, atau PNG.',
             ],
             'fc_kk' => [
                 'uploaded' => 'File scan Kartu Keluarga wajib diunggah.',
                 'max_size' => 'Ukuran file Kartu Keluarga maksimal adalah 2MB.',
                 'ext_in'   => 'Format file Kartu Keluarga harus berupa PDF, JPG, JPEG, atau PNG.',
+                'mime_in'  => 'Format file Kartu Keluarga harus berupa PDF, JPG, JPEG, atau PNG.',
             ],
             'pas_foto' => [
                 'uploaded' => 'Pas Foto 3x4 wajib diunggah.',
                 'max_size' => 'Ukuran Pas Foto maksimal adalah 2MB.',
                 'ext_in'   => 'Format Pas Foto harus berupa JPG, JPEG, atau PNG.',
+                'mime_in'  => 'Format Pas Foto harus berupa JPG, JPEG, atau PNG.',
             ],
         ];
 
@@ -744,7 +710,7 @@ class Dashboard extends BaseController
             }
 
             // Simpan file baru
-            $newName = 'ijazah_' . $biodata['id'] . '_' . time() . '.' . $fileIjazah->getClientExtension();
+            $newName = 'ijazah_' . $biodata['id'] . '_' . time() . '.' . $fileIjazah->guessExtension();
             $fileIjazah->move($uploadPath, $newName);
             $updateData['fc_ijazah_skl'] = $newName;
         }
@@ -761,7 +727,7 @@ class Dashboard extends BaseController
             }
 
             // Simpan file baru
-            $newName = 'kk_' . $biodata['id'] . '_' . time() . '.' . $fileKk->getClientExtension();
+            $newName = 'kk_' . $biodata['id'] . '_' . time() . '.' . $fileKk->guessExtension();
             $fileKk->move($uploadPath, $newName);
             $updateData['fc_kk'] = $newName;
         }
@@ -778,7 +744,7 @@ class Dashboard extends BaseController
             }
 
             // Simpan file baru
-            $newName = 'pas_foto_' . $biodata['id'] . '_' . time() . '.' . $filePasFoto->getClientExtension();
+            $newName = 'pas_foto_' . $biodata['id'] . '_' . time() . '.' . $filePasFoto->guessExtension();
             $filePasFoto->move($uploadPath, $newName);
             $updateData['pas_foto'] = $newName;
         }

@@ -1,4 +1,4 @@
-<?= $this->extend('layouts/frontend') ?>
+<?= $this->extend('layouts/public') ?>
 
 <?= $this->section('title') ?>Daftar Akun<?= $this->endSection() ?>
 
@@ -6,7 +6,7 @@
     <main class="relative w-full flex-grow flex items-center justify-center p-md py-16 md:py-24">
         <!-- Ambient Background Layer -->
         <div class="absolute inset-0 z-0 bg-cover bg-center"
-            style="background-image: url('<?= base_url('images/school_library.png') ?>')">
+            style="background-image: url('<?= base_url('images/school-library.png') ?>')">
             <!-- Frosted Glass Overlay -->
             <div class="absolute inset-0 bg-surface/85 dark:bg-on-surface/85 backdrop-blur-md"></div>
             <!-- Subtle Gradient Accent -->
@@ -47,22 +47,6 @@
                     <p class="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-300">Lengkapi data di bawah ini untuk mendaftar.</p>
                 </div>
 
-                <!-- Alert Error Dinamis -->
-                <?php if (session()->getFlashdata('errors')): ?>
-                    <div class="mb-md p-sm bg-red-50 text-red-800 border border-red-200 rounded-xl">
-                        <ul class="list-disc pl-5 text-caption leading-relaxed">
-                            <?php foreach (session()->getFlashdata('errors') as $error): ?>
-                                <li><?= esc($error) ?></li>
-                            <?php endforeach; ?>
-                        </ul>
-                    </div>
-                <?php endif; ?>
-
-                <?php if (session()->getFlashdata('error')): ?>
-                    <div class="mb-md p-sm bg-red-50 text-red-800 border border-red-200 rounded-xl text-caption">
-                        <?= esc(session()->getFlashdata('error')) ?>
-                    </div>
-                <?php endif; ?>
                 
                 <form action="<?= base_url('register') ?>" class="flex flex-col gap-md" method="POST">
                     <?= csrf_field() ?>
@@ -93,6 +77,7 @@
                                 class="w-full pl-[40px] pr-sm py-[14px] bg-surface-container-lowest dark:bg-slate-900 border border-outline-variant dark:border-outline/50 rounded-lg font-body-md text-body-md text-on-surface dark:text-white placeholder:text-outline/70 focus:outline-none focus:border-primary focus:dark:border-white focus:ring-1 focus:ring-primary focus:dark:ring-white transition-all duration-200 shadow-sm"
                                 id="email" name="email" placeholder="john@example.com" required="" type="email" value="<?= esc(old('email')) ?>" />
                         </div>
+                        <p id="email-status" class="hidden text-caption mt-1 ml-1 flex items-center gap-xs"></p>
                     </div>
                     
                     <!-- Username -->
@@ -107,6 +92,7 @@
                                 class="w-full pl-[40px] pr-sm py-[14px] bg-surface-container-lowest dark:bg-slate-900 border border-outline-variant dark:border-outline/50 rounded-lg font-body-md text-body-md text-on-surface dark:text-white placeholder:text-outline/70 focus:outline-none focus:border-primary focus:dark:border-white focus:ring-1 focus:ring-primary focus:dark:ring-white transition-all duration-200 shadow-sm"
                                 id="username" name="username" placeholder="johndoe123" required="" type="text" value="<?= esc(old('username')) ?>" />
                         </div>
+                        <p id="username-status" class="hidden text-caption mt-1 ml-1 flex items-center gap-xs"></p>
                     </div>
                     
                     <!-- Password -->
@@ -201,6 +187,10 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
-    <!-- Interaction Scripts -->
-    <?= script_tag('js/register.js') ?>
+    <script>
+        window.BASE_URL = '<?= base_url() ?>';
+        window.CSRF_TOKEN_NAME = '<?= csrf_token() ?>';
+        window.CSRF_HASH = '<?= csrf_hash() ?>';
+    </script>
+    <?= script_tag('js/auth/register.js') ?>
 <?= $this->endSection() ?>

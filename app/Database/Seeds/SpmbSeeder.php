@@ -149,6 +149,7 @@ class SpmbSeeder extends Seeder
                 'nik'              => $nik,
                 'nama_lengkap'     => $nama,
                 'no_kk'            => $noKk,
+                'no_hp'            => $faker->phoneNumber,
                 'tempat_lahir'     => $tempatLahir,
                 'tanggal_lahir'    => $tanggalLahir,
                 'jenis_kelamin'    => $gender,
@@ -160,6 +161,9 @@ class SpmbSeeder extends Seeder
                 'alamat_kabupaten' => $faker->city,
             ]);
             $siswaId = $db->insertID();
+            $db->table('calon_siswa')->where('id', $siswaId)->update([
+                'no_registrasi' => 'REG-' . date('Y') . '-' . $siswaId,
+            ]);
 
             // c. Insert parents data
             $db->table('data_orang_tua')->insert([

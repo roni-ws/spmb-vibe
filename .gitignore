@@ -119,8 +119,21 @@ _modules/*
 .phpintel
 /api/
 
+# Cookie debug files
+cookie_*.txt
+
 # Visual Studio Code
 .vscode/
 
 /results/
 /phpunit.xml
+
+# Agent & tool config
+.agent/
+.opencode/
+
+# Scratch dev files
+scratch/
+
+# Node modules
+node_modules/

@@ -9,6 +9,7 @@ class OrangTuaModel extends Model
     protected $table            = 'data_orang_tua';
     protected $primaryKey       = 'siswa_id';
     protected $useAutoIncrement = false;
+    protected $useTimestamps    = true;
     protected $returnType       = 'array';
     protected $protectFields    = true;
     protected $allowedFields    = [

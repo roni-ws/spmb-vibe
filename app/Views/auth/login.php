@@ -1,4 +1,4 @@
-<?= $this->extend('layouts/frontend') ?>
+<?= $this->extend('layouts/public') ?>
 
 <?= $this->section('title') ?>Login<?= $this->endSection() ?>
 
@@ -6,7 +6,7 @@
     <main class="relative w-full flex-grow flex items-center justify-center p-md py-16 md:py-24">
         <!-- Ambient Background Layer -->
         <div class="absolute inset-0 z-0 bg-cover bg-center"
-            style="background-image: url('<?= base_url('images/school_library.png') ?>')">
+            style="background-image: url('<?= base_url('images/school-library.png') ?>')">
             <!-- Frosted Glass Overlay -->
             <div class="absolute inset-0 bg-surface/85 dark:bg-on-surface/85 backdrop-blur-md"></div>
             <!-- Subtle Gradient Accent -->
@@ -26,7 +26,7 @@
                         style="font-size: 40px; font-variation-settings: 'FILL' 1;">account_balance</span>
                 </div>
                 <h1 class="font-headline-md text-headline-md text-on-surface dark:text-white mb-xs">Selamat Datang</h1>
-                <p class="font-body-md text-body-md text-on-surface-variant dark:text-slate-300">Masuk ke akun SPMB SMA Unggul Bangsa</p>
+                <p class="font-body-md text-body-md text-on-surface-variant dark:text-slate-300">Masuk ke akun SPMB <?= esc(\App\Models\SettingsModel::getSetting('logo_text', 'SMA Unggul Bangsa')) ?></p>
             </div>
             
             <!-- Segmented Control -->
@@ -43,31 +43,6 @@
                 </button>
             </div>
             
-            <!-- Flash Error Alert -->
-            <?php if (session()->getFlashdata('error')): ?>
-                <div class="flex items-start gap-sm bg-error-container text-on-error-container border border-error/20 rounded-lg px-sm py-3 mb-[20px] text-body-sm font-medium">
-                    <span class="material-symbols-outlined text-error text-lg shrink-0" style="font-variation-settings: 'FILL' 1;">error</span>
-                    <span><?= esc(session()->getFlashdata('error')) ?></span>
-                </div>
-            <?php endif ?>
-
-            <?php if (session()->getFlashdata('message')): ?>
-                <div class="flex items-start gap-sm bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg px-sm py-3 mb-[20px] text-body-sm font-medium">
-                    <span class="material-symbols-outlined text-emerald-600 text-lg shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-                    <span><?= esc(session()->getFlashdata('message')) ?></span>
-                </div>
-            <?php endif ?>
-
-            <?php if (session()->getFlashdata('errors')): ?>
-                <div class="bg-error-container/60 text-on-error-container border border-error/20 rounded-lg px-sm py-3 mb-[20px]">
-                    <ul class="list-disc list-inside text-body-sm space-y-1">
-                        <?php foreach ((array) session()->getFlashdata('errors') as $err): ?>
-                            <li><?= esc($err) ?></li>
-                        <?php endforeach ?>
-                    </ul>
-                </div>
-            <?php endif ?>
-
             <!-- Login Form -->
             <form class="flex flex-col gap-md" method="POST" action="<?= base_url('login') ?>">
                 <!-- Input Identifier (Role-based label changes dynamically) -->
@@ -144,5 +119,5 @@
 
 <?= $this->section('scripts') ?>
     <!-- Interaction Scripts -->
-    <?= script_tag('js/login.js') ?>
+    <?= script_tag('js/auth/login.js') ?>
 <?= $this->endSection() ?>

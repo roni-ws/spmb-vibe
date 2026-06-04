@@ -39,7 +39,7 @@ class AuthController extends BaseController
         $user = $auth->user();
 
         // Enforce admin/panitia authorization
-        if (! $user->inGroup('admin', 'panitia', 'superadmin')) {
+        if (! $user->inGroup('admin', 'panitia')) {
             $auth->logout();
             return $this->failForbidden('Akses ditolak. Akun Anda bukan merupakan Admin/Panitia.');
         }

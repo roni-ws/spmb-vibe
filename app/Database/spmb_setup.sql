@@ -74,7 +74,6 @@ CREATE TABLE berkas (
     file_kk VARCHAR(255) DEFAULT NULL,
     status_verifikasi ENUM('Pending', 'Valid', 'Tidak Valid', 'Revisi') NOT NULL DEFAULT 'Pending',
     is_finalized TINYINT(1) NOT NULL DEFAULT 0,
-    status_kelulusan ENUM('Belum Pengumuman', 'Lulus', 'Tidak Lulus') NOT NULL DEFAULT 'Belum Pengumuman',
     catatan_verifikasi TEXT DEFAULT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

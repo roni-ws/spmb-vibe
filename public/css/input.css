@@ -51,6 +51,8 @@
   --color-on-secondary-fixed-variant: #5f4100;
   --color-on-secondary-container: #725000;
   --color-secondary: #7d5700;
+  --color-info: #0062a2;
+  --color-info-container: #cee5ff;
 
   --radius-default: 0.25rem;
   --radius-lg: 0.5rem;

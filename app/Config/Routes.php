@@ -13,6 +13,8 @@ $routes->post('/login', 'Auth::loginAction');       // POST: Proses login via Sh
 $routes->get('/logout', 'Auth::logout');            // Logout via Shield
 $routes->get('/register', 'Auth::register');
 $routes->post('/register', 'Auth::registerAction');
+$routes->post('/check-email', 'Auth::checkEmail');
+$routes->post('/check-username', 'Auth::checkUsername');
 $routes->get('/forgot-password', 'Auth::forgotPassword');
 
 // -----------------------------------------------------------------------
@@ -21,7 +23,7 @@ $routes->get('/forgot-password', 'Auth::forgotPassword');
 $routes->group('siswa', ['filter' => 'session'], static function ($routes) {
     $routes->get('dashboard', 'Siswa\Dashboard::index');
     $routes->post('finalize', 'Siswa\Dashboard::finalize');
-    $routes->get('download-form', 'Siswa\Dashboard::downloadForm');
+    $routes->get('cetak-formulir', 'Siswa\Dashboard::cetakFormulir');
 
     // Rute Langkah 1: Biodata Diri
     $routes->get('biodata', 'Siswa\Dashboard::biodata');
@@ -49,10 +51,12 @@ $routes->group('admin', ['filter' => 'group:admin,panitia'], static function ($r
     $routes->post('verify/(:num)', 'Admin\Dashboard::verify/$1');
     $routes->post('edit-student/(:num)', 'Admin\Dashboard::editStudent/$1');
     $routes->get('export/csv', 'Admin\Dashboard::exportCsv');
-    $routes->get('export/pdf', 'Admin\Dashboard::exportPrint');
-    $routes->get('download-form/(:num)', 'Admin\Dashboard::downloadForm/$1');
+    $routes->get('cetak-data', 'Admin\Dashboard::cetakData');
+    $routes->get('cetak-formulir/(:num)', 'Admin\Dashboard::cetakFormulir/$1');
+    $routes->get('arsip/(:num)', 'Admin\Dashboard::cetakArsip/$1');
     $routes->post('delete-student/(:num)', 'Admin\Dashboard::deleteStudent/$1');
     $routes->post('bulk-delete-students', 'Admin\Dashboard::bulkDeleteStudents');
+    $routes->post('add-student', 'Admin\Dashboard::addStudent');
 
     // Rute Khusus Manajemen User (Hanya Admin & Superadmin)
     $routes->group('users', ['filter' => 'group:admin'], static function ($routes) {
@@ -60,7 +64,7 @@ $routes->group('admin', ['filter' => 'group:admin,panitia'], static function ($r
         $routes->post('store', 'Admin\Users::store');
         $routes->post('edit/(:num)', 'Admin\Users::edit/$1');
         $routes->post('change-password/(:num)', 'Admin\Users::changePassword/$1');
-        $routes->get('delete/(:num)', 'Admin\Users::delete/$1');
+        $routes->post('delete/(:num)', 'Admin\Users::delete/$1');
     });
 
     // Rute Khusus Pengaturan Frontend (Hanya Admin & Superadmin)
@@ -70,7 +74,7 @@ $routes->group('admin', ['filter' => 'group:admin,panitia'], static function ($r
         
         // Rute Manajemen Pengumuman
         $routes->post('announcement/add', 'Admin\Settings::addAnnouncement');
-        $routes->get('announcement/delete/(:num)', 'Admin\Settings::deleteAnnouncement/$1');
+        $routes->post('announcement/delete/(:num)', 'Admin\Settings::deleteAnnouncement/$1');
     });
 });
 

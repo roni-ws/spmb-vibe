@@ -30,6 +30,14 @@ class CreateDataOrangTua extends Migration
                 'type'       => 'VARCHAR',
                 'constraint' => 100,
             ],
+            'created_at' => [
+                'type' => 'DATETIME',
+                'null' => true,
+            ],
+            'updated_at' => [
+                'type' => 'DATETIME',
+                'null' => true,
+            ],
         ]);
         $this->forge->addKey('siswa_id', true);
         $this->forge->addForeignKey('siswa_id', 'calon_siswa', 'id', 'CASCADE', 'CASCADE');

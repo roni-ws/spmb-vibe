@@ -1,4 +1,4 @@
-<?= $this->extend('layouts/frontend') ?>
+<?= $this->extend('layouts/public') ?>
 
 <?= $this->section('title') ?>Lupa Kata Sandi<?= $this->endSection() ?>
 
@@ -6,7 +6,7 @@
     <main class="relative w-full flex-grow flex items-center justify-center p-md py-16 md:py-24">
         <!-- Ambient Background Layer -->
         <div class="absolute inset-0 z-0 bg-cover bg-center"
-            style="background-image: url('<?= base_url('images/school_library.png') ?>')">
+            style="background-image: url('<?= base_url('images/school-library.png') ?>')">
             <!-- Frosted Glass Overlay -->
             <div class="absolute inset-0 bg-surface/85 dark:bg-on-surface/85 backdrop-blur-md"></div>
             <!-- Subtle Gradient Accent -->
@@ -30,17 +30,6 @@
                 <p class="font-body-md text-body-md text-on-surface-variant dark:text-slate-300">Masukkan alamat email terdaftar Anda, dan kami akan mengirimkan tautan untuk mengatur ulang kata sandi Anda.</p>
             </div>
 
-            <!-- Flash Session Feedback Alert -->
-            <?php if (session()->getFlashdata('success')): ?>
-                <div class="mb-[24px] p-sm bg-green-500/10 border border-green-500/30 text-green-700 dark:text-green-300 rounded-lg text-body-sm">
-                    <?= session()->getFlashdata('success') ?>
-                </div>
-            <?php endif; ?>
-            <?php if (session()->getFlashdata('error')): ?>
-                <div class="mb-[24px] p-sm bg-red-500/10 border border-red-500/30 text-red-700 dark:text-red-300 rounded-lg text-body-sm">
-                    <?= session()->getFlashdata('error') ?>
-                </div>
-            <?php endif; ?>
             
             <!-- Forgot Password Form -->
             <form class="flex flex-col gap-md" action="#" method="POST" onsubmit="event.preventDefault(); alert('Tautan penyetelan ulang sandi telah disimulasikan dikirim ke email Anda.');">

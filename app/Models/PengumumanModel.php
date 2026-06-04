@@ -11,7 +11,7 @@ class PengumumanModel extends Model
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $protectFields    = true;
-    protected $allowedFields    = ['judul', 'konten', 'created_at', 'updated_at'];
+    protected $allowedFields    = ['judul', 'konten'];
     
     // Dates (Populate otomatis created_at & updated_at)
     protected $useTimestamps    = true;

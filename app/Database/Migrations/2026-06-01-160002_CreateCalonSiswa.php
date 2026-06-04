@@ -20,6 +20,11 @@ class CreateCalonSiswa extends Migration
                 'constraint' => 10,
                 'unique'     => true,
             ],
+            'no_registrasi' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 20,
+                'unique'     => true,
+            ],
             'nik' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 16,
@@ -32,6 +37,10 @@ class CreateCalonSiswa extends Migration
             'no_kk' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 16,
+            ],
+            'no_hp' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 15,
             ],
             'tempat_lahir' => [
                 'type'       => 'VARCHAR',
@@ -68,6 +77,16 @@ class CreateCalonSiswa extends Migration
             'alamat_kabupaten' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 100,
+            ],
+            'created_at' => [
+                'type' => 'DATETIME',
+                'null' => true,
+                'default' => null,
+            ],
+            'updated_at' => [
+                'type' => 'DATETIME',
+                'null' => true,
+                'default' => null,
             ],
         ]);
         $this->forge->addKey('id', true);

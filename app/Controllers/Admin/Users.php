@@ -11,12 +11,7 @@ class Users extends BaseController
 
     public function index()
     {
-        // 1. Proteksi rute: Hanya Admin atau Super Admin yang boleh mengelola user
-        if (! auth()->loggedIn() || (! auth()->user()->inGroup('admin') && ! auth()->user()->inGroup('superadmin'))) {
-            return redirect()->to(base_url('admin/dashboard'))
-                ->with('error', 'Akses ditolak. Rute ini hanya dapat diakses oleh Admin Utama.');
-        }
-
+        $this->requireAdmin();
         $shieldUser = auth()->user();
 
         // 2. Ambil semua data staff (Admin & Panitia) dari database
@@ -38,12 +33,7 @@ class Users extends BaseController
 
     public function store()
     {
-        // 1. Proteksi rute
-        if (! auth()->loggedIn() || (! auth()->user()->inGroup('admin') && ! auth()->user()->inGroup('superadmin'))) {
-            return redirect()->to(base_url('admin/dashboard'))
-                ->with('error', 'Akses ditolak.');
-        }
-
+        $this->requireAdmin();
         // 2. Validasi input pembuatan user baru
         $rules = [
             'username'         => 'required|min_length[3]|max_length[30]|regex_match[/^[a-zA-Z0-9_]+$/]|is_unique[users.username]',
@@ -111,12 +101,7 @@ class Users extends BaseController
 
     public function delete($userId)
     {
-        // 1. Proteksi rute
-        if (! auth()->loggedIn() || (! auth()->user()->inGroup('admin') && ! auth()->user()->inGroup('superadmin'))) {
-            return redirect()->to(base_url('admin/dashboard'))
-                ->with('error', 'Akses ditolak.');
-        }
-
+        $this->requireAdmin();
         // 2. Proteksi diri: Jangan ijinkan menghapus diri sendiri
         if (auth()->id() == $userId) {
             return redirect()->back()
@@ -133,12 +118,7 @@ class Users extends BaseController
 
     public function edit($userId)
     {
-        // 1. Proteksi rute
-        if (! auth()->loggedIn() || (! auth()->user()->inGroup('admin') && ! auth()->user()->inGroup('superadmin'))) {
-            return redirect()->to(base_url('admin/dashboard'))
-                ->with('error', 'Akses ditolak.');
-        }
-
+        $this->requireAdmin();
         // 2. Validasi input
         $rules = [
             'username' => 'required|min_length[3]|max_length[30]|regex_match[/^[a-zA-Z0-9_]+$/]',
@@ -204,12 +184,7 @@ class Users extends BaseController
 
     public function changePassword($userId)
     {
-        // 1. Proteksi rute
-        if (! auth()->loggedIn() || (! auth()->user()->inGroup('admin') && ! auth()->user()->inGroup('superadmin'))) {
-            return redirect()->to(base_url('admin/dashboard'))
-                ->with('error', 'Akses ditolak.');
-        }
-
+        $this->requireAdmin();
         // 2. Validasi input
         $rules = [
             'password'         => 'required|min_length[6]',

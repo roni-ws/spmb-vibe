@@ -9,13 +9,16 @@ class SiswaModel extends Model
     protected $table            = 'calon_siswa';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
+    protected $useTimestamps    = true;
     protected $returnType       = 'array';
     protected $protectFields    = true;
     protected $allowedFields    = [
         'nisn',
+        'no_registrasi',
         'nik',
         'nama_lengkap',
         'no_kk',
+        'no_hp',
         'tempat_lahir',
         'tanggal_lahir',
         'jenis_kelamin',

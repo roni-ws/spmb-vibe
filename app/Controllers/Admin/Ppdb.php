@@ -57,36 +57,6 @@ class Ppdb extends BaseController
     }
 
     /**
-     * Mendapatkan ID sekolah berdasarkan nama sekolah.
-     * Jika sekolah belum ada di master_sekolah, otomatis akan dibuat (auto-insert).
-     * 
-     * @param string $namaSekolah Nama asal sekolah
-     * @param string|null $alamatSekolah Alamat asal sekolah (opsional)
-     * @return int ID asal sekolah dari tabel master_sekolah
-     */
-    public function getOrCreateSekolahId(string $namaSekolah, ?string $alamatSekolah = null): int
-    {
-        $sekolahModel = new MasterSekolahModel();
-        
-        $namaSekolahClean = trim($namaSekolah);
-        
-        // Cek apakah nama sekolah sudah ada (pencarian case-insensitive)
-        $sekolah = $sekolahModel->where('LOWER(nama_sekolah)', strtolower($namaSekolahClean))->first();
-        
-        if ($sekolah) {
-            return (int) $sekolah['id'];
-        }
-        
-        // Jika belum ada, otomatis tambahkan sekolah baru
-        $sekolahModel->insert([
-            'nama_sekolah'   => $namaSekolahClean,
-            'alamat_sekolah' => $alamatSekolah ? trim($alamatSekolah) : null
-        ]);
-        
-        return (int) $sekolahModel->getInsertID();
-    }
-
-    /**
      * Mendaftarkan calon siswa baru beserta data orang tua dan berkas administrasi
      * menggunakan Database Transaction untuk menjaga integritas data.
      * 
@@ -116,7 +86,7 @@ class Ppdb extends BaseController
             if (empty($namaSekolah)) {
                 throw new \Exception('Asal sekolah wajib diisi.');
             }
-            $sekolahId = $this->getOrCreateSekolahId($namaSekolah, $data['alamat_sekolah'] ?? null);
+            $sekolahId = (new MasterSekolahModel())->getOrCreateSekolahId($namaSekolah, $data['alamat_sekolah'] ?? null);
 
             // 3. Masukkan data ke tabel calon_siswa
             $siswaModel = new SiswaModel();
@@ -202,9 +172,10 @@ class Ppdb extends BaseController
         } catch (\Throwable $e) {
             // Jika ada exception/error, lakukan ROLLBACK untuk membatalkan semua query sebelumnya
             $db->transRollback();
+            log_message('error', 'Pendaftaran Error: ' . $e->getMessage());
             return [
                 'status'  => false,
-                'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage()
+                'message' => 'Terjadi kesalahan sistem. Silakan coba beberapa saat lagi.'
             ];
         }
     }

@@ -12,12 +12,7 @@ class Settings extends BaseController
 
     public function index()
     {
-        // 1. Proteksi rute: Hanya Admin atau Super Admin yang boleh mengatur konfigurasi frontend
-        if (! auth()->loggedIn() || (! auth()->user()->inGroup('admin') && ! auth()->user()->inGroup('superadmin'))) {
-            return redirect()->to(base_url('admin/dashboard'))
-                ->with('error', 'Akses ditolak. Halaman pengaturan hanya dapat diakses oleh Administrator.');
-        }
-
+        $this->requireAdmin();
         $shieldUser = auth()->user();
 
         // 2. Ambil data konfigurasi dari model dengan fallback defaults
@@ -32,11 +27,14 @@ class Settings extends BaseController
             'logo_img'          => SettingsModel::getSetting('logo_img', ''),
             'hero_img'          => SettingsModel::getSetting('hero_img', ''),
 
-            // Kop Surat Settings
-            'kop_nama'          => SettingsModel::getSetting('kop_nama', "PANITIA PENERIMAAN SISWA BARU (SPMB)\nSMA UNGGUL BANGSA"),
-            'kop_alamat'        => SettingsModel::getSetting('kop_alamat', 'Jl. Raya Pendidikan No. 45, Jakarta Pusat'),
-            'kop_telepon'       => SettingsModel::getSetting('kop_telepon', 'Telp: (021) 555 0123'),
-            'kop_website'       => SettingsModel::getSetting('kop_website', 'Website: spmb.unggulbangsa.sch.id'),
+            // Kop Surat Settings (Quill HTML)
+            'kop_content'       => SettingsModel::getSetting('kop_content', '<h2 style="margin:0; font-size:18px; text-transform:uppercase;">PANITIA PENERIMAAN SISWA BARU (SPMB)</h2><h3 style="margin:2px 0; font-size:16px; font-weight:600;">SMA UNGGUL BANGSA</h3><p style="margin:2px 0;">Jl. Raya Pendidikan No. 45, Jakarta Pusat</p><p style="margin:2px 0;">Telp: (021) 555 0123 | Website: spmb.unggulbangsa.sch.id</p>'),
+
+            // Nama Ketua Panitia untuk tanda tangan cetak
+            'ketua_panitia'     => SettingsModel::getSetting('ketua_panitia', ''),
+
+            // Kota untuk tanda tangan cetak
+            'kota_ttd'          => SettingsModel::getSetting('kota_ttd', 'Jakarta'),
 
             // Alur Pendaftaran (Steps 1-4)
             'step1_title'       => SettingsModel::getSetting('step1_title', '1. Registrasi Akun'),
@@ -87,17 +85,12 @@ class Settings extends BaseController
             'announcements'  => $announcements,
         ];
 
-        return view('admin/settings', $data);
+        return view('admin/form-settings', $data);
     }
 
     public function save()
     {
-        // 1. Proteksi rute
-        if (! auth()->loggedIn() || (! auth()->user()->inGroup('admin') && ! auth()->user()->inGroup('superadmin'))) {
-            return redirect()->to(base_url('admin/dashboard'))
-                ->with('error', 'Akses ditolak.');
-        }
-
+        $this->requireAdmin();
 
         // 2. Validasi input pengaturan
         $rules = [
@@ -148,10 +141,9 @@ class Settings extends BaseController
             'whatsapp_link'        => 'required|valid_url',
 
             // Kop Surat Rules
-            'kop_nama'             => 'permit_empty|min_length[3]|max_length[255]',
-            'kop_alamat'           => 'permit_empty|min_length[5]|max_length[255]',
-            'kop_telepon'          => 'permit_empty|min_length[3]|max_length[100]',
-            'kop_website'          => 'permit_empty|min_length[3]|max_length[255]',
+            'kop_content'          => 'permit_empty|max_length[5000]',
+            'ketua_panitia'        => 'permit_empty|max_length[200]',
+            'kota_ttd'             => 'permit_empty|max_length[100]',
         ];
 
         // Validate logo file only if a file was selected/uploaded
@@ -164,12 +156,6 @@ class Settings extends BaseController
         $heroFile = $this->request->getFile('hero_file');
         if ($heroFile && $heroFile->isValid()) {
             $rules['hero_file'] = 'is_image[hero_file]|mime_in[hero_file,image/png,image/jpg,image/jpeg]|max_size[hero_file,4096]';
-        }
-
-        // Validate kop logo file only if a file was selected/uploaded
-        $kopLogoFile = $this->request->getFile('kop_logo_file');
-        if ($kopLogoFile && $kopLogoFile->isValid()) {
-            $rules['kop_logo_file'] = 'is_image[kop_logo_file]|mime_in[kop_logo_file,image/png,image/jpg,image/jpeg]|max_size[kop_logo_file,2048]';
         }
 
         if (! $this->validate($rules)) {
@@ -225,10 +211,23 @@ class Settings extends BaseController
         SettingsModel::setSetting('whatsapp_link', $this->request->getPost('whatsapp_link'));
 
         // Simpan Kop Surat Settings
-        SettingsModel::setSetting('kop_nama', $this->request->getPost('kop_nama'));
-        SettingsModel::setSetting('kop_alamat', $this->request->getPost('kop_alamat'));
-        SettingsModel::setSetting('kop_telepon', $this->request->getPost('kop_telepon'));
-        SettingsModel::setSetting('kop_website', $this->request->getPost('kop_website'));
+        $kopContent = $this->request->getPost('kop_content');
+        // Sanitasi HTML: hanya izinkan tag dasar dengan style aman (text-align, dll)
+        $allowedTags = ['p','br','strong','em','u','h1','h2','h3','h4','span','div','a','ul','ol','li'];
+        $kopContent = preg_replace_callback('/<(\/?)(\w+)([^>]*)>/', function($m) use ($allowedTags) {
+            if (!in_array(strtolower($m[2]), $allowedTags)) {
+                return $m[1] === '/' ? '' : '';
+            }
+            return $m[0];
+        }, $kopContent);
+        // Hapus event handler (onclick, onload, dll)
+        $kopContent = preg_replace('/\s+on\w+\s*=\s*"[^"]*"/i', '', $kopContent);
+        $kopContent = preg_replace('/\s+on\w+\s*=\s*\'[^\']*\'/i', '', $kopContent);
+        // Blokir href berbahaya (javascript:, data:, vbscript:)
+        $kopContent = preg_replace('/href\s*=\s*"(?!https?:\/\/|#|mailto:|\/)[^"]*"/i', 'href="#"', $kopContent);
+        SettingsModel::setSetting('kop_content', $kopContent);
+        SettingsModel::setSetting('ketua_panitia', $this->request->getPost('ketua_panitia'));
+        SettingsModel::setSetting('kota_ttd', $this->request->getPost('kota_ttd'));
 
         // 4. Proses File Upload Logo
         $logoFile = $this->request->getFile('logo_file');
@@ -273,9 +272,7 @@ class Settings extends BaseController
     // =========================================================================
     public function addAnnouncement()
     {
-        if (! auth()->loggedIn() || (! auth()->user()->inGroup('admin') && ! auth()->user()->inGroup('superadmin'))) {
-            return redirect()->to(base_url('admin/dashboard'))->with('error', 'Akses ditolak.');
-        }
+        $this->requireAdmin();
 
         $rules = [
             'judul'  => 'required|min_length[3]|max_length[255]',
@@ -311,25 +308,22 @@ class Settings extends BaseController
     }
 
     // =========================================================================
-    // GET: Hapus Pengumuman
+    // POST: Hapus Pengumuman
     // =========================================================================
     public function deleteAnnouncement($id)
     {
-        if (! auth()->loggedIn() || (! auth()->user()->inGroup('admin') && ! auth()->user()->inGroup('superadmin'))) {
-            return redirect()->to(base_url('admin/dashboard'))->with('error', 'Akses ditolak.');
-        }
+        $this->requireAdmin();
 
         $pengumumanModel = new PengumumanModel();
         $pengumuman = $pengumumanModel->find($id);
 
         if (! $pengumuman) {
-            return redirect()->to(base_url('admin/settings?tab=pengumuman'))
-                ->with('error', 'Data pengumuman tidak ditemukan.');
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Data pengumuman tidak ditemukan.']);
         }
 
         $pengumumanModel->delete($id);
 
-        return redirect()->to(base_url('admin/settings?tab=pengumuman'))
-            ->with('success', 'Pengumuman berhasil dihapus.');
+        session()->setFlashdata('success', 'Pengumuman berhasil dihapus.');
+        return $this->response->setJSON(['status' => 'success']);
     }
 }

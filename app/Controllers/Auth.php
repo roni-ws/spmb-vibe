@@ -104,8 +104,8 @@ class Auth extends BaseController
         // 1. Ambil & Validasi Input
         $rules = [
             'fullName' => 'required|min_length[3]|max_length[100]',
-            'email'    => 'required|valid_email|is_unique[users.email]',
-            'username' => 'required|min_length[3]|max_length[30]|is_unique[users.username]|regex_match[/\A[a-zA-Z0-9\.]+\z/]',
+            'email'    => 'required|valid_email|is_unique[users_siswa.email]',
+            'username' => 'required|min_length[3]|max_length[30]|is_unique[users_siswa.username]|regex_match[/\A[a-zA-Z0-9\.]+\z/]',
             'password'         => 'required|min_length[8]|regex_match[/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])/]',
             'password_confirm' => 'required|matches[password]',
             'terms'            => 'required'
@@ -198,7 +198,7 @@ class Auth extends BaseController
             $siswaModel = new \App\Models\SiswaModel();
             $siswaModel->insert([
                 'nisn'             => $this->request->getPost('username'),
-                'nik'              => str_pad((string)$userId, 16, '0', STR_PAD_LEFT), // Unique placeholder NIK 16 digit
+                'nik'              => 'REG-' . str_pad((string)$userId, 12, '0', STR_PAD_LEFT), // Unique placeholder NIK 16 digit (REG- + 12 digit = 16)
                 'nama_lengkap'     => $this->request->getPost('fullName'),
                 'no_kk'            => '0000000000000000',
                 'tempat_lahir'     => '',
@@ -212,6 +212,8 @@ class Auth extends BaseController
                 'alamat_kabupaten' => '',
             ]);
             $siswaId = $siswaModel->getInsertID();
+            $noReg = 'REG-' . date('Y') . '-' . $siswaId;
+            $siswaModel->update($siswaId, ['no_registrasi' => $noReg]);
 
             // Buat record data_orang_tua
             $orangTuaModel = new \App\Models\OrangTuaModel();
@@ -251,8 +253,48 @@ class Auth extends BaseController
             log_message('error', 'Registration Error: ' . $e->getMessage());
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Terjadi kesalahan sistem saat registrasi: ' . $e->getMessage());
+                ->with('error', 'Terjadi kesalahan sistem saat registrasi. Silakan coba beberapa saat lagi.');
         }
+    }
+
+    // ----------------------------------------------------------------
+    // AJAX: Cek ketersediaan email (POST)
+    // ----------------------------------------------------------------
+    public function checkEmail()
+    {
+        $email = $this->request->getPost('email');
+        if (!$email) {
+            return $this->response->setJSON(['available' => false, 'message' => '']);
+        }
+
+        $user = model(\App\Models\SiswaUserModel::class)
+            ->where('email', $email)
+            ->first();
+
+        return $this->response->setJSON([
+            'available' => $user === null,
+            'message'   => $user === null ? 'Email tersedia' : 'Email sudah terdaftar'
+        ]);
+    }
+
+    // ----------------------------------------------------------------
+    // AJAX: Cek ketersediaan username (POST)
+    // ----------------------------------------------------------------
+    public function checkUsername()
+    {
+        $username = $this->request->getPost('username');
+        if (!$username) {
+            return $this->response->setJSON(['available' => false, 'message' => '']);
+        }
+
+        $user = model(\App\Models\SiswaUserModel::class)
+            ->where('username', $username)
+            ->first();
+
+        return $this->response->setJSON([
+            'available' => $user === null,
+            'message'   => $user === null ? 'Username tersedia' : 'Username sudah digunakan'
+        ]);
     }
 
     // ----------------------------------------------------------------
@@ -270,7 +312,7 @@ class Auth extends BaseController
     {
         $user = auth()->user();
 
-        if ($user && ($user->inGroup('admin') || $user->inGroup('superadmin') || $user->inGroup('panitia'))) {
+        if ($user && ($user->inGroup('admin') || $user->inGroup('panitia'))) {
             return redirect()->to(base_url('admin/dashboard'));
         }
 
