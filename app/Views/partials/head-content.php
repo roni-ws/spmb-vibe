@@ -8,6 +8,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
 
+<?= csrf_meta() ?>
+
 <!-- Compiled Tailwind CSS & Theme (Local) -->
 <?= link_tag('css/landing-page.css') ?>
+
+<script>
+    window.BASE_URL        = '<?= base_url() ?>';
+    window.CSRF_TOKEN_NAME = '<?= csrf_token() ?>';
+    window.CSRF_HASH       = '<?= csrf_hash() ?>';
+</script>
 

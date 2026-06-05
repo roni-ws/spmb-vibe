@@ -8,7 +8,7 @@ class SettingsModel extends Model
 {
     protected $table            = 'settings';
     protected $primaryKey       = 'settings_key';
-    protected $returnType       = 'array';
+    protected $returnType       = \App\Entities\Settings::class;
     protected $allowedFields    = ['settings_key', 'settings_value', 'created_at', 'updated_at'];
     protected $useTimestamps    = true;
     protected $createdField     = 'created_at';

@@ -2,18 +2,6 @@
     class="hidden md:flex bg-surface-container-low text-on-surface font-label-bold text-label-bold
            h-screen w-60 rounded-r-2xl shadow-md fixed left-0 top-0 z-40 flex-col p-md">
 
-    <!-- Logo -->
-    <div class="flex items-center gap-sm mb-md">
-        <?php if ($logoImg && file_exists(FCPATH . $logoImg)): ?>
-            <div class="w-10 h-10 rounded-xl overflow-hidden bg-slate-50 flex items-center justify-center shrink-0 shadow-sm border border-outline-variant/40">
-                <img src="<?= base_url($logoImg) ?>" class="w-full h-full object-contain p-1" alt="Logo">
-            </div>
-        <?php else: ?>
-            <span class="material-symbols-outlined text-primary text-3xl">school</span>
-        <?php endif; ?>
-        <span class="font-headline-sm text-headline-sm text-primary leading-tight"><?= esc($logoText) ?></span>
-    </div>
-
     <!-- Student Profile -->
     <div class="flex items-center gap-sm mb-md pb-md border-b border-outline-variant">
         <div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shrink-0 text-lg font-bold uppercase">

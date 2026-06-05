@@ -129,11 +129,9 @@ cookie_*.txt
 /phpunit.xml
 
 # Agent & tool config
-.agent/
 .opencode/
+.Agent
 
 # Scratch dev files
 scratch/
 
-# Node modules
-node_modules/

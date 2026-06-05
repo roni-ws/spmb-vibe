@@ -5,54 +5,7 @@ Asal Sekolah (Langkah 2 dari 4)
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<!-- Stepper Visual -->
-<div class="mb-lg bg-surface border border-outline-variant rounded-2xl p-sm md:p-md shadow-sm">
-    <div class="flex flex-col md:flex-row justify-between items-center gap-md">
-        <!-- Step 1: Completed -->
-        <a href="<?= base_url('siswa/biodata') ?>" class="flex items-center gap-xs w-full md:w-auto hover:opacity-80 transition-opacity">
-            <div class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm">
-                <span class="material-symbols-outlined text-[18px]">check</span>
-            </div>
-            <div>
-                <span class="block text-sm font-bold text-emerald-600 leading-tight">Biodata Diri</span>
-                <span class="block text-[11px] text-emerald-500">Selesai</span>
-            </div>
-        </a>
-        <div class="hidden md:block flex-grow h-px bg-emerald-200 mx-xs"></div>
-        <!-- Step 2: Active -->
-        <div class="flex items-center gap-xs w-full md:w-auto">
-            <div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm shrink-0 shadow-md">2</div>
-            <div>
-                <span class="block text-sm font-bold text-primary leading-tight">Asal Sekolah</span>
-                <span class="block text-[11px] text-primary">Sedang Diisi</span>
-            </div>
-        </div>
-        <div class="hidden md:block flex-grow h-px bg-outline-variant mx-xs"></div>
-        <!-- Step 3: Pending -->
-        <div class="flex items-center gap-xs w-full md:w-auto opacity-50">
-            <div class="w-8 h-8 rounded-full bg-surface-container-high border border-outline-variant text-on-surface-variant flex items-center justify-center font-bold text-sm shrink-0">3</div>
-            <div>
-                <span class="block text-sm font-bold text-on-surface-variant leading-tight">Data Orang Tua</span>
-                <span class="block text-[11px] text-outline">Belum Diisi</span>
-            </div>
-        </div>
-        <div class="hidden md:block flex-grow h-px bg-outline-variant mx-xs"></div>
-        <!-- Step 4: Pending -->
-        <div class="flex items-center gap-xs w-full md:w-auto opacity-50">
-            <div class="w-8 h-8 rounded-full bg-surface-container-high border border-outline-variant text-on-surface-variant flex items-center justify-center font-bold text-sm shrink-0">4</div>
-            <div>
-                <span class="block text-sm font-bold text-on-surface-variant leading-tight">Berkas Persyaratan</span>
-                <span class="block text-[11px] text-outline">Belum Diunggah</span>
-            </div>
-        </div>
-    </div>
-    <!-- Mobile Progress Bar -->
-    <div class="mt-sm md:hidden">
-        <div class="h-1.5 w-full bg-surface-container-high rounded-full overflow-hidden">
-            <div class="h-full bg-primary rounded-full" style="width: 50%;"></div>
-        </div>
-    </div>
-</div>
+<?= $this->include('components/siswa/form-stepper') ?>
 
 <!-- Main Form Section -->
 <div class="max-w-3xl mx-auto">
@@ -96,19 +49,7 @@ Asal Sekolah (Langkah 2 dari 4)
             </div>
 
             <!-- Tombol Aksi -->
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-md border-t border-outline-variant pt-md mt-lg">
-                <a href="<?= base_url('siswa/biodata') ?>" class="w-full sm:w-auto rounded-lg border border-outline text-on-surface-variant hover:bg-surface-container-high transition-colors flex items-center justify-center gap-xs font-label-bold text-body-sm text-center"
-                   style="padding: 12px 36px !important; min-width: 160px;">
-                    <span class="material-symbols-outlined text-[20px]">arrow_back</span>
-                    Kembali
-                </a>
-                <button class="w-full sm:w-auto rounded-lg bg-primary text-on-primary font-label-bold text-body-sm hover:bg-primary-container transition-colors shadow-sm hover:shadow-md flex items-center justify-center gap-xs group" 
-                        style="padding: 12px 36px !important; min-width: 160px; cursor: pointer;"
-                        type="submit">
-                    Simpan & Lanjutkan
-                    <span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                </button>
-            </div>
+            <?= $this->include('components/siswa/form-actions') ?>
         </form>
     </div>
 </div>

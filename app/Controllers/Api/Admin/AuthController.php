@@ -4,32 +4,36 @@ namespace App\Controllers\Api\Admin;
 
 use App\Controllers\BaseController;
 use CodeIgniter\API\ResponseTrait;
+use CodeIgniter\HTTP\ResponseInterface;
 
 class AuthController extends BaseController
 {
     use ResponseTrait;
 
-    public function loginAction()
+    public function loginAction(): ResponseInterface
     {
         $rules = [
             'identifier' => 'required',
             'password'   => 'required',
         ];
 
-        if (! $this->validate($rules)) {
+        if (! $this->validateData($this->request->getJSON(true), $rules)) {
             return $this->fail($this->validator->getErrors());
         }
 
-        $identifier = $this->request->getVar('identifier');
-        $password   = $this->request->getVar('password');
+        $identifier = $this->request->getJSON(true)['identifier'] ?? '';
+        $password   = $this->request->getJSON(true)['password'] ?? '';
 
-        $credentials = filter_var($identifier, FILTER_VALIDATE_EMAIL)
-            ? ['email' => $identifier, 'password' => $password]
-            : ['username' => $identifier, 'password' => $password];
+        if (filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+            $credentials = ['email' => $identifier, 'password' => $password];
+        } elseif (ctype_digit($identifier)) {
+            $credentials = ['nisn' => $identifier, 'password' => $password];
+        } else {
+            $credentials = ['username' => $identifier, 'password' => $password];
+        }
 
-        // Access the auth service
         $auth = service('auth');
-        
+
         $result = $auth->attempt($credentials);
 
         if (! $result->isOK()) {
@@ -38,13 +42,11 @@ class AuthController extends BaseController
 
         $user = $auth->user();
 
-        // Enforce admin/panitia authorization
-        if (! $user->inGroup('admin', 'panitia')) {
+        if (! $user->inGroup(ROLE_ADMIN, ROLE_PANITIA)) {
             $auth->logout();
             return $this->failForbidden('Akses ditolak. Akun Anda bukan merupakan Admin/Panitia.');
         }
 
-        // Generate JWT token
         $jwtManager = service('jwtmanager');
         $token      = $jwtManager->generateToken($user);
 
@@ -61,7 +63,7 @@ class AuthController extends BaseController
         ]);
     }
 
-    public function profile()
+    public function profile(): ResponseInterface
     {
         $user = auth()->user();
 

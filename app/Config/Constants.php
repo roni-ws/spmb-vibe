@@ -77,3 +77,54 @@ defined('EXIT_USER_INPUT')     || define('EXIT_USER_INPUT', 7);     // invalid u
 defined('EXIT_DATABASE')       || define('EXIT_DATABASE', 8);       // database error
 defined('EXIT__AUTO_MIN')      || define('EXIT__AUTO_MIN', 9);      // lowest automatically-assigned error code
 defined('EXIT__AUTO_MAX')      || define('EXIT__AUTO_MAX', 125);    // highest automatically-assigned error code
+
+/*
+ | --------------------------------------------------------------------
+ | Aplikasi SPMB — Status & Default Values
+ | --------------------------------------------------------------------
+ */
+defined('VERIF_STATUS_VALID')        || define('VERIF_STATUS_VALID', 'Valid');
+defined('VERIF_STATUS_REVISI')       || define('VERIF_STATUS_REVISI', 'Revisi');
+defined('VERIF_STATUS_TIDAK_VALID')  || define('VERIF_STATUS_TIDAK_VALID', 'Tidak Valid');
+defined('VERIF_STATUS_BELUM')        || define('VERIF_STATUS_BELUM', 'Belum Verifikasi');
+
+defined('VERIF_ID_BELUM')    || define('VERIF_ID_BELUM', 1);
+defined('VERIF_ID_REVISI')   || define('VERIF_ID_REVISI', 2);
+defined('VERIF_ID_VALID')    || define('VERIF_ID_VALID', 3);
+defined('VERIF_ID_TIDAK_VALID') || define('VERIF_ID_TIDAK_VALID', 4);
+
+defined('DEFAULT_SEKOLAH')   || define('DEFAULT_SEKOLAH', 'Belum Diisi');
+defined('DEFAULT_GENDER')    || define('DEFAULT_GENDER', 'L');
+defined('DEFAULT_TTL')       || define('DEFAULT_TTL', '2008-01-01');
+defined('REG_PREFIX')        || define('REG_PREFIX', 'REG-');
+defined('KK_SENTINEL')       || define('KK_SENTINEL', '0000000000000000');
+defined('HP_EMPTY')          || define('HP_EMPTY', '-');
+defined('DEFAULT_BELUM_MENGISI') || define('DEFAULT_BELUM_MENGISI', 'Belum Mengisi');
+defined('STATUS_BELUM_FINAL')    || define('STATUS_BELUM_FINAL', 'Belum Final');
+
+defined('SETTING_IS_OPEN')      || define('SETTING_IS_OPEN', 'is_open');
+defined('SETTING_TAHUN_AJARAN') || define('SETTING_TAHUN_AJARAN', 'tahun_ajaran');
+defined('SETTING_LOGO_TEXT')    || define('SETTING_LOGO_TEXT', 'logo_text');
+defined('SETTING_FOOTER_DESC')  || define('SETTING_FOOTER_DESC', 'footer_desc');
+defined('SETTING_WHATSAPP')     || define('SETTING_WHATSAPP', 'whatsapp_link');
+
+defined('ROLE_ADMIN')    || define('ROLE_ADMIN', 'admin');
+defined('ROLE_PANITIA')  || define('ROLE_PANITIA', 'panitia');
+defined('ROLE_STUDENT')  || define('ROLE_STUDENT', 'student');
+defined('GROUP_USER')    || define('GROUP_USER', 'user');
+
+defined('ALLOWED_IMG_EXT') || define('ALLOWED_IMG_EXT', 'jpg,jpeg,png');
+defined('ALLOWED_DOC_EXT') || define('ALLOWED_DOC_EXT', 'pdf,jpg,jpeg,png');
+defined('UPLOAD_MAX_SIZE') || define('UPLOAD_MAX_SIZE', 2048);
+
+defined('UPLOAD_PATH')         || define('UPLOAD_PATH', 'uploads/berkas/');
+
+defined('RECENT_STUDENTS_LIMIT') || define('RECENT_STUDENTS_LIMIT', 4);
+defined('MONTHLY_TRENDS_MONTHS') || define('MONTHLY_TRENDS_MONTHS', 6);
+
+defined('NOTIF_SISWA_WELCOME')          || define('NOTIF_SISWA_WELCOME', 'welcome');
+defined('NOTIF_SISWA_STATUS_CHANGE')    || define('NOTIF_SISWA_STATUS_CHANGE', 'status_change');
+defined('NOTIF_SISWA_PENGUMUMAN')       || define('NOTIF_SISWA_PENGUMUMAN', 'pengumuman');
+defined('NOTIF_ADMIN_SISWA_BARU')       || define('NOTIF_ADMIN_SISWA_BARU', 'siswa_baru');
+defined('NOTIF_ADMIN_SISWA_FINALIZED')  || define('NOTIF_ADMIN_SISWA_FINALIZED', 'siswa_finalized');
+defined('NOTIF_DROPDOWN_LIMIT')         || define('NOTIF_DROPDOWN_LIMIT', 5);

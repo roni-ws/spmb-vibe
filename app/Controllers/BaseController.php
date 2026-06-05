@@ -5,15 +5,10 @@ namespace App\Controllers;
 use CodeIgniter\Controller;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
-use Config\Database;
 use Psr\Log\LoggerInterface;
 
 abstract class BaseController extends Controller
 {
-    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
-    {
-        parent::initController($request, $response, $logger);
-    }
 
     protected function requireGroup(string|array $groups, string $redirect = 'login'): void
     {
@@ -29,7 +24,7 @@ abstract class BaseController extends Controller
 
     protected function requireAdmin(string $redirect = 'login'): void
     {
-        $this->requireGroup('admin', $redirect);
+        $this->requireGroup(ROLE_ADMIN, $redirect);
     }
 
     protected function requireLoggedIn(string $redirect = 'login'): void
@@ -44,58 +39,71 @@ abstract class BaseController extends Controller
     protected function redirectAdminIfNeeded(): void
     {
         $user = auth()->user();
-        if ($user && $user->inGroup('admin')) {
+        if ($user && $user->inGroup(ROLE_ADMIN)) {
             redirect()->to(base_url('admin/dashboard'))->throwResponse();
         }
     }
 
-    protected function getLoginRules(): array
+    protected function requireSiswa(): void
+    {
+        $this->requireLoggedIn();
+        $this->redirectAdminIfNeeded();
+    }
+
+    protected function getSiteSettings(): array
     {
         return [
-            'identifier' => 'required',
-            'password'   => 'required',
+            'logoText'  => \App\Models\SettingsModel::getSetting('logo_text', 'SPMB Unggul Bangsa'),
+            'logoImg'   => \App\Models\SettingsModel::getSetting('logo_img', ''),
         ];
     }
 
-    protected function deleteStudentByUserId(int $userId): bool
+    protected function getPublicSettings(): array
     {
-        $db = Database::connect();
-        $student = $db->table('calon_siswa')->where('id', $userId)->get()->getRowArray();
-        if (!$student) return false;
-
-        $nisn = $student['nisn'];
-        $userSiswa = $db->table('users_siswa')->where('username', $nisn)->get()->getRowArray();
-        if ($userSiswa) {
-            $uId = $userSiswa['id'];
-            foreach (['auth_identities', 'auth_groups_users', 'auth_remember_tokens', 'auth_permissions_users'] as $table) {
-                $db->table($table)->where('user_id', $uId)->delete();
-            }
-            $db->table('users_siswa')->where('id', $uId)->delete();
-        }
-
-        return (bool) $db->table('calon_siswa')->where('id', $userId)->delete();
+        return [
+            'logoText'       => \App\Models\SettingsModel::getSetting('logo_text', 'SPMB Unggul Bangsa'),
+            'logoImg'        => \App\Models\SettingsModel::getSetting('logo_img', ''),
+            'is_open'        => \App\Models\SettingsModel::getSetting('is_open', '1') === '1',
+            'footer_desc'    => \App\Models\SettingsModel::getSetting('footer_desc', ''),
+            'footer_phone'   => \App\Models\SettingsModel::getSetting('footer_phone', ''),
+            'footer_email'   => \App\Models\SettingsModel::getSetting('footer_email', ''),
+            'footer_address' => \App\Models\SettingsModel::getSetting('footer_address', ''),
+        ];
     }
 
-    protected function getStatusPendaftaranBySiswaId(int $siswaId): ?array
+    protected function renderSiswaView(string $view, array $data = []): ResponseInterface
     {
-        $db = Database::connect();
+        $user = auth()->user();
+        $nisn = $user ? ($user->nisn ?? $user->username) : null;
 
-        return $db->table('status_pendaftaran')
-            ->select('status_pendaftaran.*, status_verifikasi.nama_status as status_verifikasi')
-            ->join('status_verifikasi', 'status_verifikasi.id = status_pendaftaran.status_verifikasi_id', 'left')
-            ->where('siswa_id', $siswaId)
-            ->get()
-            ->getRowArray() ?: null;
+        return $this->response->setBody(view($view, array_merge($this->getSiteSettings(), $this->getSiswaLayoutData($nisn), $data)));
+    }
+
+    protected function redirectByRole(): ResponseInterface
+    {
+        $user = auth()->user();
+
+        if ($user && ($user->inGroup(ROLE_ADMIN) || $user->inGroup(ROLE_PANITIA))) {
+            return redirect()->to(base_url('admin/dashboard'));
+        }
+
+        return redirect()->to(base_url('siswa/dashboard'));
+    }
+
+    protected function getRegistrationStatus(int $siswaId): ?array
+    {
+        return model(\App\Models\Siswa\StatusPendaftaranModel::class)
+            ->getWithVerifikasiBySiswaId($siswaId);
     }
 
     protected function needsRevision(?string $statusVerifikasi): bool
     {
-        return in_array($statusVerifikasi, ['Revisi', 'Tidak Valid'], true);
+        return in_array($statusVerifikasi, [VERIF_STATUS_REVISI, VERIF_STATUS_TIDAK_VALID], true);
     }
 
     protected function checkFinalized(int $siswaId): bool
     {
-        $status = $this->getStatusPendaftaranBySiswaId($siswaId);
+        $status = $this->getRegistrationStatus($siswaId);
 
         if (!$status) {
             return false;
@@ -115,26 +123,30 @@ abstract class BaseController extends Controller
         }
 
         return (int) ($statusPendaftaran['is_finalized'] ?? 0) === 1
-            && ($statusPendaftaran['status_verifikasi'] ?? '') === 'Valid';
+            && ($statusPendaftaran['status_verifikasi'] ?? '') === VERIF_STATUS_VALID;
     }
 
     protected function getSiswaLayoutData(?string $nisn = null): array
     {
-        $nisn = $nisn ?? (auth()->loggedIn() ? auth()->user()->username : null);
+        $nisn = $nisn ?? (auth()->loggedIn() ? (auth()->user()->nisn ?? auth()->user()->username) : null);
 
         if (!$nisn) {
             return [
                 'nama_lengkap'     => 'Siswa',
+                'user_email'       => '',
                 'can_cetak_bukti'  => false,
             ];
         }
 
-        $db     = Database::connect();
-        $siswa  = $db->table('calon_siswa')->where('nisn', $nisn)->get()->getRowArray();
-        $status = $siswa ? $this->getStatusPendaftaranBySiswaId((int) $siswa['id']) : null;
+        $siswa = model(\App\Models\Siswa\SiswaModel::class)
+            ->where('nisn', $nisn)
+            ->first();
+        $status = $siswa ? $this->getRegistrationStatus((int) $siswa['id']) : null;
+        $shieldUser = auth()->user();
 
         return [
             'nama_lengkap'    => ! empty($siswa['nama_lengkap']) ? $siswa['nama_lengkap'] : $nisn,
+            'user_email'      => $shieldUser ? $shieldUser->email : '',
             'can_cetak_bukti' => $this->canCetakBukti($status),
         ];
     }

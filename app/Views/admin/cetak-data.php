@@ -1,6 +1,6 @@
 <?php
-use App\Models\SettingsModel;
-
+$footer_address ??= 'Jakarta';
+$logoText ??= 'SMA Unggul Bangsa';
 include __DIR__ . '/../components/shared/kop_surat.php'; ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -8,129 +8,79 @@ include __DIR__ . '/../components/shared/kop_surat.php'; ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daftar Calon Siswa Baru SPMB</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            margin: 20px;
-            color: #333;
-            background-color: #fff;
-        }
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        h2 {
-            text-align: center;
-            margin: 20px 0;
-            font-size: 18px;
-            text-transform: uppercase;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-            margin-bottom: 30px;
-        }
-        th {
-            background-color: #002045;
-            color: #fff;
-            padding: 8px 6px;
-            text-align: left;
-            font-weight: 600;
-        }
-        td {
-            padding: 6px;
-            border-bottom: 1px solid #ddd;
-        }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        .status-valid {
-            color: #2e7d32;
-            font-weight: 600;
-        }
-        .status-invalid {
-            color: #c62828;
-            font-weight: 600;
-        }
-        .status-pending {
-            color: #f57f17;
-            font-weight: 600;
-        }
-        .finalized {
-            color: #2e7d32;
-        }
-        .not-finalized {
-            color: #c62828;
-        }
-        .sign-area {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 40px;
-        }
-        .sign-box {
-            text-align: center;
-            width: 250px;
-        }
-        .space {
-            height: 60px;
-        }
-        .sign-line {
-            margin: 0;
-            font-size: 13px;
-        }
-        .sign-name {
-            margin: 5px 0 0;
-            font-weight: 600;
-            font-size: 13px;
-        }
-        @media print {
-            @page { margin: 0; }
-            body { padding: 5mm; margin: 0; }
-            .no-print { display: none; }
-        }
-    </style>
+    <link rel="stylesheet" href="<?= base_url('css/print-data.css') ?>">
 </head>
 <body>
     <div class="container">
         <h2>Daftar Calon Siswa Baru Terdaftar (SPMB)</h2>
 
+        <div class="table-wrap">
         <table>
             <thead>
                 <tr>
                     <th>No</th>
-                    <th>ID Pendaftaran</th>
-                    <th>Nama Lengkap</th>
+                    <th>ID</th>
                     <th>NISN</th>
+                    <th>No. Registrasi</th>
                     <th>NIK</th>
+                    <th>No. KK</th>
+                    <th>Nama Lengkap</th>
+                    <th>Tempat Lahir</th>
+                    <th>Tgl Lahir</th>
+                    <th>JK</th>
+                    <th>Anak Ke-</th>
+                    <th>Jml Saudara</th>
                     <th>No. HP</th>
+                    <th>Alamat Desa</th>
+                    <th>Kecamatan</th>
+                    <th>Kabupaten</th>
                     <th>Asal Sekolah</th>
+                    <th>Alamat Sekolah</th>
+                    <th>Nama Ayah</th>
+                    <th>Pekerjaan Ayah</th>
+                    <th>Nama Ibu</th>
+                    <th>Pekerjaan Ibu</th>
                     <th>Status Berkas</th>
                     <th>Finalisasi</th>
                 </tr>
             </thead>
             <tbody>
                 <?php $no = 1; ?>
-                <?php foreach ($students as $s): ?>
+                <?php foreach ($students as $student): ?>
                 <tr>
                     <td><?= $no++ ?></td>
-                    <td><?= esc($s['id']) ?></td>
-                    <td><?= esc($s['nama_lengkap']) ?></td>
-                    <td><?= esc($s['username'] ?? '-') ?></td>
-                    <td><?= esc($s['nik'] ?? '-') ?></td>
-                    <td><?= esc($s['no_hp'] ?? '-') ?></td>
-                    <td><?= esc($s['nama_sekolah'] ?? '-') ?></td>
-                    <td class="<?= $s['status_verifikasi'] === 'Valid' ? 'status-valid' : ($s['status_verifikasi'] === 'Tidak Valid' ? 'status-invalid' : 'status-pending') ?>">
-                        <?= esc($s['status_verifikasi'] ?? 'Belum Verifikasi') ?>
+                    <td><?= esc($student['id']) ?></td>
+                    <td><?= esc($student['username'] ?? '-') ?></td>
+                    <td><?= esc($student['no_registrasi'] ?? '-') ?></td>
+                    <td><?= esc($student['nik'] ?? '-') ?></td>
+                    <td><?= esc($student['no_kk'] ?? '-') ?></td>
+                    <td><?= esc($student['nama_lengkap'] ?? '-') ?></td>
+                    <td><?= esc($student['tempat_lahir'] ?? '-') ?></td>
+                    <td><?= esc($student['tanggal_lahir'] ?? '-') ?></td>
+                    <td><?= esc($student['jenis_kelamin'] ?? '-') ?></td>
+                    <td><?= esc($student['anak_ke'] ?? '-') ?></td>
+                    <td><?= esc($student['jumlah_saudara'] ?? '-') ?></td>
+                    <td><?= esc($student['no_hp'] ?? '-') ?></td>
+                    <td><?= esc($student['alamat_desa'] ?? '-') ?></td>
+                    <td><?= esc($student['alamat_kecamatan'] ?? '-') ?></td>
+                    <td><?= esc($student['alamat_kabupaten'] ?? '-') ?></td>
+                    <td><?= esc($student['nama_sekolah'] ?? '-') ?></td>
+                    <td><?= esc($student['alamat_sekolah'] ?? '-') ?></td>
+                    <td><?= esc($student['nama_ayah'] ?? '-') ?></td>
+                    <td><?= esc($student['pekerjaan_ayah'] ?? '-') ?></td>
+                    <td><?= esc($student['nama_ibu'] ?? '-') ?></td>
+                    <td><?= esc($student['pekerjaan_ibu'] ?? '-') ?></td>
+                    <td class="<?= ($student['status_verifikasi'] ?? '') === VERIF_STATUS_VALID ? 'status-valid' : (($student['status_verifikasi'] ?? '') === VERIF_STATUS_TIDAK_VALID ? 'status-invalid' : 'status-pending') ?>">
+                        <?= esc($student['status_verifikasi'] ?? VERIF_STATUS_BELUM) ?>
                     </td>
-                    <td class="<?= ($s['is_finalized'] ?? 0) ? 'finalized' : 'not-finalized' ?>">
-                        <?= ($s['is_finalized'] ?? 0) ? 'Sudah' : 'Belum' ?>
+                    <td class="<?= ($student['is_finalized'] ?? 0) ? 'finalized' : 'not-finalized' ?>">
+                        <?= ($student['is_finalized'] ?? 0) ? 'Sudah' : 'Belum' ?>
                     </td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
+        </div>
 
         <p style="text-align:right; font-size:11px; color:#666;">
             Dicetak pada: <?= date('d F Y H:i:s') ?>
@@ -138,8 +88,8 @@ include __DIR__ . '/../components/shared/kop_surat.php'; ?>
 
         <div class="sign-area">
             <div class="sign-box">
-                <p><?= esc(SettingsModel::getSetting('footer_address', 'Jakarta')) ?>, <?= date('d F Y') ?></p>
-                <p>Panitia PPDB <?= esc(SettingsModel::getSetting('logo_text', 'SMA Unggul Bangsa')) ?>,</p>
+                <p><?= esc($footer_address) ?>, <?= date('d F Y') ?></p>
+                <p>Panitia PPDB <?= esc($logoText) ?>,</p>
                 <div class="space"></div>
                 <p class="sign-line">__________________________</p>
                 <p class="sign-name">Ketua Panitia</p>

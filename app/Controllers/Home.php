@@ -3,12 +3,13 @@
 namespace App\Controllers;
 
 use App\Models\SettingsModel;
+use CodeIgniter\HTTP\ResponseInterface;
 
 class Home extends BaseController
 {
     protected $helpers = ['url', 'html'];
 
-    public function index(): string
+    public function index(): ResponseInterface
     {
         $stepDefaults = [
             1 => ['title' => '1. Registrasi Akun', 'desc' => 'Buat akun pendaftar secara online menggunakan username, email aktif, dan password Anda.', 'icon' => 'app_registration'],
@@ -42,7 +43,7 @@ class Home extends BaseController
         }
 
         $data = [
-            'is_open'           => SettingsModel::getSetting('is_open', '1') === '1',
+            ...$this->getPublicSettings(),
             'tahun_ajaran'      => SettingsModel::getSetting('tahun_ajaran', '2026/2027'),
             'frontend_title'    => SettingsModel::getSetting('frontend_title', 'Raih Masa Depan Gemilang di SMA Unggul Bangsa'),
             'frontend_subtitle' => SettingsModel::getSetting('frontend_subtitle', 'Bergabunglah dengan komunitas pembelajar yang dinamis dan berprestasi. Program kurikulum berstandar tinggi serta fasilitas modern kami siap mempersiapkan Anda untuk mencapai keunggulan akademik dan karakter.'),
@@ -50,7 +51,7 @@ class Home extends BaseController
             'step_data'         => $stepData,
             'req_data'          => $reqData,
         ];
-        return view('public/home', $data);
+        return $this->response->setBody(view('public/home', $data));
     }
 }
 

@@ -1,6 +1,6 @@
 <?= $this->extend('layouts/public') ?>
 
-<?= $this->section('title') ?>SPMB <?= esc(\App\Models\SettingsModel::getSetting('logo_text', 'SMA Unggul Bangsa')) ?> | Penerimaan Siswa Baru<?= $this->endSection() ?>
+<?= $this->section('title') ?>SPMB <?= esc($logoText) ?> | Penerimaan Siswa Baru<?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
     <main class="flex-grow">

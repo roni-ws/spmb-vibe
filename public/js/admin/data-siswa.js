@@ -273,7 +273,10 @@ function openViewModal(userId, btn) {
 
     // Status badge (verifikasi)
     const badge = document.getElementById('view-status_badge');
-    const statusText = d.status_verifikasi || 'Belum Verifikasi';
+    let statusText = d.status_verifikasi || 'Belum Verifikasi';
+    if (d.is_finalized && (statusText === 'Revisi' || statusText === 'Tidak Valid')) {
+        statusText = 'Belum Verifikasi';
+    }
     badge.textContent = statusText;
     const stClass = statusText === 'Valid' ? 'badge-valid' : statusText === 'Revisi' ? 'badge-invalid' : 'badge-pending';
     badge.className = 'px-2 py-0.5 rounded-full text-caption font-bold inline-block ' + stClass;

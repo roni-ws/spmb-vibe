@@ -22,12 +22,16 @@
             </thead>
             <tbody id="table-body">
                 <?php if (!empty($students)): ?>
-                    <?php foreach ($students as $i => $s): ?>
+                    <?php foreach ($students as $i => $student): ?>
                     <?php
-                        $nama   = esc($s['nama_lengkap'] ?: $s['username'] ?? '-');
-                        $inisial = strtoupper(mb_substr($s['nama_lengkap'] ?: $s['username'] ?? 'X', 0, 2));
-                        $status = $s['status_verifikasi'] ?? 'Belum Verifikasi';
-                        $final  = $s['is_finalized'] ?? 0;
+                        $nama   = esc($student['nama_lengkap'] ?: $student['username'] ?? '-');
+                        $inisial = strtoupper(mb_substr($student['nama_lengkap'] ?: $student['username'] ?? 'X', 0, 2));
+                        $status = $student['status_verifikasi'] ?? VERIF_STATUS_BELUM;
+                        $final  = $student['is_finalized'] ?? 0;
+
+                        if ($final && in_array($status, [VERIF_STATUS_REVISI, VERIF_STATUS_TIDAK_VALID])) {
+                            $status = VERIF_STATUS_BELUM;
+                        }
 
                         $statusClass = match($status) {
                             'Valid'       => 'badge-valid',
@@ -45,11 +49,11 @@
                         $avatarClass  = $avatarColors[$i % count($avatarColors)];
                     ?>
                     <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors"
-                        data-id="<?= $s['id'] ?>">
+                        data-id="<?= $student['id'] ?>">
                         <!-- Checkbox -->
                         <td class="p-4">
                             <input type="checkbox" class="row-checkbox rounded border-outline-variant text-primary focus:ring-primary cursor-pointer"
-                                   value="<?= $s['id'] ?>" />
+                                   value="<?= $student['id'] ?>" />
                         </td>
                         <!-- Name + Info -->
                         <td class="p-4">
@@ -59,25 +63,25 @@
                                 </div>
                                 <div class="min-w-0">
                                     <p class="font-semibold text-body-sm text-on-surface truncate max-w-[160px]"><?= $nama ?></p>
-                                    <p class="text-caption text-on-surface-variant truncate max-w-[160px]">NISN: <?= esc($s['nisn'] ?? '-') ?></p>
+                                    <p class="text-caption text-on-surface-variant truncate max-w-[160px]">NISN: <?= esc($student['nisn'] ?? '-') ?></p>
                                 </div>
                             </div>
                         </td>
                         <!-- No. Registrasi -->
                         <td class="p-4 text-body-sm text-on-surface-variant font-mono">
-                            <?= esc($s['no_registrasi'] ?? '-') ?>
+                            <?= esc($student['no_registrasi'] ?? '-') ?>
                         </td>
                         <!-- NIK -->
                         <td class="p-4 text-body-sm text-on-surface font-semibold">
-                            <?= (!empty($s['nik']) && !str_contains($s['nik'], 'REG-')) ? esc($s['nik']) : '<span class="text-outline italic">Belum diisi</span>' ?>
+                            <?= (!empty($student['nik']) && !str_contains($student['nik'], REG_PREFIX)) ? esc($student['nik']) : '<span class="text-outline italic">' . DEFAULT_BELUM_MENGISI . '</span>' ?>
                         </td>
                         <!-- Sekolah -->
                         <td class="p-4 text-body-sm text-on-surface-variant max-w-[160px]">
-                            <span class="truncate block"><?= esc($s['nama_sekolah'] ?? '-') ?></span>
+                            <span class="truncate block"><?= esc($student['nama_sekolah'] ?? '-') ?></span>
                         </td>
                         <!-- Tgl Daftar -->
                         <td class="p-4 text-body-sm text-on-surface-variant whitespace-nowrap">
-                            <?= date('d M Y', strtotime($s['created_at'])) ?>
+                            <?= date('d M Y', strtotime($student['created_at'])) ?>
                         </td>
                         <!-- Status Berkas -->
                         <td class="p-4">
@@ -103,29 +107,29 @@
                             <div class="flex items-center justify-end gap-1">
                                 <!-- Quick View -->
                                 <button class="view-student-btn p-1.5 text-info hover:bg-info-container/20 rounded-full transition-colors"
-                                        data-id="<?= $s['id'] ?>"
-                                        data-student='<?= esc(json_encode($s), 'attr') ?>'
+                                        data-id="<?= $student['id'] ?>"
+                                        data-student='<?= esc(json_encode($student), 'attr') ?>'
                                         title="Lihat Detail">
                                     <span class="material-symbols-outlined text-[18px]">visibility</span>
                                 </button>
                                 <!-- Quick Edit -->
                                 <button class="edit-student-btn p-1.5 text-primary hover:bg-primary-container/20 rounded-full transition-colors"
-                                        data-id="<?= $s['id'] ?>"
-                                        data-student='<?= esc(json_encode($s), 'attr') ?>'
+                                        data-id="<?= $student['id'] ?>"
+                                        data-student='<?= esc(json_encode($student), 'attr') ?>'
                                         title="Edit Calon Siswa">
                                     <span class="material-symbols-outlined text-[18px]">edit</span>
                                 </button>
                                 
                                 <!-- Quick Delete -->
                                 <button class="delete-student-btn p-1.5 text-error hover:bg-error-container/20 rounded-full transition-colors"
-                                        data-id="<?= $s['id'] ?>"
+                                        data-id="<?= $student['id'] ?>"
                                         data-nama="<?= esc($nama) ?>"
                                         title="Hapus Calon Siswa">
                                     <span class="material-symbols-outlined text-[18px]">delete</span>
                                 </button>
                                 
                                 <!-- Quick Archive -->
-                                <a href="<?= base_url('admin/arsip/' . $s['id']) ?>" target="_blank"
+                                <a href="<?= base_url('admin/arsip/' . $student['id']) ?>" target="_blank"
                                    class="p-1.5 text-secondary hover:bg-secondary-container/20 rounded-full transition-colors"
                                    title="Cetak Arsip">
                                     <span class="material-symbols-outlined text-[18px]">print</span>

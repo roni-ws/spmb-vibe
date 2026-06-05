@@ -1,6 +1,6 @@
 <?php
-$logoText = \App\Models\SettingsModel::getSetting('logo_text', 'SPMB Unggul Bangsa');
-$logoImg  = \App\Models\SettingsModel::getSetting('logo_img', '');
+$logoText ??= 'SPMB Unggul Bangsa';
+$logoImg ??= '';
 $can_cetak_bukti = $can_cetak_bukti ?? false;
 
 $currentUri = service('uri')->getPath();

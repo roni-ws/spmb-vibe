@@ -1,25 +1,17 @@
 <?php
-$logoText = \App\Models\SettingsModel::getSetting('logo_text', 'SPMB Unggul Bangsa');
-$logoImg  = \App\Models\SettingsModel::getSetting('logo_img', '');
-
-$shieldUser = auth()->user();
-$admin_username = $shieldUser ? $shieldUser->username : 'Administrator';
-
-$roleLabel = 'Panitia SPMB';
-if ($shieldUser) {
-    if ($shieldUser->inGroup('admin')) {
-        $roleLabel = 'Administrator';
-    } elseif ($shieldUser->inGroup('panitia')) {
-        $roleLabel = 'Panitia PPDB';
-    }
-}
+$logoText ??= 'SPMB Unggul Bangsa';
+$logoImg ??= '';
+$admin_username ??= 'Administrator';
+$roleLabel ??= 'Panitia SPMB';
+$isAdmin ??= false;
 
 $currentUri = service('uri')->getPath();
-$isDashboard = ($currentUri === 'admin/dashboard' || $currentUri === 'admin');
-$isPendaftar = str_contains($currentUri, 'pendaftar') || str_contains($currentUri, 'admin/verify') || str_contains($currentUri, 'admin/delete');
-$isExport    = str_contains($currentUri, 'export');
-$isSettings  = str_contains($currentUri, 'settings');
-$isUsers     = str_contains($currentUri, 'users');
+$isDashboard  = ($currentUri === 'admin/dashboard' || $currentUri === 'admin');
+$isPendaftar  = str_contains($currentUri, 'pendaftar') || str_contains($currentUri, 'admin/verify') || str_contains($currentUri, 'admin/delete');
+$isExport     = str_contains($currentUri, 'export');
+$isSettings   = str_contains($currentUri, 'settings');
+$isUsers      = str_contains($currentUri, 'users');
+$isPengumuman = str_contains($currentUri, 'pengumuman');
 
 $headTitleSuffix = 'Admin | ' . esc($logoText);
 ?>

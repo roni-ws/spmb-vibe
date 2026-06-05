@@ -5,9 +5,13 @@
         <div class="p-sm bg-red-50 border border-red-200 rounded-xl flex gap-xs items-start shadow-sm text-red-800 animate-slide-up">
             <span class="material-symbols-outlined text-red-600 text-lg shrink-0">gpp_bad</span>
             <div class="flex-grow">
-                <h4 class="font-label-bold text-[11px] text-red-900 mb-0.5">Berkas Perlu Revisi</h4>
+                <h4 class="font-label-bold text-[11px] text-red-900 mb-0.5"><?= $status_verifikasi === 'Tidak Valid' ? 'Berkas Tidak Valid' : 'Berkas Perlu Revisi' ?></h4>
                 <p class="text-[10px] leading-normal text-red-800/90">
-                    Berkas Anda dinyatakan **Butuh Revisi** oleh panitia. Perbaiki data/formulir sesuai catatan, lalu lakukan finalisasi ulang.
+                    <?php if ($status_verifikasi === 'Tidak Valid'): ?>
+                        Berkas Anda dinyatakan **Tidak Valid** oleh panitia. Perbaiki data/formulir sesuai petunjuk, lalu lakukan finalisasi ulang.
+                    <?php else: ?>
+                        Berkas Anda dinyatakan **Butuh Revisi** oleh panitia. Perbaiki data/formulir sesuai catatan, lalu lakukan finalisasi ulang.
+                    <?php endif; ?>
                 </p>
             </div>
         </div>
@@ -45,7 +49,7 @@
             <h3 class="font-label-bold text-body-sm text-white group-hover:underline">
                 <?= $needs_revision ? 'Perbaiki Formulir' : 'Isi/Lengkapi Formulir' ?>
             </h3>
-            <p class="font-caption text-[11px] text-white/90"><?= $needs_revision ? 'Revisi data sesuai catatan panitia' : 'Langkah 1 s.d 4 Pendaftaran' ?></p>
+            <p class="font-caption text-[11px] text-white/90"><?= $needs_revision ? ($status_verifikasi === 'Tidak Valid' ? 'Perbaiki data yang tidak valid' : 'Revisi data sesuai catatan panitia') : 'Langkah 1 s.d 4 Pendaftaran' ?></p>
         </div>
         <span class="material-symbols-outlined text-white/70 group-hover:text-white transition-colors">chevron_right</span>
     </a>
@@ -85,7 +89,7 @@
     
     <!-- WhatsApp Group Action -->
     <?php if ($can_action): ?>
-    <?php $waLink = \App\Models\SettingsModel::getSetting('whatsapp_link', 'https://wa.me/6281234567890'); ?>
+    <?php $waLink ??= 'https://wa.me/6281234567890'; ?>
     <a class="group flex items-center gap-sm p-sm bg-surface border border-outline-variant rounded-xl shadow-[0_4px_12px_rgba(0,32,69,0.04)] hover:shadow-[0_8px_20px_rgba(0,32,69,0.08)] hover:border-[#25D366] transition-all cursor-pointer"
         href="<?= esc($waLink) ?>" target="_blank">
         <div class="w-10 h-10 rounded-lg bg-[#25D366]/10 flex items-center justify-center text-[#25D366] group-hover:bg-[#25D366] group-hover:text-white transition-colors shrink-0">

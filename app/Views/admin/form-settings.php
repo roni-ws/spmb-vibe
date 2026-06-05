@@ -44,11 +44,6 @@
             <span class="material-symbols-outlined text-[18px]">contact_support</span>
             Persyaratan & Footer
         </button>
-        <button type="button" onclick="switchSubTab('tab-pengumuman')" id="btn-tab-pengumuman"
-                class="tab-btn px-4 py-2.5 rounded-xl text-label-bold font-semibold transition-all flex items-center gap-2 border-b-2 border-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container">
-            <span class="material-symbols-outlined text-[18px]">campaign</span>
-            Pengumuman & WA
-        </button>
         <button type="button" onclick="switchSubTab('tab-kop')" id="btn-tab-kop"
                 class="tab-btn px-4 py-2.5 rounded-xl text-label-bold font-semibold transition-all flex items-center gap-2 border-b-2 border-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container">
             <span class="material-symbols-outlined text-[18px]">print</span>
@@ -64,8 +59,6 @@
 
         <?= $this->include('components/admin/settings/tabs/umum') ?>
         <?= $this->include('components/admin/settings/tabs/pendaftaran') ?>
-        <?= $this->include('components/admin/settings/tabs/pengumuman') ?>
-
         <!-- ==========================================
 
              SUBMIT TOOLBAR (Sticky at Bottom)

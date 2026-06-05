@@ -26,7 +26,7 @@
                         style="font-size: 40px; font-variation-settings: 'FILL' 1;">account_balance</span>
                 </div>
                 <h1 class="font-headline-md text-headline-md text-on-surface dark:text-white mb-xs">Selamat Datang</h1>
-                <p class="font-body-md text-body-md text-on-surface-variant dark:text-slate-300">Masuk ke akun SPMB <?= esc(\App\Models\SettingsModel::getSetting('logo_text', 'SMA Unggul Bangsa')) ?></p>
+                <p class="font-body-md text-body-md text-on-surface-variant dark:text-slate-300">Masuk ke akun SPMB <?= esc($logoText) ?></p>
             </div>
             
             <!-- Segmented Control -->

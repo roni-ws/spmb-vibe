@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\User;
 
 use CodeIgniter\Shield\Models\UserModel as ShieldUserModel;
 
-class SiswaUserModel extends ShieldUserModel
+class BaseUserModel extends ShieldUserModel
 {
+    protected string $userTable = 'users';
+
     protected $beforeInsert = ['injectEmailAndPassword'];
     protected $beforeUpdate = ['injectEmailAndPassword'];
 
@@ -13,13 +15,12 @@ class SiswaUserModel extends ShieldUserModel
     {
         parent::initialize();
 
-        // Dynamically assign the siswa user table
-        $this->table = 'users_siswa';
+        $this->table = $this->userTable;
 
-        // Keep local app custom fields allowed
         $this->allowedFields = array_merge($this->allowedFields, [
             'email',
-            'role'
+            'role',
+            'nisn',
         ]);
     }
 

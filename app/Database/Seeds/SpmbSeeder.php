@@ -42,6 +42,7 @@ class SpmbSeeder extends Seeder
             ['id' => 1, 'nama_status' => 'Belum Verifikasi'],
             ['id' => 2, 'nama_status' => 'Revisi'],
             ['id' => 3, 'nama_status' => 'Valid'],
+            ['id' => 4, 'nama_status' => 'Tidak Valid'],
         ]);
 
         // 2. Create main Administrator account
@@ -144,6 +145,7 @@ class SpmbSeeder extends Seeder
             ]);
 
             // b. Insert candidate profile details
+            $now = date('Y-m-d H:i:s');
             $db->table('calon_siswa')->insert([
                 'nisn'             => $nisn,
                 'nik'              => $nik,
@@ -159,6 +161,8 @@ class SpmbSeeder extends Seeder
                 'alamat_desa'      => $faker->streetAddress,
                 'alamat_kecamatan' => $faker->randomElement($kecamatanList),
                 'alamat_kabupaten' => $faker->city,
+                'created_at'       => $now,
+                'updated_at'       => $now,
             ]);
             $siswaId = $db->insertID();
             $db->table('calon_siswa')->where('id', $siswaId)->update([
@@ -172,6 +176,8 @@ class SpmbSeeder extends Seeder
                 'pekerjaan_ayah' => $faker->randomElement($pekerjaanAyahList),
                 'nama_ibu'       => $faker->name('female'),
                 'pekerjaan_ibu'  => $faker->randomElement($pekerjaanIbuList),
+                'created_at'     => $now,
+                'updated_at'     => $now,
             ]);
 
             // d. Insert registration documents

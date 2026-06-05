@@ -16,9 +16,4 @@ $flashErrors  = session()->getFlashdata('errors');
 <script src="<?= base_url('js/core/toast.js') ?>"></script>
 <script src="<?= base_url('js/mobile/sidebar.js') ?>"></script>
 
-<script>
-    window.CSRF_TOKEN_NAME = '<?= csrf_token() ?>';
-    window.CSRF_HASH       = '<?= csrf_hash() ?>';
-</script>
-
 <?= $this->renderSection('scripts') ?>

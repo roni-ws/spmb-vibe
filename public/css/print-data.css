@@ -1,0 +1,93 @@
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 20px;
+    color: #333;
+    background-color: #fff;
+}
+.container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+}
+h2 {
+    text-align: center;
+    margin: 20px 0;
+    font-size: 16px;
+    text-transform: uppercase;
+}
+.table-wrap {
+    overflow-x: auto;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9px;
+    margin-bottom: 30px;
+    min-width: 2200px;
+}
+th {
+    background-color: #002045;
+    color: #fff;
+    padding: 5px 4px;
+    text-align: left;
+    font-weight: 600;
+    white-space: nowrap;
+}
+td {
+    padding: 4px;
+    border-bottom: 1px solid #ddd;
+    white-space: nowrap;
+}
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+.status-valid {
+    color: #2e7d32;
+    font-weight: 600;
+}
+.status-invalid {
+    color: #c62828;
+    font-weight: 600;
+}
+.status-pending {
+    color: #f57f17;
+    font-weight: 600;
+}
+.finalized {
+    color: #2e7d32;
+}
+.not-finalized {
+    color: #c62828;
+}
+.sign-area {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 40px;
+}
+.sign-box {
+    text-align: center;
+    width: 250px;
+}
+.space {
+    height: 60px;
+}
+.sign-line {
+    margin: 0;
+    font-size: 13px;
+}
+.sign-name {
+    margin: 5px 0 0;
+    font-weight: 600;
+    font-size: 13px;
+}
+@media print {
+    @page {
+        size: landscape;
+        margin: 5mm;
+    }
+    body { padding: 0; margin: 0; }
+    .no-print { display: none; }
+    .table-wrap { overflow-x: visible; }
+    table { font-size: 7px; min-width: 0; }
+    th, td { padding: 2px 3px; }
+}

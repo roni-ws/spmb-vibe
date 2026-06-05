@@ -1,7 +1,7 @@
 <?php
-$logoText = \App\Models\SettingsModel::getSetting('logo_text', 'SPMB Unggul Bangsa');
-$logoImg = \App\Models\SettingsModel::getSetting('logo_img', '');
-$isOpen = \App\Models\SettingsModel::getSetting('is_open', '1') === '1';
+$logoText ??= 'SPMB Unggul Bangsa';
+$logoImg ??= '';
+$is_open ??= true;
 ?>
 <!DOCTYPE html>
 <html lang="id" class="light">
@@ -9,7 +9,7 @@ $isOpen = \App\Models\SettingsModel::getSetting('is_open', '1') === '1';
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title><?= $this->renderSection('title') ?> - SPMB <?= esc(\App\Models\SettingsModel::getSetting('logo_text', 'SMA Unggul Bangsa')) ?></title>
+    <title><?= $this->renderSection('title') ?> - SPMB <?= esc($logoText) ?></title>
     
     <!-- Google Fonts & Material Symbols -->
     <link href="https://fonts.googleapis.com" rel="preconnect" />
@@ -34,18 +34,13 @@ $isOpen = \App\Models\SettingsModel::getSetting('is_open', '1') === '1';
     <!-- TopAppBar -->
     <header
         class="bg-surface dark:bg-on-surface border-b border-outline-variant dark:border-outline shadow-sm flex justify-between items-center px-gutter w-full h-16 sticky top-0 z-50 shrink-0">
-        <div class="flex items-center gap-sm">
-            <?php if ($logoImg && file_exists(FCPATH . $logoImg)): ?>
-                <div class="w-10 h-10 rounded-xl overflow-hidden bg-slate-50 flex items-center justify-center shrink-0 shadow-sm border border-outline-variant/40">
-                    <img src="<?= base_url($logoImg) ?>" class="w-full h-full object-contain p-1" alt="Logo">
-                </div>
-            <?php else: ?>
-                <span class="material-symbols-outlined text-primary dark:text-tertiary-fixed-dim text-3xl animate-bounce" data-icon="school"
-                    data-weight="fill">school</span>
-            <?php endif; ?>
-            <span
-                class="font-headline-md text-headline-md font-bold text-primary dark:text-white tracking-tight"><?= esc($logoText) ?></span>
-        </div>
+        <?php
+        $containerClass = 'flex items-center gap-sm';
+        $iconClass      = 'material-symbols-outlined text-primary dark:text-tertiary-fixed-dim text-3xl animate-bounce';
+        $iconExtra      = 'data-icon="school" data-weight="fill"';
+        $textClass      = 'font-headline-md text-headline-md font-bold text-primary dark:text-white tracking-tight';
+        ?>
+        <?php include __DIR__ . '/../components/shared/logo-display.php'; ?>
         <!-- Web Menu Links -->
         <div class="hidden md:flex items-center gap-md">
             <a class="font-label-bold text-label-bold text-slate-700 dark:text-slate-300 hover:text-primary hover:dark:text-white hover:bg-surface-container-low hover:dark:bg-slate-800 transition-colors px-4 py-2 rounded-lg"
@@ -62,7 +57,7 @@ $isOpen = \App\Models\SettingsModel::getSetting('is_open', '1') === '1';
             <a href="<?= base_url('login') ?>" class="border border-primary text-primary dark:border-slate-300 dark:text-slate-200 font-label-bold text-label-bold px-4 py-2 rounded-lg hover:bg-surface-container-low hover:dark:bg-slate-800 transition-colors text-sm">
                 Login
             </a>
-            <?php if ($isOpen): ?>
+            <?php if ($is_open): ?>
                 <a href="<?= base_url('register') ?>" class="bg-primary text-on-primary dark:bg-white dark:text-primary font-label-bold text-label-bold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity text-sm shadow-md">
                     Daftar
                 </a>
@@ -101,7 +96,7 @@ $isOpen = \App\Models\SettingsModel::getSetting('is_open', '1') === '1';
             <a href="<?= base_url('login') ?>" onclick="toggleMobileMenu()" class="flex-1 text-center border border-primary text-primary dark:border-slate-400 dark:text-slate-300 font-label-bold text-label-bold px-4 py-2.5 rounded-lg hover:bg-surface-container-low hover:dark:bg-slate-800/50 transition-colors text-sm">
                 Login
             </a>
-            <?php if ($isOpen): ?>
+            <?php if ($is_open): ?>
                 <a href="<?= base_url('register') ?>" onclick="toggleMobileMenu()" class="flex-1 text-center bg-primary text-on-primary dark:bg-white dark:text-primary font-label-bold text-label-bold px-4 py-2.5 rounded-lg hover:opacity-90 dark:hover:opacity-90 transition-opacity text-sm shadow-md">
                     Daftar
                 </a>
@@ -116,28 +111,26 @@ $isOpen = \App\Models\SettingsModel::getSetting('is_open', '1') === '1';
     <footer id="kontak" class="bg-inverse-surface text-inverse-on-surface py-12 mt-auto z-10 shrink-0">
         <div class="max-w-[1200px] mx-auto px-gutter grid grid-cols-1 md:grid-cols-3 gap-8">
             <div class="w-full flex flex-col">
-                <div class="flex items-center gap-2 mb-4">
-                    <?php if ($logoImg && file_exists(FCPATH . $logoImg)): ?>
-                        <div class="w-8 h-8 rounded-lg overflow-hidden bg-slate-50 flex items-center justify-center shrink-0">
-                            <img src="<?= base_url($logoImg) ?>" class="w-full h-full object-contain p-0.5" alt="Logo">
-                        </div>
-                    <?php else: ?>
-                        <span class="material-symbols-outlined text-tertiary-fixed-dim text-3xl" data-icon="school"
-                            data-weight="fill">school</span>
-                    <?php endif; ?>
-                    <span class="font-headline-sm text-headline-sm font-bold"><?= esc($logoText) ?></span>
-                </div>
-                <p class="font-body-sm text-body-sm text-outline-variant w-full text-justify"><?= esc(\App\Models\SettingsModel::getSetting('footer_desc', 'Membentuk generasi pemimpin masa depan yang beriman, cerdas, kreatif, mandiri, dan berwawasan global.')) ?></p>
+                <?php
+                $containerClass = 'flex items-center gap-2 mb-4';
+                $imgWrapClass   = 'w-8 h-8 rounded-lg overflow-hidden bg-slate-50 flex items-center justify-center shrink-0';
+                $imgClass       = 'w-full h-full object-contain p-0.5';
+                $iconClass      = 'material-symbols-outlined text-tertiary-fixed-dim text-3xl';
+                $iconExtra      = 'data-icon="school" data-weight="fill"';
+                $textClass      = 'font-headline-sm text-headline-sm font-bold';
+                ?>
+                <?php include __DIR__ . '/../components/shared/logo-display.php'; ?>
+                <p class="font-body-sm text-body-sm text-outline-variant w-full text-justify"><?= esc($footer_desc ?? 'Membentuk generasi pemimpin masa depan yang beriman, cerdas, kreatif, mandiri, dan berwawasan global.') ?></p>
             </div>
             <div class="w-full flex flex-col">
                 <h4 class="font-label-bold text-label-bold mb-4 text-white">Hubungi Panitia SPMB</h4>
                 <ul class="space-y-2 font-body-sm text-body-sm text-outline-variant">
                     <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm"
-                            data-icon="call">call</span> <?= esc(\App\Models\SettingsModel::getSetting('footer_phone', '+62 21 555 0123')) ?></li>
+                            data-icon="call">call</span> <?= esc($footer_phone ?? '+62 21 555 0123') ?></li>
                     <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm"
-                            data-icon="mail">mail</span> <?= esc(\App\Models\SettingsModel::getSetting('footer_email', 'spmb@unggulbangsa.sch.id')) ?></li>
+                            data-icon="mail">mail</span> <?= esc($footer_email ?? 'spmb@unggulbangsa.sch.id') ?></li>
                     <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm"
-                            data-icon="location_on">location_on</span> <?= esc(\App\Models\SettingsModel::getSetting('footer_address', 'Jl. Pendidikan No. 1, Jakarta')) ?></li>
+                            data-icon="location_on">location_on</span> <?= esc($footer_address ?? 'Jl. Pendidikan No. 1, Jakarta') ?></li>
                 </ul>
             </div>
             <div class="w-full flex flex-col">
@@ -151,7 +144,7 @@ $isOpen = \App\Models\SettingsModel::getSetting('is_open', '1') === '1';
         </div>
         <div
             class="max-w-[1200px] mx-auto px-gutter mt-12 pt-8 border-t border-outline/30 text-center font-caption text-caption text-outline-variant">
-            © 2026 <?= esc($logoText) ?>. Hak Cipta Dilindungi.
+            © <?= date('Y') ?> <?= esc($logoText) ?>. Hak Cipta Dilindungi.
         </div>
     </footer>
 

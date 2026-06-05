@@ -74,12 +74,12 @@
                 </thead>
                 <tbody>
                     <?php if (!empty($staffs)): ?>
-                        <?php foreach ($staffs as $i => $s): ?>
+                        <?php foreach ($staffs as $i => $staff): ?>
                         <?php
-                            $isSelf = (auth()->id() == $s['id']);
-                            $username = esc($s['username']);
-                            $email = esc($s['email']);
-                            $roleName = strtoupper($s['role']);
+                            $isSelf = ($authUserId == $staff['id']);
+                            $username = esc($staff['username']);
+                            $email = esc($staff['email']);
+                            $roleName = strtoupper($staff['role']);
                             $inisial = strtoupper(mb_substr($username, 0, 2));
 
                             $roleClass = match($roleName) {
@@ -131,20 +131,20 @@
                             </td>
                             <!-- Created At -->
                             <td class="p-4 text-body-sm text-on-surface-variant whitespace-nowrap">
-                                <?= date('d M Y, H:i', strtotime($s['created_at'])) ?>
+                                <?= date('d M Y, H:i', strtotime($staff['created_at'])) ?>
                             </td>
                             <!-- Actions -->
                             <td class="p-4 text-right">
                                 <div class="flex items-center justify-end gap-1">
                                     <!-- Edit Staff -->
-                                    <button onclick="openEditModal(<?= $s['id'] ?>, '<?= $username ?>', '<?= $email ?>', '<?= esc($s['role']) ?>')"
+                                    <button onclick="openEditModal(<?= (int) $staff['id'] ?>, '<?= esc($username, 'js') ?>', '<?= esc($email, 'js') ?>', '<?= esc($staff['role'], 'js') ?>')"
                                             class="p-1.5 text-primary hover:bg-primary-container/20 rounded-full transition-colors"
                                             title="Edit Data Staff">
                                         <span class="material-symbols-outlined text-[18px]">edit</span>
                                     </button>
 
                                     <!-- Change Password -->
-                                    <button onclick="openPasswordModal(<?= $s['id'] ?>, '<?= $username ?>')"
+                                    <button onclick="openPasswordModal(<?= (int) $staff['id'] ?>, '<?= esc($username, 'js') ?>')"
                                             class="p-1.5 text-on-surface-variant hover:bg-surface-container-high rounded-full transition-colors"
                                             title="Ubah Kata Sandi">
                                         <span class="material-symbols-outlined text-[18px]">lock_reset</span>
@@ -157,7 +157,7 @@
                                             <span class="material-symbols-outlined text-[18px]">delete</span>
                                         </button>
                                     <?php else: ?>
-                                        <button onclick="confirmDelete(<?= $s['id'] ?>, '<?= $username ?>')"
+                                        <button onclick="confirmDelete(<?= (int) $staff['id'] ?>, '<?= esc($username, 'js') ?>')"
                                                 class="p-1.5 text-error hover:bg-error-container/20 rounded-full transition-colors"
                                                 title="Hapus Akun Staff">
                                             <span class="material-symbols-outlined text-[18px]">delete</span>

@@ -11,7 +11,7 @@ Dashboard Calon Siswa
         Halo, <?= esc($nama_lengkap) ?>!
     </h1>
     <p class="font-body-lg text-body-lg text-on-surface-variant">
-        Berikut adalah ringkasan status pendaftaran Anda di <?= esc(\App\Models\SettingsModel::getSetting('logo_text', 'SMA Unggul Bangsa')) ?>.
+        Berikut adalah ringkasan status pendaftaran Anda di <?= esc($logoText) ?>.
     </p>
 </section>
 

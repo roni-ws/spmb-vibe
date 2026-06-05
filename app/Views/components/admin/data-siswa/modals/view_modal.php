@@ -209,7 +209,7 @@
                                         <p class="text-body-sm text-on-surface-variant mt-0.5 mb-2">Saat ini: <span id="view-status_badge" class="inline-block px-2.5 py-0.5 rounded-full text-caption font-bold"></span></p>
                                         <select name="status_verifikasi_id" id="view-verify-status"
                                                 class="w-full px-3 py-2.5 rounded-xl border border-outline-variant focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-body-sm outline-none bg-white">
-                                            <option value="1">Belum Verifikasi</option>
+                                            <option value="4">Tidak Valid – Dokumen tidak sesuai</option>
                                             <option value="3">Valid – Berkas lengkap & sah</option>
                                             <option value="2">Revisi – Perlu perbaikan</option>
                                         </select>

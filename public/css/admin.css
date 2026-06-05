@@ -88,3 +88,41 @@ table.dataTable thead th {
 table.dataTable tbody tr   { transition: background 0.15s; }
 table.dataTable tbody tr:hover { background-color: #f0f3ff; }
 table.dataTable tbody td   { vertical-align: middle; }
+
+/* ── Dropdown Animations ─────────────────────────────────── */
+@keyframes dropdown-fade-in {
+    from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.dropdown-enter {
+    animation: dropdown-fade-in 0.15s ease-out forwards;
+}
+
+/* ── Badge Pulse ─────────────────────────────────────────── */
+@keyframes badge-pulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.15); }
+}
+
+.badge-pulse {
+    animation: badge-pulse 1.5s ease-in-out infinite;
+}
+
+/* ── User Avatar Hover ───────────────────────────────────── */
+.avatar-hover {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.avatar-hover:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* ── Dropdown Item Hover Accent ──────────────────────────── */
+.dropdown-item {
+    transition: background 0.12s ease, padding-left 0.12s ease;
+}
+.dropdown-item:hover {
+    padding-left: 1.25rem;
+    background: #f0f3ff;
+}

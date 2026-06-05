@@ -4,32 +4,36 @@ namespace App\Controllers\Api\Siswa;
 
 use App\Controllers\BaseController;
 use CodeIgniter\API\ResponseTrait;
+use CodeIgniter\HTTP\ResponseInterface;
 
 class AuthController extends BaseController
 {
     use ResponseTrait;
 
-    public function loginAction()
+    public function loginAction(): ResponseInterface
     {
         $rules = [
             'identifier' => 'required',
             'password'   => 'required',
         ];
 
-        if (! $this->validate($rules)) {
+        if (! $this->validateData($this->request->getJSON(true), $rules)) {
             return $this->fail($this->validator->getErrors());
         }
 
-        $identifier = $this->request->getVar('identifier');
-        $password   = $this->request->getVar('password');
+        $identifier = $this->request->getJSON(true)['identifier'] ?? '';
+        $password   = $this->request->getJSON(true)['password'] ?? '';
 
-        $credentials = filter_var($identifier, FILTER_VALIDATE_EMAIL)
-            ? ['email' => $identifier, 'password' => $password]
-            : ['username' => $identifier, 'password' => $password];
+        if (filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+            $credentials = ['email' => $identifier, 'password' => $password];
+        } elseif (ctype_digit($identifier)) {
+            $credentials = ['nisn' => $identifier, 'password' => $password];
+        } else {
+            $credentials = ['username' => $identifier, 'password' => $password];
+        }
 
-        // Access the auth service (dynamically resolves to student context via URI)
         $auth = service('auth');
-        
+
         $result = $auth->attempt($credentials);
 
         if (! $result->isOK()) {
@@ -38,13 +42,11 @@ class AuthController extends BaseController
 
         $user = $auth->user();
 
-        // Enforce student authorization
-        if ($user->role !== 'student') {
+        if ($user->role !== ROLE_STUDENT) {
             $auth->logout();
             return $this->failForbidden('Akses ditolak. Akun Anda bukan merupakan akun Calon Siswa.');
         }
 
-        // Generate JWT token
         $jwtManager = service('jwtmanager');
         $token      = $jwtManager->generateToken($user);
 
@@ -61,7 +63,7 @@ class AuthController extends BaseController
         ]);
     }
 
-    public function profile()
+    public function profile(): ResponseInterface
     {
         $user = auth()->user();
 
@@ -69,15 +71,9 @@ class AuthController extends BaseController
             return $this->failUnauthorized('Sesi tidak valid.');
         }
 
-        // Retrieve operational details of the student from the database
-        $db = \Config\Database::connect();
-        $studentProfile = $db->table('calon_siswa')
-            ->select('calon_siswa.*, status_verifikasi.nama_status as status_verifikasi, status_pendaftaran.is_finalized')
-            ->join('status_pendaftaran', 'status_pendaftaran.siswa_id = calon_siswa.id', 'left')
-            ->join('status_verifikasi', 'status_verifikasi.id = status_pendaftaran.status_verifikasi_id', 'left')
-            ->where('calon_siswa.nisn', $user->username)
-            ->get()
-            ->getRowArray();
+        $nisn = $user->nisn ?? $user->username;
+        $studentService = new \App\Services\StudentService();
+        $studentProfile = $studentService->getStudentProfileByNisn($nisn);
 
         return $this->respond([
             'status' => true,

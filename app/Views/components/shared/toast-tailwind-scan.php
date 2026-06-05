@@ -1,1 +1,0 @@
-<div class="w-full flex items-start gap-3 px-4 py-3 rounded-xl border-l-4 shadow-sm text-body-sm font-semibold mb-4 z-[100] transition-all duration-300 opacity-0 opacity-100 -translate-y-0 -translate-y-2 translate-y-0 bg-tertiary-fixed-dim text-on-tertiary-fixed border-l-tertiary bg-error-container text-on-error-container border-l-error"></div>

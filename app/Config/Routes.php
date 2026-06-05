@@ -8,14 +8,14 @@ use CodeIgniter\Router\RouteCollection;
 // Rute Publik (Landing Page & Autentikasi)
 // -----------------------------------------------------------------------
 $routes->get('/', 'Home::index');
-$routes->get('/login', 'Auth::login');
-$routes->post('/login', 'Auth::loginAction');       // POST: Proses login via Shield
-$routes->get('/logout', 'Auth::logout');            // Logout via Shield
-$routes->get('/register', 'Auth::register');
-$routes->post('/register', 'Auth::registerAction');
-$routes->post('/check-email', 'Auth::checkEmail');
-$routes->post('/check-username', 'Auth::checkUsername');
-$routes->get('/forgot-password', 'Auth::forgotPassword');
+$routes->get('/login', 'Auth\Login::index');
+$routes->post('/login', 'Auth\Login::loginAction');
+$routes->get('/logout', 'Auth\Login::logout');
+$routes->get('/register', 'Auth\Register::index');
+$routes->post('/register', 'Auth\Register::store');
+$routes->post('/check-email', 'Auth\Register::checkEmail');
+$routes->post('/check-username', 'Auth\Register::checkUsername');
+$routes->get('/forgot-password', 'Auth\Login::forgotPassword');
 
 // -----------------------------------------------------------------------
 // Rute Dashboard Calon Siswa — Dilindungi filter Shield (harus login)
@@ -23,23 +23,31 @@ $routes->get('/forgot-password', 'Auth::forgotPassword');
 $routes->group('siswa', ['filter' => 'session'], static function ($routes) {
     $routes->get('dashboard', 'Siswa\Dashboard::index');
     $routes->post('finalize', 'Siswa\Dashboard::finalize');
-    $routes->get('cetak-formulir', 'Siswa\Dashboard::cetakFormulir');
+    $routes->get('cetak-formulir', 'Siswa\Dashboard::printFormulir');
 
     // Rute Langkah 1: Biodata Diri
-    $routes->get('biodata', 'Siswa\Dashboard::biodata');
-    $routes->post('biodata', 'Siswa\Dashboard::saveBiodata');
+    $routes->get('biodata', 'Siswa\IsiFormulir::biodata');
+    $routes->post('biodata', 'Siswa\IsiFormulir::updateBiodata');
 
     // Rute Langkah 2: Asal Sekolah
-    $routes->get('sekolah', 'Siswa\Dashboard::sekolah');
-    $routes->post('sekolah', 'Siswa\Dashboard::saveSekolah');
+    $routes->get('sekolah', 'Siswa\IsiFormulir::sekolah');
+    $routes->post('sekolah', 'Siswa\IsiFormulir::updateSekolah');
 
     // Rute Langkah 3: Data Orang Tua
-    $routes->get('orang-tua', 'Siswa\Dashboard::orangTua');
-    $routes->post('orang-tua', 'Siswa\Dashboard::saveOrangTua');
+    $routes->get('orang-tua', 'Siswa\IsiFormulir::orangTua');
+    $routes->post('orang-tua', 'Siswa\IsiFormulir::updateOrangTua');
 
     // Rute Langkah 4: Kelengkapan Berkas
-    $routes->get('berkas', 'Siswa\Dashboard::berkas');
-    $routes->post('berkas', 'Siswa\Dashboard::saveBerkas');
+    $routes->get('berkas', 'Siswa\IsiFormulir::berkas');
+    $routes->post('berkas', 'Siswa\IsiFormulir::updateBerkas');
+
+    // Rute Notifikasi
+    $routes->get('notifications', 'Siswa\Notifications::index');
+    $routes->post('notifications/mark-as-read', 'Siswa\Notifications::markAsRead');
+
+    // Rute Pengaturan Profil
+    $routes->get('profile-settings', 'Siswa\ProfileSettings::index');
+    $routes->post('profile-settings', 'Siswa\ProfileSettings::update');
 });
 
 // -----------------------------------------------------------------------
@@ -47,16 +55,16 @@ $routes->group('siswa', ['filter' => 'session'], static function ($routes) {
 // -----------------------------------------------------------------------
 $routes->group('admin', ['filter' => 'group:admin,panitia'], static function ($routes) {
     $routes->get('dashboard', 'Admin\Dashboard::index');
-    $routes->get('pendaftar', 'Admin\Dashboard::pendaftar');
-    $routes->post('verify/(:num)', 'Admin\Dashboard::verify/$1');
-    $routes->post('edit-student/(:num)', 'Admin\Dashboard::editStudent/$1');
-    $routes->get('export/csv', 'Admin\Dashboard::exportCsv');
-    $routes->get('cetak-data', 'Admin\Dashboard::cetakData');
-    $routes->get('cetak-formulir/(:num)', 'Admin\Dashboard::cetakFormulir/$1');
-    $routes->get('arsip/(:num)', 'Admin\Dashboard::cetakArsip/$1');
-    $routes->post('delete-student/(:num)', 'Admin\Dashboard::deleteStudent/$1');
-    $routes->post('bulk-delete-students', 'Admin\Dashboard::bulkDeleteStudents');
-    $routes->post('add-student', 'Admin\Dashboard::addStudent');
+    $routes->get('pendaftar', 'Admin\DataSiswa::index');
+    $routes->post('verify/(:num)', 'Admin\DataSiswa::verify/$1');
+    $routes->post('edit-student/(:num)', 'Admin\DataSiswa::edit/$1');
+    $routes->get('export/csv', 'Admin\Export::csv');
+    $routes->get('cetak-data', 'Admin\Export::printData');
+    $routes->get('cetak-formulir/(:num)', 'Admin\Export::printFormulir/$1');
+    $routes->get('arsip/(:num)', 'Admin\Export::printArsip/$1');
+    $routes->post('delete-student/(:num)', 'Admin\DataSiswa::delete/$1');
+    $routes->post('bulk-delete-students', 'Admin\DataSiswa::bulkDelete');
+    $routes->post('add-student', 'Admin\DataSiswa::add');
 
     // Rute Khusus Manajemen User (Hanya Admin & Superadmin)
     $routes->group('users', ['filter' => 'group:admin'], static function ($routes) {
@@ -67,14 +75,26 @@ $routes->group('admin', ['filter' => 'group:admin,panitia'], static function ($r
         $routes->post('delete/(:num)', 'Admin\Users::delete/$1');
     });
 
+    // Rute Notifikasi Admin
+    $routes->get('notifications', 'Admin\Notifications::index');
+    $routes->post('notifications/mark-as-read', 'Admin\Notifications::markAsRead');
+
+    // Rute Pengaturan Profil Admin
+    $routes->get('profile-settings', 'Admin\ProfileSettings::index');
+    $routes->post('profile-settings', 'Admin\ProfileSettings::update');
+
     // Rute Khusus Pengaturan Frontend (Hanya Admin & Superadmin)
     $routes->group('settings', ['filter' => 'group:admin'], static function ($routes) {
         $routes->get('/', 'Admin\Settings::index');
         $routes->post('save', 'Admin\Settings::save');
-        
-        // Rute Manajemen Pengumuman
-        $routes->post('announcement/add', 'Admin\Settings::addAnnouncement');
-        $routes->post('announcement/delete/(:num)', 'Admin\Settings::deleteAnnouncement/$1');
+    });
+
+    // Rute Manajemen Pengumuman & WhatsApp (Hanya Admin)
+    $routes->group('pengumuman', ['filter' => 'group:admin'], static function ($routes) {
+        $routes->get('/', 'Admin\Pengumuman::index');
+        $routes->post('add', 'Admin\Pengumuman::add');
+        $routes->post('delete/(:num)', 'Admin\Pengumuman::delete/$1');
+        $routes->post('save-whatsapp', 'Admin\Pengumuman::saveWhatsapp');
     });
 });
 

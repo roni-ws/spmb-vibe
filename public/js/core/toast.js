@@ -12,7 +12,7 @@ function showToast(message, type) {
 
     var target = document.querySelector('.filter-bar');
     if (!target) { var tbl = document.querySelector('table'); if (tbl) target = tbl.parentNode; }
-    if (!target) target = document.querySelector('form') || document.querySelector('main');
+    if (!target) target = document.querySelector('main');
     if (target) target.parentNode.insertBefore(toast, target);
     else document.body.insertBefore(toast, document.body.firstChild);
 

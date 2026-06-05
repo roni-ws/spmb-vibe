@@ -13,10 +13,20 @@
                     <span class="material-symbols-outlined text-[16px]">verified</span>
                     Verifikasi Berkas: Valid / Terverifikasi
                 </div>
-            <?php elseif ($status_verifikasi === 'Tidak Valid' || $status_verifikasi === 'Revisi'): ?>
+            <?php elseif ($is_finalized === 1): ?>
+                <div class="inline-flex items-center gap-xs px-3 py-1 bg-blue-100 text-blue-800 rounded-full font-label-bold text-caption border border-blue-300">
+                    <span class="material-symbols-outlined text-[16px]">pending_actions</span>
+                    Verifikasi Berkas: Menunggu Verifikasi Panitia
+                </div>
+            <?php elseif ($status_verifikasi === 'Revisi'): ?>
                 <div class="inline-flex items-center gap-xs px-3 py-1 bg-red-100 text-red-800 rounded-full font-label-bold text-caption border border-red-300">
                     <span class="material-symbols-outlined text-[16px]">gpp_bad</span>
                     Verifikasi Berkas: Butuh Revisi
+                </div>
+            <?php elseif ($status_verifikasi === 'Tidak Valid'): ?>
+                <div class="inline-flex items-center gap-xs px-3 py-1 bg-red-100 text-red-800 rounded-full font-label-bold text-caption border border-red-300">
+                    <span class="material-symbols-outlined text-[16px]">gpp_bad</span>
+                    Verifikasi Berkas: Tidak Valid
                 </div>
             <?php else: ?>
                 <div class="inline-flex items-center gap-xs px-3 py-1 bg-amber-100 text-amber-800 rounded-full font-label-bold text-caption border border-amber-300">
@@ -166,7 +176,9 @@
                 <div>
                     <h3 class="font-label-bold text-body-sm text-amber-900 mb-1"><?= $needs_revision ? 'Finalisasi Ulang Diperlukan' : 'Finalisasi Pendaftaran Diperlukan' ?></h3>
                     <p class="font-caption text-caption text-amber-800 leading-relaxed">
-                        <?php if ($needs_revision): ?>
+                        <?php if ($status_verifikasi === 'Tidak Valid'): ?>
+                            Data Anda dinyatakan **Tidak Valid** oleh panitia. Perbaiki data/formulir sesuai petunjuk, lalu lakukan **Finalisasi Ulang** agar berkas dapat diverifikasi kembali.
+                        <?php elseif ($needs_revision): ?>
                             Perbaiki data sesuai catatan panitia, lalu lakukan **Finalisasi Ulang** agar berkas dapat diverifikasi kembali.
                         <?php else: ?>
                             Harap periksa kembali semua data biodata diri, data sekolah, dan dokumen berkas Anda. Jika sudah yakin benar, Anda wajib melakukan **Finalisasi Pendaftaran** agar berkas dapat divalidasi oleh panitia. Setelah difinalisasi, data Anda akan dikunci dan **TIDAK dapat diubah lagi**.
@@ -192,7 +204,7 @@
             <div>
                 <h3 class="font-label-bold text-body-sm text-emerald-900 mb-1">Pendaftaran Telah Difinalisasi</h3>
                 <p class="font-caption text-caption text-emerald-800 leading-relaxed">
-                    Terima kasih! Anda telah melakukan finalisasi pendaftaran. Berkas pendaftaran Anda telah terkunci secara aman dan sedang menunggu proses verifikasi dan validasi lengkap oleh panitia PPDB <?= esc(\App\Models\SettingsModel::getSetting('logo_text', 'SMA Unggul Bangsa')) ?>.
+                    Terima kasih! Anda telah melakukan finalisasi pendaftaran. Berkas pendaftaran Anda telah terkunci secara aman dan sedang menunggu proses verifikasi dan validasi lengkap oleh panitia PPDB <?= esc($logoText) ?>.
                 </p>
             </div>
         </div>
@@ -200,7 +212,7 @@
 </div>
 
 <!-- Dynamic Verification Feedback Card (If present in database) -->
-<?php if (!empty($catatan_verifikasi)): ?>
+<?php if (!empty($catatan_verifikasi) && $status_verifikasi !== 'Valid'): ?>
     <div class="md:col-span-12 order-4">
         <div class="bg-blue-50 border border-blue-200 rounded-xl p-md flex gap-sm items-start shadow-[0_2px_8px_rgba(30,144,255,0.05)]">
             <span class="material-symbols-outlined text-blue-600 text-2xl shrink-0">info</span>

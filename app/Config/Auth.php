@@ -25,7 +25,7 @@ use CodeIgniter\Shield\Authentication\Passwords\DictionaryValidator;
 use CodeIgniter\Shield\Authentication\Passwords\NothingPersonalValidator;
 use CodeIgniter\Shield\Authentication\Passwords\PwnedValidator;
 use CodeIgniter\Shield\Authentication\Passwords\ValidatorInterface;
-use App\Models\UserModel;
+use App\Models\User\UnifiedUserModel;
 
 class Auth extends ShieldAuth
 {
@@ -286,6 +286,7 @@ class Auth extends ShieldAuth
     public array $validFields = [
         'email',
         'username',
+        'nisn',
     ];
 
     /**
@@ -433,7 +434,7 @@ class Auth extends ShieldAuth
      *
      * @var class-string<UserModel>
      */
-    public string $userProvider = UserModel::class;
+    public string $userProvider = UnifiedUserModel::class;
 
     /**
      * Returns the URL that a user should be redirected

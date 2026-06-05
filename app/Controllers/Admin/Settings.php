@@ -3,327 +3,171 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
-use App\Models\SettingsModel;
-use App\Models\PengumumanModel;
+use App\Services\SettingsService;
+use CodeIgniter\HTTP\ResponseInterface;
 
 class Settings extends BaseController
 {
     protected $helpers = ['url', 'html', 'form'];
 
-    public function index()
+    protected SettingsService $settingsService;
+
+    public function __construct()
+    {
+        $this->settingsService = new SettingsService();
+    }
+
+    public function index(): ResponseInterface
     {
         $this->requireAdmin();
         $shieldUser = auth()->user();
 
-        // 2. Ambil data konfigurasi dari model dengan fallback defaults
-        $settings = [
-            'is_open'           => SettingsModel::getSetting('is_open', '1'),
-            'tahun_ajaran'      => SettingsModel::getSetting('tahun_ajaran', '2026/2027'),
-            'frontend_title'    => SettingsModel::getSetting('frontend_title', 'Raih Masa Depan Gemilang di SMA Unggul Bangsa'),
-            'frontend_subtitle' => SettingsModel::getSetting('frontend_subtitle', 'Bergabunglah dengan komunitas pembelajar yang dinamis dan berprestasi. Program kurikulum berstandar tinggi serta fasilitas modern kami siap mempersiapkan Anda untuk mencapai keunggulan akademik dan karakter.'),
-            
-            // Branding Logo & Hero Image
-            'logo_text'         => SettingsModel::getSetting('logo_text', 'SPMB Unggul Bangsa'),
-            'logo_img'          => SettingsModel::getSetting('logo_img', ''),
-            'hero_img'          => SettingsModel::getSetting('hero_img', ''),
+        $settings = $this->loadAllSettings();
 
-            // Kop Surat Settings (Quill HTML)
-            'kop_content'       => SettingsModel::getSetting('kop_content', '<h2 style="margin:0; font-size:18px; text-transform:uppercase;">PANITIA PENERIMAAN SISWA BARU (SPMB)</h2><h3 style="margin:2px 0; font-size:16px; font-weight:600;">SMA UNGGUL BANGSA</h3><p style="margin:2px 0;">Jl. Raya Pendidikan No. 45, Jakarta Pusat</p><p style="margin:2px 0;">Telp: (021) 555 0123 | Website: spmb.unggulbangsa.sch.id</p>'),
-
-            // Nama Ketua Panitia untuk tanda tangan cetak
-            'ketua_panitia'     => SettingsModel::getSetting('ketua_panitia', ''),
-
-            // Kota untuk tanda tangan cetak
-            'kota_ttd'          => SettingsModel::getSetting('kota_ttd', 'Jakarta'),
-
-            // Alur Pendaftaran (Steps 1-4)
-            'step1_title'       => SettingsModel::getSetting('step1_title', '1. Registrasi Akun'),
-            'step1_desc'        => SettingsModel::getSetting('step1_desc', 'Buat akun pendaftar secara online menggunakan username, email aktif, dan password Anda.'),
-            'step1_icon'        => SettingsModel::getSetting('step1_icon', 'app_registration'),
-
-            'step2_title'       => SettingsModel::getSetting('step2_title', '2. Isi Formulir'),
-            'step2_desc'        => SettingsModel::getSetting('step2_desc', 'Masuk ke sistem, lengkapi formulir biodata pribadi, data kedua orang tua/wali, serta asal sekolah.'),
-            'step2_icon'        => SettingsModel::getSetting('step2_icon', 'description'),
-
-            'step3_title'       => SettingsModel::getSetting('step3_title', '3. Upload & Verifikasi'),
-            'step3_desc'        => SettingsModel::getSetting('step3_desc', 'Unggah pas foto, ijazah/SKL, dan Kartu Keluarga (KK). Pantau proses verifikasi berkas oleh admin.'),
-            'step3_icon'        => SettingsModel::getSetting('step3_icon', 'fact_check'),
-
-            'step4_title'       => SettingsModel::getSetting('step4_title', '4. Hasil & Dashboard'),
-            'step4_desc'        => SettingsModel::getSetting('step4_desc', 'Unduh formulir pendaftaran PDF, gabung grup WhatsApp resmi, dan cek hasil pengumuman kelulusan.'),
-            'step4_icon'        => SettingsModel::getSetting('step4_icon', 'celebration'),
-
-            // Dokumen Persyaratan (Reqs 1-3)
-            'req1_title'        => SettingsModel::getSetting('req1_title', 'Pas Foto Terbaru'),
-            'req1_desc'         => SettingsModel::getSetting('req1_desc', 'Pas foto berwarna ukuran 3x4 cm dengan latar belakang merah (format JPG/PNG, ukuran maks. 2MB, diambil dalam 3 bulan terakhir).'),
-            'req1_icon'         => SettingsModel::getSetting('req1_icon', 'portrait'),
-
-            'req2_title'        => SettingsModel::getSetting('req2_title', 'Ijazah SMP / SKL'),
-            'req2_desc'         => SettingsModel::getSetting('req2_desc', 'Salinan ijazah asli atau Surat Keterangan Lulus (SKL) sementara jika ijazah resmi belum diterbitkan sekolah (format PDF/Gambar).'),
-            'req2_icon'         => SettingsModel::getSetting('req2_icon', 'school'),
-
-            'req3_title'        => SettingsModel::getSetting('req3_title', 'Kartu Keluarga (KK)'),
-            'req3_desc'         => SettingsModel::getSetting('req3_desc', 'Salinan dokumen Kartu Keluarga resmi dari Dinas Kependudukan dan Catatan Sipil setempat.'),
-            'req3_icon'         => SettingsModel::getSetting('req3_icon', 'family_history'),
-
-            // Footer Settings
-            'footer_phone'      => SettingsModel::getSetting('footer_phone', '+62 21 555 0123'),
-            'footer_email'      => SettingsModel::getSetting('footer_email', 'spmb@unggulbangsa.sch.id'),
-            'footer_address'    => SettingsModel::getSetting('footer_address', 'Jl. Pendidikan No. 1, Jakarta'),
-            'footer_desc'       => SettingsModel::getSetting('footer_desc', 'Membentuk generasi pemimpin masa depan yang beriman, cerdas, kreatif, mandiri, dan berwawasan global.'),
-
-            // Pengumuman & WhatsApp Group Settings
-            'whatsapp_link'        => SettingsModel::getSetting('whatsapp_link', 'https://wa.me/6281234567890'),
-        ];
-
-        $pengumumanModel = new PengumumanModel();
-        $announcements = $pengumumanModel->orderBy('created_at', 'DESC')->findAll();
-
-        $data = [
+        return $this->response->setBody(view('admin/form-settings', [
+            ...$this->getSiteSettings(),
             'admin_username' => $shieldUser->username,
+            'user_email'     => $shieldUser->email,
+            'roleLabel'      => $shieldUser->inGroup(ROLE_ADMIN) ? 'Administrator' : 'Panitia SPMB',
+            'isAdmin'        => $shieldUser->inGroup(ROLE_ADMIN),
             'settings'       => $settings,
-            'announcements'  => $announcements,
-        ];
-
-        return view('admin/form-settings', $data);
+        ]));
     }
 
-    public function save()
+    public function save(): ResponseInterface
     {
         $this->requireAdmin();
 
-        // 2. Validasi input pengaturan
-        $rules = [
-            'is_open'           => 'required|in_list[0,1]',
-            'tahun_ajaran'      => 'required|min_length[4]|max_length[15]',
-            'frontend_title'    => 'required|min_length[5]|max_length[255]',
-            'frontend_subtitle' => 'required|min_length[10]',
-            
-            'logo_text'         => 'required|min_length[3]|max_length[100]',
+        $rules = $this->buildSaveRules();
 
-            // Alur Pendaftaran
-            'step1_title'       => 'required|min_length[3]|max_length[100]',
-            'step1_desc'        => 'required|min_length[5]|max_length[255]',
-            'step1_icon'        => 'required|min_length[3]|max_length[50]',
-
-            'step2_title'       => 'required|min_length[3]|max_length[100]',
-            'step2_desc'        => 'required|min_length[5]|max_length[255]',
-            'step2_icon'        => 'required|min_length[3]|max_length[50]',
-
-            'step3_title'       => 'required|min_length[3]|max_length[100]',
-            'step3_desc'        => 'required|min_length[5]|max_length[255]',
-            'step3_icon'        => 'required|min_length[3]|max_length[50]',
-
-            'step4_title'       => 'required|min_length[3]|max_length[100]',
-            'step4_desc'        => 'required|min_length[5]|max_length[255]',
-            'step4_icon'        => 'required|min_length[3]|max_length[50]',
-
-            // Dokumen Persyaratan
-            'req1_title'        => 'required|min_length[3]|max_length[100]',
-            'req1_desc'         => 'required|min_length[5]|max_length[255]',
-            'req1_icon'         => 'required|min_length[3]|max_length[50]',
-
-            'req2_title'        => 'required|min_length[3]|max_length[100]',
-            'req2_desc'         => 'required|min_length[5]|max_length[255]',
-            'req2_icon'         => 'required|min_length[3]|max_length[50]',
-
-            'req3_title'        => 'required|min_length[3]|max_length[100]',
-            'req3_desc'         => 'required|min_length[5]|max_length[255]',
-            'req3_icon'         => 'required|min_length[3]|max_length[50]',
-
-            // Footer Settings
-            'footer_phone'      => 'required|min_length[5]|max_length[50]',
-            'footer_email'      => 'required|valid_email|max_length[100]',
-            'footer_address'    => 'required|min_length[5]|max_length[255]',
-            'footer_desc'       => 'required|min_length[10]|max_length[500]',
-
-            // Pengumuman & WA Rules
-            'whatsapp_link'        => 'required|valid_url',
-
-            // Kop Surat Rules
-            'kop_content'          => 'permit_empty|max_length[5000]',
-            'ketua_panitia'        => 'permit_empty|max_length[200]',
-            'kota_ttd'             => 'permit_empty|max_length[100]',
-        ];
-
-        // Validate logo file only if a file was selected/uploaded
-        $logoFile = $this->request->getFile('logo_file');
-        if ($logoFile && $logoFile->isValid()) {
-            $rules['logo_file'] = 'is_image[logo_file]|mime_in[logo_file,image/png,image/jpg,image/jpeg]|max_size[logo_file,2048]';
-        }
-
-        // Validate hero file only if a file was selected/uploaded
-        $heroFile = $this->request->getFile('hero_file');
-        if ($heroFile && $heroFile->isValid()) {
-            $rules['hero_file'] = 'is_image[hero_file]|mime_in[hero_file,image/png,image/jpg,image/jpeg]|max_size[hero_file,4096]';
-        }
-
-        if (! $this->validate($rules)) {
+        if (! $this->validateData($this->request->getPost(), $rules)) {
             return redirect()->back()
                 ->withInput()
                 ->with('errors', $this->validator->getErrors());
         }
 
-        // 3. Simpan teks pengaturan ke database
-        SettingsModel::setSetting('is_open', $this->request->getPost('is_open'));
-        SettingsModel::setSetting('tahun_ajaran', $this->request->getPost('tahun_ajaran'));
-        SettingsModel::setSetting('frontend_title', $this->request->getPost('frontend_title'));
-        SettingsModel::setSetting('frontend_subtitle', $this->request->getPost('frontend_subtitle'));
-        SettingsModel::setSetting('logo_text', $this->request->getPost('logo_text'));
+        $this->settingsService->update($this->request->getPost([
+            'is_open', 'tahun_ajaran', 'frontend_title', 'frontend_subtitle',
+            'logo_text', 'step1_title', 'step1_desc', 'step1_icon',
+            'step2_title', 'step2_desc', 'step2_icon',
+            'step3_title', 'step3_desc', 'step3_icon',
+            'step4_title', 'step4_desc', 'step4_icon',
+            'req1_title', 'req1_desc', 'req1_icon',
+            'req2_title', 'req2_desc', 'req2_icon',
+            'req3_title', 'req3_desc', 'req3_icon',
+            'footer_phone', 'footer_email', 'footer_address', 'footer_desc',
+        ]));
 
-        // Simpan Alur Pendaftaran
-        SettingsModel::setSetting('step1_title', $this->request->getPost('step1_title'));
-        SettingsModel::setSetting('step1_desc', $this->request->getPost('step1_desc'));
-        SettingsModel::setSetting('step1_icon', $this->request->getPost('step1_icon'));
+        $kopContent = $this->settingsService->sanitizeKopContent($this->request->getPost('kop_content'));
+        $this->settingsService->update([
+            'kop_content'   => $kopContent,
+            'ketua_panitia' => $this->request->getPost('ketua_panitia'),
+            'kota_ttd'      => $this->request->getPost('kota_ttd'),
+        ]);
 
-        SettingsModel::setSetting('step2_title', $this->request->getPost('step2_title'));
-        SettingsModel::setSetting('step2_desc', $this->request->getPost('step2_desc'));
-        SettingsModel::setSetting('step2_icon', $this->request->getPost('step2_icon'));
-
-        SettingsModel::setSetting('step3_title', $this->request->getPost('step3_title'));
-        SettingsModel::setSetting('step3_desc', $this->request->getPost('step3_desc'));
-        SettingsModel::setSetting('step3_icon', $this->request->getPost('step3_icon'));
-
-        SettingsModel::setSetting('step4_title', $this->request->getPost('step4_title'));
-        SettingsModel::setSetting('step4_desc', $this->request->getPost('step4_desc'));
-        SettingsModel::setSetting('step4_icon', $this->request->getPost('step4_icon'));
-
-        // Simpan Dokumen Persyaratan
-        SettingsModel::setSetting('req1_title', $this->request->getPost('req1_title'));
-        SettingsModel::setSetting('req1_desc', $this->request->getPost('req1_desc'));
-        SettingsModel::setSetting('req1_icon', $this->request->getPost('req1_icon'));
-
-        SettingsModel::setSetting('req2_title', $this->request->getPost('req2_title'));
-        SettingsModel::setSetting('req2_desc', $this->request->getPost('req2_desc'));
-        SettingsModel::setSetting('req2_icon', $this->request->getPost('req2_icon'));
-
-        SettingsModel::setSetting('req3_title', $this->request->getPost('req3_title'));
-        SettingsModel::setSetting('req3_desc', $this->request->getPost('req3_desc'));
-        SettingsModel::setSetting('req3_icon', $this->request->getPost('req3_icon'));
-
-        // Simpan Footer Settings
-        SettingsModel::setSetting('footer_phone', $this->request->getPost('footer_phone'));
-        SettingsModel::setSetting('footer_email', $this->request->getPost('footer_email'));
-        SettingsModel::setSetting('footer_address', $this->request->getPost('footer_address'));
-        SettingsModel::setSetting('footer_desc', $this->request->getPost('footer_desc'));
-
-        // Simpan Pengumuman & WA
-        SettingsModel::setSetting('whatsapp_link', $this->request->getPost('whatsapp_link'));
-
-        // Simpan Kop Surat Settings
-        $kopContent = $this->request->getPost('kop_content');
-        // Sanitasi HTML: hanya izinkan tag dasar dengan style aman (text-align, dll)
-        $allowedTags = ['p','br','strong','em','u','h1','h2','h3','h4','span','div','a','ul','ol','li'];
-        $kopContent = preg_replace_callback('/<(\/?)(\w+)([^>]*)>/', function($m) use ($allowedTags) {
-            if (!in_array(strtolower($m[2]), $allowedTags)) {
-                return $m[1] === '/' ? '' : '';
-            }
-            return $m[0];
-        }, $kopContent);
-        // Hapus event handler (onclick, onload, dll)
-        $kopContent = preg_replace('/\s+on\w+\s*=\s*"[^"]*"/i', '', $kopContent);
-        $kopContent = preg_replace('/\s+on\w+\s*=\s*\'[^\']*\'/i', '', $kopContent);
-        // Blokir href berbahaya (javascript:, data:, vbscript:)
-        $kopContent = preg_replace('/href\s*=\s*"(?!https?:\/\/|#|mailto:|\/)[^"]*"/i', 'href="#"', $kopContent);
-        SettingsModel::setSetting('kop_content', $kopContent);
-        SettingsModel::setSetting('ketua_panitia', $this->request->getPost('ketua_panitia'));
-        SettingsModel::setSetting('kota_ttd', $this->request->getPost('kota_ttd'));
-
-        // 4. Proses File Upload Logo
         $logoFile = $this->request->getFile('logo_file');
-        if ($logoFile && $logoFile->isValid() && ! $logoFile->hasMoved()) {
-            $uploadsDir = ROOTPATH . 'public/uploads/';
-            if (! is_dir($uploadsDir)) {
-                mkdir($uploadsDir, 0755, true);
-            }
-            // Hapus berkas logo lama jika ada
-            $oldLogo = SettingsModel::getSetting('logo_img');
-            if ($oldLogo && file_exists(ROOTPATH . 'public/' . $oldLogo)) {
-                @unlink(ROOTPATH . 'public/' . $oldLogo);
-            }
-            $newName = 'logo_' . time() . '.' . $logoFile->guessExtension();
-            $logoFile->move($uploadsDir, $newName);
-            SettingsModel::setSetting('logo_img', 'uploads/' . $newName);
+        if ($logoFile && $logoFile->isValid()) {
+            $this->settingsService->uploadImage($logoFile, 'logo_img', 'logo_');
         }
 
-        // 5. Proses File Upload Hero Image
         $heroFile = $this->request->getFile('hero_file');
-        if ($heroFile && $heroFile->isValid() && ! $heroFile->hasMoved()) {
-            $uploadsDir = ROOTPATH . 'public/uploads/';
-            if (! is_dir($uploadsDir)) {
-                mkdir($uploadsDir, 0755, true);
-            }
-            // Hapus berkas hero lama jika ada
-            $oldHero = SettingsModel::getSetting('hero_img');
-            if ($oldHero && file_exists(ROOTPATH . 'public/' . $oldHero)) {
-                @unlink(ROOTPATH . 'public/' . $oldHero);
-            }
-            $newName = 'hero_' . time() . '.' . $heroFile->guessExtension();
-            $heroFile->move($uploadsDir, $newName);
-            SettingsModel::setSetting('hero_img', 'uploads/' . $newName);
+        if ($heroFile && $heroFile->isValid()) {
+            $this->settingsService->uploadImage($heroFile, 'hero_img', 'hero_');
         }
 
         return redirect()->to(base_url('admin/settings'))
             ->with('success', 'Seluruh konfigurasi frontend berhasil diperbarui secara real-time!');
     }
 
-    // =========================================================================
-    // POST: Tambah Pengumuman Baru
-    // =========================================================================
-    public function addAnnouncement()
+    private function loadAllSettings(): array
     {
-        $this->requireAdmin();
-
-        $rules = [
-            'judul'  => 'required|min_length[3]|max_length[255]',
-            'konten' => 'required|min_length[5]',
+        return [
+            'is_open'           => $this->settingsService->get(SETTING_IS_OPEN, '1'),
+            'tahun_ajaran'      => $this->settingsService->get(SETTING_TAHUN_AJARAN, '2026/2027'),
+            'frontend_title'    => $this->settingsService->get('frontend_title', 'Raih Masa Depan Gemilang di SMA Unggul Bangsa'),
+            'frontend_subtitle' => $this->settingsService->get('frontend_subtitle', 'Bergabunglah dengan komunitas pembelajar yang dinamis dan berprestasi. Program kurikulum berstandar tinggi serta fasilitas modern kami siap mempersiapkan Anda untuk mencapai keunggulan akademik dan karakter.'),
+            'logo_text'         => $this->settingsService->get(SETTING_LOGO_TEXT, 'SPMB Unggul Bangsa'),
+            'logo_img'          => $this->settingsService->get('logo_img', ''),
+            'hero_img'          => $this->settingsService->get('hero_img', ''),
+            'kop_content'       => $this->settingsService->get('kop_content', '<h2 style="margin:0; font-size:18px; text-transform:uppercase;">PANITIA PENERIMAAN SISWA BARU (SPMB)</h2><h3 style="margin:2px 0; font-size:16px; font-weight:600;">SMA UNGGUL BANGSA</h3><p style="margin:2px 0;">Jl. Raya Pendidikan No. 45, Jakarta Pusat</p><p style="margin:2px 0;">Telp: (021) 555 0123 | Website: spmb.unggulbangsa.sch.id</p>'),
+            'ketua_panitia'     => $this->settingsService->get('ketua_panitia', ''),
+            'kota_ttd'          => $this->settingsService->get('kota_ttd', 'Jakarta'),
+            'step1_title'       => $this->settingsService->get('step1_title', '1. Registrasi Akun'),
+            'step1_desc'        => $this->settingsService->get('step1_desc', 'Buat akun pendaftar secara online menggunakan username, email aktif, dan password Anda.'),
+            'step1_icon'        => $this->settingsService->get('step1_icon', 'app_registration'),
+            'step2_title'       => $this->settingsService->get('step2_title', '2. Isi Formulir'),
+            'step2_desc'        => $this->settingsService->get('step2_desc', 'Masuk ke sistem, lengkapi formulir biodata pribadi, data kedua orang tua/wali, serta asal sekolah.'),
+            'step2_icon'        => $this->settingsService->get('step2_icon', 'description'),
+            'step3_title'       => $this->settingsService->get('step3_title', '3. Upload & Verifikasi'),
+            'step3_desc'        => $this->settingsService->get('step3_desc', 'Unggah pas foto, ijazah/SKL, dan Kartu Keluarga (KK). Pantau proses verifikasi berkas oleh admin.'),
+            'step3_icon'        => $this->settingsService->get('step3_icon', 'fact_check'),
+            'step4_title'       => $this->settingsService->get('step4_title', '4. Hasil & Dashboard'),
+            'step4_desc'        => $this->settingsService->get('step4_desc', 'Unduh formulir pendaftaran PDF, gabung grup WhatsApp resmi, dan cek hasil pengumuman kelulusan.'),
+            'step4_icon'        => $this->settingsService->get('step4_icon', 'celebration'),
+            'req1_title'        => $this->settingsService->get('req1_title', 'Pas Foto Terbaru'),
+            'req1_desc'         => $this->settingsService->get('req1_desc', 'Pas foto berwarna ukuran 3x4 cm dengan latar belakang merah (format JPG/PNG, ukuran maks. 2MB, diambil dalam 3 bulan terakhir).'),
+            'req1_icon'         => $this->settingsService->get('req1_icon', 'portrait'),
+            'req2_title'        => $this->settingsService->get('req2_title', 'Ijazah SMP / SKL'),
+            'req2_desc'         => $this->settingsService->get('req2_desc', 'Salinan ijazah asli atau Surat Keterangan Lulus (SKL) sementara jika ijazah resmi belum diterbitkan sekolah (format PDF/Gambar).'),
+            'req2_icon'         => $this->settingsService->get('req2_icon', 'school'),
+            'req3_title'        => $this->settingsService->get('req3_title', 'Kartu Keluarga (KK)'),
+            'req3_desc'         => $this->settingsService->get('req3_desc', 'Salinan dokumen Kartu Keluarga resmi dari Dinas Kependudukan dan Catatan Sipil setempat.'),
+            'req3_icon'         => $this->settingsService->get('req3_icon', 'family_history'),
+            'footer_phone'      => $this->settingsService->get('footer_phone', '+62 21 555 0123'),
+            'footer_email'      => $this->settingsService->get('footer_email', 'spmb@unggulbangsa.sch.id'),
+            'footer_address'    => $this->settingsService->get('footer_address', 'Jl. Pendidikan No. 1, Jakarta'),
+            'footer_desc'       => $this->settingsService->get(SETTING_FOOTER_DESC, 'Membentuk generasi pemimpin masa depan yang beriman, cerdas, kreatif, mandiri, dan berwawasan global.'),
         ];
-
-        $messages = [
-            'judul' => [
-                'required'   => 'Judul pengumuman wajib diisi.',
-                'min_length' => 'Judul minimal terdiri dari 3 karakter.',
-                'max_length' => 'Judul maksimal terdiri dari 255 karakter.',
-            ],
-            'konten' => [
-                'required'   => 'Isi konten pengumuman wajib diisi.',
-                'min_length' => 'Isi konten minimal terdiri dari 5 karakter.',
-            ],
-        ];
-
-        if (! $this->validate($rules, $messages)) {
-            return redirect()->to(base_url('admin/settings?tab=pengumuman'))
-                ->withInput()
-                ->with('errors', $this->validator->getErrors());
-        }
-
-        $pengumumanModel = new PengumumanModel();
-        $pengumumanModel->insert([
-            'judul'  => trim($this->request->getPost('judul')),
-            'konten' => trim($this->request->getPost('konten')),
-        ]);
-
-        return redirect()->to(base_url('admin/settings?tab=pengumuman'))
-            ->with('success', 'Pengumuman baru berhasil dipublikasikan!');
     }
 
-    // =========================================================================
-    // POST: Hapus Pengumuman
-    // =========================================================================
-    public function deleteAnnouncement($id)
+    private function buildSaveRules(): array
     {
-        $this->requireAdmin();
+        $rules = [
+            'is_open'           => 'required|in_list[0,1]',
+            'tahun_ajaran'      => 'required|min_length[4]|max_length[15]',
+            'frontend_title'    => 'required|min_length[5]|max_length[255]',
+            'frontend_subtitle' => 'required|min_length[10]',
+            'logo_text'         => 'required|min_length[3]|max_length[100]',
+            'step1_title'       => 'required|min_length[3]|max_length[100]',
+            'step1_desc'        => 'required|min_length[5]|max_length[255]',
+            'step1_icon'        => 'required|min_length[3]|max_length[50]',
+            'step2_title'       => 'required|min_length[3]|max_length[100]',
+            'step2_desc'        => 'required|min_length[5]|max_length[255]',
+            'step2_icon'        => 'required|min_length[3]|max_length[50]',
+            'step3_title'       => 'required|min_length[3]|max_length[100]',
+            'step3_desc'        => 'required|min_length[5]|max_length[255]',
+            'step3_icon'        => 'required|min_length[3]|max_length[50]',
+            'step4_title'       => 'required|min_length[3]|max_length[100]',
+            'step4_desc'        => 'required|min_length[5]|max_length[255]',
+            'step4_icon'        => 'required|min_length[3]|max_length[50]',
+            'req1_title'        => 'required|min_length[3]|max_length[100]',
+            'req1_desc'         => 'required|min_length[5]|max_length[255]',
+            'req1_icon'         => 'required|min_length[3]|max_length[50]',
+            'req2_title'        => 'required|min_length[3]|max_length[100]',
+            'req2_desc'         => 'required|min_length[5]|max_length[255]',
+            'req2_icon'         => 'required|min_length[3]|max_length[50]',
+            'req3_title'        => 'required|min_length[3]|max_length[100]',
+            'req3_desc'         => 'required|min_length[5]|max_length[255]',
+            'req3_icon'         => 'required|min_length[3]|max_length[50]',
+            'footer_phone'      => 'required|min_length[5]|max_length[50]',
+            'footer_email'      => 'required|valid_email|max_length[100]',
+            'footer_address'    => 'required|min_length[5]|max_length[255]',
+            'footer_desc'       => 'required|min_length[10]|max_length[500]',
+            'kop_content'       => 'permit_empty|max_length[5000]',
+            'ketua_panitia'     => 'permit_empty|max_length[200]',
+            'kota_ttd'          => 'permit_empty|max_length[100]',
+        ];
 
-        $pengumumanModel = new PengumumanModel();
-        $pengumuman = $pengumumanModel->find($id);
-
-        if (! $pengumuman) {
-            return $this->response->setJSON(['status' => 'error', 'message' => 'Data pengumuman tidak ditemukan.']);
+        $logoFile = $this->request->getFile('logo_file');
+        if ($logoFile && $logoFile->isValid()) {
+            $rules['logo_file'] = 'is_image[logo_file]|mime_in[logo_file,image/png,image/jpg,image/jpeg]|max_size[logo_file,2048]';
         }
 
-        $pengumumanModel->delete($id);
+        $heroFile = $this->request->getFile('hero_file');
+        if ($heroFile && $heroFile->isValid()) {
+            $rules['hero_file'] = 'is_image[hero_file]|mime_in[hero_file,image/png,image/jpg,image/jpeg]|max_size[hero_file,4096]';
+        }
 
-        session()->setFlashdata('success', 'Pengumuman berhasil dihapus.');
-        return $this->response->setJSON(['status' => 'success']);
+        return $rules;
     }
 }

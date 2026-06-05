@@ -9,7 +9,11 @@
         <span class="material-symbols-outlined text-xl" style="font-variation-settings:'FILL' <?= $isPendaftar ? '1' : '0' ?>">description</span>
         Pendaftar
     </a>
-    <?php if ($shieldUser && ($shieldUser->inGroup('admin'))): ?>
+    <?php if ($isAdmin): ?>
+        <a href="<?= base_url('admin/pengumuman') ?>" class="flex flex-col items-center gap-0.5 <?= $isPengumuman ? 'text-on-secondary-container bg-secondary-container' : 'text-on-surface-variant hover:bg-surface-container-high' ?> px-4 py-1 rounded-full transition-all">
+            <span class="material-symbols-outlined text-xl" style="font-variation-settings:'FILL' <?= $isPengumuman ? '1' : '0' ?>">campaign</span>
+            Pengumuman
+        </a>
         <a href="<?= base_url('admin/settings') ?>" class="flex flex-col items-center gap-0.5 <?= $isSettings ? 'text-on-secondary-container bg-secondary-container' : 'text-on-surface-variant hover:bg-surface-container-high' ?> px-4 py-1 rounded-full transition-all">
             <span class="material-symbols-outlined text-xl" style="font-variation-settings:'FILL' <?= $isSettings ? '1' : '0' ?>">settings</span>
             Setting

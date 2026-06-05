@@ -3,57 +3,45 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
-use CodeIgniter\Shield\Entities\User;
+use App\Services\UserService;
+use CodeIgniter\HTTP\ResponseInterface;
 
 class Users extends BaseController
 {
     protected $helpers = ['url', 'html', 'form'];
 
-    public function index()
+    protected UserService $userService;
+
+    public function __construct()
+    {
+        $this->userService = new UserService();
+    }
+
+    public function index(): ResponseInterface
     {
         $this->requireAdmin();
         $shieldUser = auth()->user();
 
-        // 2. Ambil semua data staff (Admin & Panitia) dari database
-        $db = \Config\Database::connect();
-        $builder = $db->table('users')
-            ->select('id, username, email, role, created_at')
-            ->whereIn('role', ['admin', 'panitia'])
-            ->orderBy('created_at', 'DESC');
-
-        $staffs = $builder->get()->getResultArray();
+        $staffs = $this->userService->getStaffList();
 
         $data = [
+            ...$this->getSiteSettings(),
             'admin_username' => $shieldUser->username,
+            'user_email'     => $shieldUser->email,
+            'authUserId'     => $shieldUser->id,
+            'roleLabel'      => $shieldUser->inGroup(ROLE_ADMIN) ? 'Administrator' : 'Panitia SPMB',
+            'isAdmin'        => $shieldUser->inGroup(ROLE_ADMIN),
             'staffs'         => $staffs,
         ];
 
-        return view('admin/users', $data);
+        return $this->response->setBody(view('admin/users', $data));
     }
 
-    public function store()
+    public function store(): ResponseInterface
     {
         $this->requireAdmin();
-        // 2. Validasi input pembuatan user baru
-        $rules = [
-            'username'         => 'required|min_length[3]|max_length[30]|regex_match[/^[a-zA-Z0-9_]+$/]|is_unique[users.username]',
-            'email'            => 'required|valid_email|is_unique[auth_identities.secret]',
-            'password'         => 'required|min_length[6]',
-            'password_confirm' => 'required|matches[password]',
-            'role'             => 'required|in_list[admin,panitia]',
-        ];
 
-        $messages = [
-            'username' => [
-                'regex_match' => 'Username hanya boleh mengandung huruf, angka, dan underscore.',
-                'is_unique'   => 'Username sudah digunakan oleh akun lain.',
-            ],
-            'email' => [
-                'is_unique' => 'Email sudah terdaftar di sistem.',
-            ],
-        ];
-
-        if (! $this->validate($rules, $messages)) {
+        if (! $this->validateData($this->request->getPost(), 'staffStore')) {
             return redirect()->back()
                 ->withInput()
                 ->with('errors', $this->validator->getErrors());
@@ -64,75 +52,43 @@ class Users extends BaseController
         $password = $this->request->getPost('password');
         $role     = $this->request->getPost('role');
 
-        // 3. Daftarkan akun baru menggunakan Shield Provider
-        $usersProvider = auth()->getProvider();
-
-        $user = new User([
-            'username' => $username,
-            'email'    => $email,
-            'password' => $password,
-        ]);
-
-        // Simpan dan tangani error dari Shield
-        if (! $usersProvider->save($user)) {
+        try {
+            $this->userService->create([
+                'username' => $username,
+                'email'    => $email,
+                'password' => $password,
+                'role'     => $role,
+            ]);
+        } catch (\RuntimeException $e) {
             return redirect()->back()
                 ->withInput()
-                ->with('errors', $usersProvider->errors());
-        }
-
-        // Ambil User yang baru dimasukkan untuk mengeset group & role
-        $newUserId = $usersProvider->getInsertID();
-        $newUser   = $usersProvider->findById($newUserId);
-
-        if ($newUser) {
-            // Set grup Shield
-            $newUser->addGroup($role);
-
-            // Update kolom custom 'role' pada tabel users
-            $db = \Config\Database::connect();
-            $db->table('users')->where('id', $newUserId)->update([
-                'role' => $role
-            ]);
+                ->with('error', $e->getMessage());
         }
 
         return redirect()->to(base_url('admin/users'))
-            ->with('success', 'Akun staff baru dengan peran ' . strtoupper($role) . ' berhasil dibuat!');
+            ->with('success', 'Akun staff baru dengan peran ' . strtoupper((string) $role) . ' berhasil dibuat!');
     }
 
-    public function delete($userId)
+    public function delete(int $userId): ResponseInterface
     {
         $this->requireAdmin();
-        // 2. Proteksi diri: Jangan ijinkan menghapus diri sendiri
+
         if (auth()->id() == $userId) {
             return redirect()->back()
                 ->with('error', 'Keamanan Sistem: Anda tidak diizinkan untuk menghapus akun Anda sendiri.');
         }
 
-        // 3. Proses penghapusan penuh (Purge / Hard Delete) via Shield
-        $usersProvider = auth()->getProvider();
-        $usersProvider->delete($userId, true);
+        $this->userService->delete($userId);
 
         return redirect()->to(base_url('admin/users'))
             ->with('success', 'Akun staff berhasil dihapus dari sistem.');
     }
 
-    public function edit($userId)
+    public function edit(int $userId): ResponseInterface
     {
         $this->requireAdmin();
-        // 2. Validasi input
-        $rules = [
-            'username' => 'required|min_length[3]|max_length[30]|regex_match[/^[a-zA-Z0-9_]+$/]',
-            'email'    => 'required|valid_email',
-            'role'     => 'required|in_list[admin,panitia]',
-        ];
 
-        $messages = [
-            'username' => [
-                'regex_match' => 'Username hanya boleh mengandung huruf, angka, dan underscore.',
-            ]
-        ];
-
-        if (! $this->validate($rules, $messages)) {
+        if (! $this->validateData($this->request->getPost(), 'staffEdit')) {
             return redirect()->back()
                 ->withInput()
                 ->with('errors', $this->validator->getErrors());
@@ -142,70 +98,32 @@ class Users extends BaseController
         $email    = $this->request->getPost('email');
         $role     = $this->request->getPost('role');
 
-        $db = \Config\Database::connect();
-
-        // Cek keunikan username
-        $existingUsername = $db->table('users')->where('username', $username)->where('id !=', $userId)->get()->getRow();
-        if ($existingUsername) {
+        if ($this->userService->isUsernameTaken($username, $userId)) {
             return redirect()->back()->withInput()->with('errors', ['username' => 'Username sudah digunakan oleh akun lain.']);
         }
 
-        // Cek keunikan email
-        $existingEmail = $db->table('users')->where('email', $email)->where('id !=', $userId)->get()->getRow();
-        if ($existingEmail) {
+        if ($this->userService->isEmailTaken($email, $userId)) {
             return redirect()->back()->withInput()->with('errors', ['email' => 'Email sudah terdaftar di sistem.']);
         }
 
-        // 3. Update data users
-        $db->table('users')->where('id', $userId)->update([
-            'username'   => $username,
-            'email'      => $email,
-            'role'       => $role,
-            'updated_at' => date('Y-m-d H:i:s')
-        ]);
-
-        // 4. Update data Shield auth_identities (email)
-        $db->table('auth_identities')->where('user_id', $userId)->where('type', 'email_password')->update([
-            'secret'     => $email,
-            'updated_at' => date('Y-m-d H:i:s')
-        ]);
-
-        // 5. Update data Shield auth_groups_users (group)
-        $db->table('auth_groups_users')->where('user_id', $userId)->delete();
-        $db->table('auth_groups_users')->insert([
-            'user_id'    => $userId,
-            'group'      => $role,
-            'created_at' => date('Y-m-d H:i:s'),
-        ]);
+        $this->userService->updateUserProfile($userId, $username, $email, $role);
 
         return redirect()->to(base_url('admin/users'))
             ->with('success', 'Data akun staff berhasil diperbarui!');
     }
 
-    public function changePassword($userId)
+    public function changePassword(int $userId): ResponseInterface
     {
         $this->requireAdmin();
-        // 2. Validasi input
-        $rules = [
-            'password'         => 'required|min_length[6]',
-            'password_confirm' => 'required|matches[password]',
-        ];
 
-        if (! $this->validate($rules)) {
+        if (! $this->validateData($this->request->getPost(), 'staffPassword')) {
             return redirect()->back()
                 ->with('errors', $this->validator->getErrors());
         }
 
         $password = $this->request->getPost('password');
-        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
-        $db = \Config\Database::connect();
-
-        // 3. Update kata sandi di auth_identities
-        $db->table('auth_identities')->where('user_id', $userId)->where('type', 'email_password')->update([
-            'secret2'    => $passwordHash,
-            'updated_at' => date('Y-m-d H:i:s')
-        ]);
+        $this->userService->updatePassword($userId, $password);
 
         return redirect()->to(base_url('admin/users'))
             ->with('success', 'Kata sandi staff berhasil diperbarui!');
