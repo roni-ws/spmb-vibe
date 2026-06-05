@@ -7,8 +7,9 @@ $textClass      ??= 'font-headline-sm text-headline-sm text-primary leading-tigh
 $altText        ??= 'Logo';
 $useEmpty       ??= false;
 $iconExtra      ??= '';
+$logoUrl        ??= base_url(); // Tautan default ke beranda utama
 ?>
-<div class="<?= $containerClass ?>">
+<a href="<?= $logoUrl ?>" class="<?= $containerClass ?> hover:opacity-90 active:scale-98 transition-all">
     <?php if ($useEmpty ? (!empty($logoImg) && file_exists(FCPATH . $logoImg)) : ($logoImg && file_exists(FCPATH . $logoImg))): ?>
         <div class="<?= $imgWrapClass ?>">
             <img src="<?= base_url($logoImg) ?>" class="<?= $imgClass ?>" alt="<?= $altText ?>">
@@ -17,4 +18,4 @@ $iconExtra      ??= '';
         <span class="<?= $iconClass ?>" <?= $iconExtra ?>>school</span>
     <?php endif; ?>
     <span class="<?= $textClass ?>"><?= esc($logoText) ?></span>
-</div>
+</a>

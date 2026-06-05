@@ -38,7 +38,7 @@ $is_open ??= true;
         $containerClass = 'flex items-center gap-sm';
         $iconClass      = 'material-symbols-outlined text-primary dark:text-tertiary-fixed-dim text-3xl animate-bounce';
         $iconExtra      = 'data-icon="school" data-weight="fill"';
-        $textClass      = 'font-headline-md text-headline-md font-bold text-primary dark:text-white tracking-tight';
+        $textClass      = 'font-headline-md text-lg sm:text-xl md:text-headline-md font-bold text-primary dark:text-white tracking-tight';
         ?>
         <?php include __DIR__ . '/../components/shared/logo-display.php'; ?>
         <!-- Web Menu Links -->
@@ -54,58 +54,38 @@ $is_open ??= true;
         </div>
         <!-- Web Action Buttons -->
         <div class="hidden md:flex items-center gap-2">
-            <a href="<?= base_url('login') ?>" class="border border-primary text-primary dark:border-slate-300 dark:text-slate-200 font-label-bold text-label-bold px-4 py-2 rounded-lg hover:bg-surface-container-low hover:dark:bg-slate-800 transition-colors text-sm">
-                Login
-            </a>
-            <?php if ($is_open): ?>
-                <a href="<?= base_url('register') ?>" class="bg-primary text-on-primary dark:bg-white dark:text-primary font-label-bold text-label-bold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity text-sm shadow-md">
-                    Daftar
+            <?php if (auth()->loggedIn()): ?>
+                <?php
+                $dashboardUrl = base_url('siswa/dashboard');
+                if (auth()->user()->inGroup('admin', 'panitia')) {
+                    $dashboardUrl = base_url('admin/dashboard');
+                }
+                ?>
+                <a href="<?= $dashboardUrl ?>" class="bg-secondary-container text-on-secondary-container dark:bg-secondary dark:text-on-secondary font-label-bold text-label-bold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity text-sm shadow-md flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">dashboard</span>
+                    Dashboard
                 </a>
+            <?php else: ?>
+                <a href="<?= base_url('login') ?>" class="border border-primary text-primary dark:border-slate-300 dark:text-slate-200 font-label-bold text-label-bold px-4 py-2 rounded-lg hover:bg-surface-container-low hover:dark:bg-slate-800 transition-colors text-sm">
+                    Login
+                </a>
+                <?php if ($is_open): ?>
+                    <a href="<?= base_url('register') ?>" class="bg-primary text-on-primary dark:bg-white dark:text-primary font-label-bold text-label-bold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity text-sm shadow-md">
+                        Daftar
+                    </a>
+                <?php endif; ?>
             <?php endif; ?>
         </div>
-        <!-- Mobile Hamburger Button -->
-        <button onclick="toggleMobileMenu()" class="md:hidden flex items-center justify-center p-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-surface-container-low hover:dark:bg-slate-800 focus:outline-none transition-colors">
-            <span id="hamburger-icon" class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 0;">menu</span>
-        </button>
+        <!-- Mobile Hamburger Button (Removed in favor of Bottom Nav) -->
     </header>
 
-    <!-- Mobile Navigation Drawer (Collapsible) -->
-    <div id="mobile-menu" class="hidden md:hidden bg-surface dark:bg-slate-900 border-b border-outline-variant dark:border-outline/50 px-gutter py-md flex flex-col gap-sm shadow-md sticky top-16 z-40 transition-all duration-300">
-        <a class="font-label-bold text-label-bold text-slate-700 dark:text-slate-300 hover:text-primary hover:dark:text-white hover:bg-surface-container-low hover:dark:bg-slate-800/50 transition-colors px-4 py-2.5 rounded-lg flex items-center gap-sm"
-            href="<?= base_url() ?>" onclick="toggleMobileMenu()">
-            <span class="material-symbols-outlined text-lg">home</span>
-            Beranda
-        </a>
-        <a class="font-label-bold text-label-bold text-slate-700 dark:text-slate-300 hover:text-primary hover:dark:text-white hover:bg-surface-container-low hover:dark:bg-slate-800/50 transition-colors px-4 py-2.5 rounded-lg flex items-center gap-sm"
-            href="<?= base_url('#alur') ?>" onclick="toggleMobileMenu()">
-            <span class="material-symbols-outlined text-lg">route</span>
-            Alur
-        </a>
-        <a class="font-label-bold text-label-bold text-slate-700 dark:text-slate-300 hover:text-primary hover:dark:text-white hover:bg-surface-container-low hover:dark:bg-slate-800/50 transition-colors px-4 py-2.5 rounded-lg flex items-center gap-sm"
-            href="<?= base_url('#syarat') ?>" onclick="toggleMobileMenu()">
-            <span class="material-symbols-outlined text-lg">verified</span>
-            Persyaratan
-        </a>
-        <a class="font-label-bold text-label-bold text-slate-700 dark:text-slate-300 hover:text-primary hover:dark:text-white hover:bg-surface-container-low hover:dark:bg-slate-800/50 transition-colors px-4 py-2.5 rounded-lg flex items-center gap-sm"
-            href="<?= base_url('#kontak') ?>" onclick="toggleMobileMenu()">
-            <span class="material-symbols-outlined text-lg">contact_support</span>
-            Kontak
-        </a>
-        <div class="h-px bg-outline-variant/50 dark:bg-outline/30 my-1"></div>
-        <div class="flex gap-sm mt-1">
-            <a href="<?= base_url('login') ?>" onclick="toggleMobileMenu()" class="flex-1 text-center border border-primary text-primary dark:border-slate-400 dark:text-slate-300 font-label-bold text-label-bold px-4 py-2.5 rounded-lg hover:bg-surface-container-low hover:dark:bg-slate-800/50 transition-colors text-sm">
-                Login
-            </a>
-            <?php if ($is_open): ?>
-                <a href="<?= base_url('register') ?>" onclick="toggleMobileMenu()" class="flex-1 text-center bg-primary text-on-primary dark:bg-white dark:text-primary font-label-bold text-label-bold px-4 py-2.5 rounded-lg hover:opacity-90 dark:hover:opacity-90 transition-opacity text-sm shadow-md">
-                    Daftar
-                </a>
-            <?php endif; ?>
-        </div>
-    </div>
+    <!-- Mobile Navigation Drawer (Removed in favor of Bottom Nav) -->
 
     <!-- Main Content Section -->
     <?= $this->renderSection('content') ?>
+
+    <!-- Spacer agar footer/konten tidak terpotong bottom nav -->
+    <div class="h-20 md:hidden w-full"></div>
 
     <!-- Footer -->
     <footer id="kontak" class="bg-inverse-surface text-inverse-on-surface py-12 mt-auto z-10 shrink-0">
@@ -170,6 +150,8 @@ $is_open ??= true;
     <?php endif; ?>
 
     <script src="<?= base_url('js/core/toast.js') ?>"></script>
+
+    <?php include __DIR__ . '/../partials/m-bottom-nav-public.php'; ?>
 </body>
 
 </html>

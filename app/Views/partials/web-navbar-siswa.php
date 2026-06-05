@@ -6,7 +6,7 @@
     $imgWrapClass   = 'w-9 h-9 rounded-lg overflow-hidden bg-slate-50 flex items-center justify-center shrink-0 shadow-sm border border-outline-variant/40';
     $imgClass       = 'w-full h-full object-contain p-0.5';
     $iconClass      = 'material-symbols-outlined text-primary text-2xl shrink-0';
-    $textClass      = 'font-headline-sm text-headline-sm font-bold text-primary truncate leading-tight';
+    $textClass      = 'font-headline-sm text-base sm:text-headline-sm font-bold text-primary truncate leading-tight';
     $useEmpty       = true;
     ?>
     <?php include __DIR__ . '/../components/shared/logo-display.php'; ?>
