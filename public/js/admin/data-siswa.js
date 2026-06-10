@@ -204,7 +204,8 @@ function openEditModal(userId, btn) {
     const d = JSON.parse(btn.dataset.student);
 
     populateEditField('edit-nama', d.nama_lengkap);
-    populateEditField('edit-no_registrasi', d.no_registrasi);
+    const noRegEl = document.getElementById('edit-no_registrasi');
+    if (noRegEl) noRegEl.textContent = d.no_registrasi ?? '';
     populateEditField('edit-nik', d.nik);
     populateEditField('edit-no_kk', d.no_kk);
     populateEditField('edit-tempat_lahir', d.tempat_lahir);
@@ -290,6 +291,17 @@ function openViewModal(userId, btn) {
     document.getElementById('view-verify-status').value = d.status_verifikasi_id || 1;
     document.getElementById('view-verify-catatan').value = d.catatan_verifikasi || '';
     document.getElementById('view-verify-form').action = window.BASE_URL + 'admin/verify/' + userId;
+
+    // Toggle verifikasi form vs banner berdasarkan status finalisasi
+    const verifyWrapper = document.getElementById('view-verify-form-wrapper');
+    const banner = document.getElementById('view-not-finalized-banner');
+    if (d.is_finalized) {
+        verifyWrapper?.classList.remove('hidden');
+        banner?.classList.add('hidden');
+    } else {
+        verifyWrapper?.classList.add('hidden');
+        banner?.classList.remove('hidden');
+    }
 
     // Tgl Daftar
     const tgl = d.created_at ? new Date(d.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-';

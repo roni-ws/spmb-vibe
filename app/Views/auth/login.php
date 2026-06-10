@@ -21,12 +21,16 @@
             <!-- Header Section -->
             <div class="flex flex-col items-center text-center mb-[32px]">
                 <div
-                    class="w-20 h-20 rounded-full bg-primary-container text-on-primary-container dark:bg-white dark:text-primary flex items-center justify-center mb-sm shadow-sm">
-                    <span class="material-symbols-outlined"
-                        style="font-size: 40px; font-variation-settings: 'FILL' 1;">account_balance</span>
+                    class="w-20 h-20 rounded-full bg-primary-container text-on-primary-container dark:bg-white dark:text-primary flex items-center justify-center mb-sm shadow-sm overflow-hidden <?= (!empty($logoImg) && file_exists(FCPATH . $logoImg)) ? 'p-1' : '' ?>">
+                    <?php if (!empty($logoImg) && file_exists(FCPATH . $logoImg)): ?>
+                        <img src="<?= base_url($logoImg) ?>" class="w-full h-full object-contain" alt="Logo">
+                    <?php else: ?>
+                        <span class="material-symbols-outlined"
+                            style="font-size: 40px; font-variation-settings: 'FILL' 1;">account_balance</span>
+                    <?php endif; ?>
                 </div>
                 <h1 class="font-headline-md text-headline-md text-on-surface dark:text-white mb-xs">Selamat Datang</h1>
-                <p class="font-body-md text-body-md text-on-surface-variant dark:text-slate-300">Masuk ke akun SPMB <?= esc($logoText) ?></p>
+                <p class="font-body-md text-body-md text-on-surface-variant dark:text-slate-300">Masuk ke akun <?= esc($logoText) ?></p>
             </div>
             
             <!-- Segmented Control -->

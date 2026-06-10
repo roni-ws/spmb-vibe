@@ -24,8 +24,7 @@ class Dashboard extends BaseController
         $this->requireSiswa();
 
         $shieldUser = auth()->user();
-        $nisn       = $shieldUser->nisn ?? $shieldUser->username;
-        $biodata    = $this->studentService->getStudentProfileByNisn($nisn);
+        $biodata    = $this->studentService->getStudentProfileByUserId((int) $shieldUser->id);
 
         $sekolah           = [];
         $berkas            = [];
@@ -71,9 +70,8 @@ class Dashboard extends BaseController
     {
         $this->requireSiswa();
 
-        $user = auth()->user();
-        $nisn  = $user->nisn ?? $user->username;
-        $siswa = $this->studentService->getStudentByNisn($nisn);
+        $user  = auth()->user();
+        $siswa = $this->studentService->getStudentByUserId((int) $user->id);
 
         if (!$siswa) {
             return redirect()->to(base_url('siswa/dashboard'))->with('error', 'Data pendaftar tidak ditemukan.');
@@ -95,9 +93,8 @@ class Dashboard extends BaseController
     {
         $this->requireSiswa();
 
-        $user = auth()->user();
-        $nisn    = $user->nisn ?? $user->username;
-        $student = $this->studentService->getStudentForCetakByNisn($nisn);
+        $user    = auth()->user();
+        $student = $this->studentService->getStudentForCetakByUserId((int) $user->id);
 
         if (!$student) {
             return redirect()->back()->with('error', 'Data pendaftar tidak ditemukan.');

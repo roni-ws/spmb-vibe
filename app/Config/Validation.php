@@ -43,6 +43,7 @@ class Validation extends BaseConfig
     // --------------------------------------------------------------------
 
     public array $siswaBiodata = [
+        'nisn'             => 'required|min_length[3]|max_length[10]|is_unique[calon_siswa.nisn]',
         'nik'              => 'required|numeric|exact_length[16]',
         'no_kk'            => 'required|numeric|exact_length[16]',
         'nama_lengkap'     => 'required|min_length[3]|max_length[150]',
@@ -71,8 +72,8 @@ class Validation extends BaseConfig
 
     public array $adminSiswaBiodata = [
         'nama_lengkap'     => 'required|min_length[3]|max_length[150]',
-        'nik'              => 'required|min_length[5]|max_length[30]',
-        'no_kk'            => 'permit_empty|min_length[5]|max_length[30]',
+        'nik'              => 'required|numeric|exact_length[16]',
+        'no_kk'            => 'required|numeric|exact_length[16]',
         'tempat_lahir'     => 'required|min_length[3]|max_length[100]',
         'tanggal_lahir'    => 'required|valid_date[Y-m-d]',
         'jenis_kelamin'    => 'required|in_list[L,P]',
@@ -97,6 +98,12 @@ class Validation extends BaseConfig
     ];
 
     public array $siswaBiodata_errors = [
+        'nisn' => [
+            'required'   => 'NISN wajib diisi.',
+            'min_length' => 'NISN minimal 3 karakter.',
+            'max_length' => 'NISN maksimal 10 karakter.',
+            'is_unique'  => 'NISN sudah terdaftar. Silakan gunakan NISN lain.',
+        ],
         'nik' => [
             'required'     => 'NIK wajib diisi.',
             'numeric'      => 'NIK hanya boleh berupa angka.',
@@ -180,7 +187,7 @@ class Validation extends BaseConfig
 
     public array $pendaftaranSiswa = [
         'fullName'         => 'required|min_length[3]|max_length[100]',
-        'email'            => 'required|valid_email|is_unique[users_siswa.email]',
+        'email'            => 'required|valid_email|is_unique[users_siswa.email]|is_unique[auth_identities.secret]',
         'username'         => 'required|min_length[3]|max_length[30]|is_unique[users_siswa.username]|regex_match[/\A[a-zA-Z0-9\.]+\z/]',
         'password'         => 'required|min_length[8]|regex_match[/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])/]',
         'password_confirm' => 'required|matches[password]',

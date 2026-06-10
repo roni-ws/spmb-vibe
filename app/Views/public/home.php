@@ -133,32 +133,21 @@
                             <?php endfor; ?>
                         </ul>
                     </div>
-                    <!-- Academic & General Criteria -->
-                    <div class="bg-primary text-on-primary rounded-xl p-8 shadow-lg flex flex-col justify-between">
-                        <div>
-                            <h3 class="font-headline-sm text-headline-sm mb-6 flex items-center gap-2">
-                                <span class="material-symbols-outlined text-tertiary-fixed-dim"
-                                    data-icon="verified_user">verified_user</span>
-                                Ketentuan Umum
-                            </h3>
-                            <p class="font-body-md text-body-md text-primary-fixed mb-6">Setiap calon siswa harus memenuhi kriteria umum penerimaan berikut:</p>
-                            <ul class="space-y-4">
-                                <li class="flex items-start gap-2 font-body-sm text-body-sm text-on-primary">
-                                    <span class="material-symbols-outlined text-tertiary-fixed-dim text-sm mt-0.5"
-                                        data-icon="check_circle">check_circle</span>
-                                    Lulusan SMP/MTs/Sederajat tahun ajaran berjalan atau 1 tahun sebelumnya.
-                                </li>
-                                <li class="flex items-start gap-2 font-body-sm text-body-sm text-on-primary">
-                                    <span class="material-symbols-outlined text-tertiary-fixed-dim text-sm mt-0.5"
-                                        data-icon="check_circle">check_circle</span>
-                                    Berusia maksimal 21 tahun pada tanggal 1 Juli tahun pelajaran berjalan.
-                                </li>
-                                <li class="flex items-start gap-2 font-body-sm text-body-sm text-on-primary">
-                                    <span class="material-symbols-outlined text-tertiary-fixed-dim text-sm mt-0.5"
-                                        data-icon="check_circle">check_circle</span>
-                                    Memiliki kelakuan baik, sehat jasmani & rohani, serta tidak sedang terlibat tindak kriminal/narkoba.
-                                </li>
-                            </ul>
+                    <!-- Foto Galeri -->
+                    <div class="bg-primary text-on-primary rounded-2xl p-2 shadow-lg">
+                        <div class="grid grid-cols-2 gap-2 h-full">
+                            <?php for ($i = 1; $i <= 4; $i++):
+                                $imgVar = "gallery_img_{$i}";
+                                $imgPath = $$imgVar ?? '';
+                            ?>
+                                <div class="rounded-xl overflow-hidden bg-primary-fixed/20 flex items-center justify-center h-[156px]">
+                                    <?php if ($imgPath && file_exists(FCPATH . $imgPath)): ?>
+                                        <img src="<?= base_url($imgPath) ?>" alt="Foto Galeri <?= $i ?>" class="w-full h-full object-cover">
+                                    <?php else: ?>
+                                        <span class="material-symbols-outlined text-3xl text-primary-fixed-dim">add_photo_alternate</span>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endfor; ?>
                         </div>
                     </div>
                 </div>

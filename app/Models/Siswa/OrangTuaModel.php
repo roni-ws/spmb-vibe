@@ -21,9 +21,9 @@ class OrangTuaModel extends Model
     ];
 
     protected $validationRules = [
-        'nama_ayah'      => 'required|min_length[3]|max_length[150]',
-        'pekerjaan_ayah' => 'required|max_length[100]',
-        'nama_ibu'       => 'required|min_length[3]|max_length[150]',
-        'pekerjaan_ibu'  => 'required|max_length[100]',
+        'nama_ayah'      => 'permit_empty|max_length[150]',
+        'pekerjaan_ayah' => 'permit_empty|max_length[100]',
+        'nama_ibu'       => 'permit_empty|max_length[150]',
+        'pekerjaan_ibu'  => 'permit_empty|max_length[100]',
     ];
 }

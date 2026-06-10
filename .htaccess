@@ -1,0 +1,14 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Jangan lakukan redirect jika user mencoba mengakses file/folder yang memang tidak ada
+    RewriteCond %{REQUEST_URI} !^/public/
+    
+    # Alihkan secara tidak terlihat (silent bypass) semua permintaan ke folder public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Lindungi file konfigurasi dan pengaturan agar memberikan status 'Forbidden'
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>

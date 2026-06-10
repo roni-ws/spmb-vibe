@@ -13,18 +13,15 @@ class MasterSekolahModel extends Model
     protected $protectFields    = true;
     protected $allowedFields    = [
         'nama_sekolah',
-        'alamat_sekolah',
     ];
 
-    protected $validationRules = [
+    protected $validationRules      = [
         'nama_sekolah'   => 'required|min_length[3]|max_length[150]',
-        'alamat_sekolah' => 'permit_empty|min_length[5]',
     ];
 
-    public function getOrCreateSekolahId(string $namaSekolah, ?string $alamatSekolah = null): int
+    public function getOrCreateSekolahId(string $namaSekolah): int
     {
         $namaSekolahClean = trim($namaSekolah);
-
         $sekolah = $this->where('LOWER(nama_sekolah)', strtolower($namaSekolahClean))->first();
 
         if ($sekolah) {
@@ -33,7 +30,6 @@ class MasterSekolahModel extends Model
 
         $this->insert([
             'nama_sekolah'   => $namaSekolahClean,
-            'alamat_sekolah' => $alamatSekolah ? trim($alamatSekolah) : null
         ]);
 
         return (int) $this->getInsertID();

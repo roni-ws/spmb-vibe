@@ -196,49 +196,68 @@
                     </div>
 
                     <!-- ======== VERIFIKASI BERKAS ======== -->
-                    <form id="view-verify-form" method="post" action="">
-                        <?= csrf_field() ?>
-                        <div>
-                            <h4 class="font-semibold text-body-sm text-primary mb-3 flex items-center gap-2">
-                                <span class="material-symbols-outlined text-[18px]">verified_user</span> Verifikasi Berkas
-                            </h4>
-                            <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-4">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-6">
-                                    <div>
-                                        <span class="text-caption text-on-surface-variant font-medium">Status Verifikasi</span>
-                                        <p class="text-body-sm text-on-surface-variant mt-0.5 mb-2">Saat ini: <span id="view-status_badge" class="inline-block px-2.5 py-0.5 rounded-full text-caption font-bold"></span></p>
-                                        <select name="status_verifikasi_id" id="view-verify-status"
-                                                class="w-full px-3 py-2.5 rounded-xl border border-outline-variant focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-body-sm outline-none bg-white">
-                                            <option value="4">Tidak Valid – Dokumen tidak sesuai</option>
-                                            <option value="3">Valid – Berkas lengkap & sah</option>
-                                            <option value="2">Revisi – Perlu perbaikan</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <span class="text-caption text-on-surface-variant font-medium">Finalisasi</span>
-                                        <p id="view-final_badge" class="inline-block px-2.5 py-0.5 rounded-full text-caption font-bold mt-1"></p>
-                                    </div>
-                                    <div class="md:col-span-2">
-                                        <span class="text-caption text-on-surface-variant font-medium">Catatan Verifikasi</span>
-                                        <p class="text-body-sm text-on-surface-variant mt-0.5 mb-2">Pesan ini akan dikirim ke dashboard calon siswa</p>
-                                        <textarea name="catatan_verifikasi" id="view-verify-catatan" rows="3"
-                                                  class="w-full px-3 py-2.5 rounded-xl border border-outline-variant focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-body-sm outline-none resize-none bg-white"
-                                                  placeholder="Tulis catatan untuk calon siswa (wajib jika status Revisi)"></textarea>
-                                    </div>
-                                    <div>
-                                        <span class="text-caption text-on-surface-variant font-medium">Tanggal Daftar</span>
-                                        <p id="view-tgl_daftar" class="text-body-sm font-semibold text-on-surface mt-0.5">-</p>
-                                    </div>
-                                </div>
-                                <div class="mt-4 pt-3 border-t border-outline-variant/30 flex justify-end">
-                                    <button type="submit"
-                                            class="px-5 py-2.5 bg-primary text-on-primary rounded-xl text-body-sm font-semibold hover:opacity-90 transition-opacity inline-flex items-center gap-2">
-                                        <span class="material-symbols-outlined text-[18px]">check</span> Simpan Verifikasi
-                                    </button>
+                    <div>
+                        <h4 class="font-semibold text-body-sm text-primary mb-3 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[18px]">verified_user</span> Verifikasi Berkas
+                        </h4>
+
+                        <!-- Banner: Belum Finalisasi -->
+                        <div id="view-not-finalized-banner"
+                             class="hidden bg-error-container/20 border border-error-container rounded-xl p-4">
+                            <div class="flex items-start gap-3">
+                                <span class="material-symbols-outlined text-error text-[20px] mt-0.5">info</span>
+                                <div>
+                                    <p class="text-body-sm font-semibold text-on-surface">Siswa Belum Finalisasi</p>
+                                    <p class="text-caption text-on-surface-variant mt-1">
+                                        Calon siswa ini belum menyelesaikan tahap finalisasi.
+                                        Ingatkan siswa untuk melakukan finalisasi melalui dashboard-nya agar data dapat diverifikasi.
+                                    </p>
                                 </div>
                             </div>
                         </div>
-                    </form>
+
+                        <!-- Form Verifikasi (hanya untuk yang sudah final) -->
+                        <div id="view-verify-form-wrapper">
+                            <form id="view-verify-form" method="post" action="">
+                                <?= csrf_field() ?>
+                                <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-6">
+                                        <div>
+                                            <span class="text-caption text-on-surface-variant font-medium">Status Verifikasi</span>
+                                            <p class="text-body-sm text-on-surface-variant mt-0.5 mb-2">Saat ini: <span id="view-status_badge" class="inline-block px-2.5 py-0.5 rounded-full text-caption font-bold"></span></p>
+                                            <select name="status_verifikasi_id" id="view-verify-status"
+                                                    class="w-full px-3 py-2.5 rounded-xl border border-outline-variant focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-body-sm outline-none bg-white">
+                                                <option value="4">Tidak Valid – Dokumen tidak sesuai</option>
+                                                <option value="3">Valid – Berkas lengkap & sah</option>
+                                                <option value="2">Revisi – Perlu perbaikan</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <span class="text-caption text-on-surface-variant font-medium">Finalisasi</span>
+                                            <p id="view-final_badge" class="inline-block px-2.5 py-0.5 rounded-full text-caption font-bold mt-1"></p>
+                                        </div>
+                                        <div class="md:col-span-2">
+                                            <span class="text-caption text-on-surface-variant font-medium">Catatan Verifikasi</span>
+                                            <p class="text-body-sm text-on-surface-variant mt-0.5 mb-2">Pesan ini akan dikirim ke dashboard calon siswa</p>
+                                            <textarea name="catatan_verifikasi" id="view-verify-catatan" rows="3"
+                                                      class="w-full px-3 py-2.5 rounded-xl border border-outline-variant focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-body-sm outline-none resize-none bg-white"
+                                                      placeholder="Tulis catatan untuk calon siswa (wajib jika status Revisi)"></textarea>
+                                        </div>
+                                        <div>
+                                            <span class="text-caption text-on-surface-variant font-medium">Tanggal Daftar</span>
+                                            <p id="view-tgl_daftar" class="text-body-sm font-semibold text-on-surface mt-0.5">-</p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 pt-3 border-t border-outline-variant/30 flex justify-end">
+                                        <button type="submit"
+                                                class="px-5 py-2.5 bg-primary text-on-primary rounded-xl text-body-sm font-semibold hover:opacity-90 transition-opacity inline-flex items-center gap-2">
+                                            <span class="material-symbols-outlined text-[18px]">check</span> Simpan Verifikasi
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
 
                 </div>
             </div>

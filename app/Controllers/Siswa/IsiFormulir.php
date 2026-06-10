@@ -26,16 +26,17 @@ class IsiFormulir extends BaseController
         }
 
         $user = auth()->user();
-        $siswa = model(\App\Models\Siswa\SiswaModel::class)->where('nisn', $user->nisn ?? $user->username)->first();
+        $siswa = model(\App\Models\Siswa\SiswaModel::class)->where('user_id', $user->id)->first();
 
         if (!$siswa) {
-            redirect()->to(base_url('siswa/dashboard'))->with('error', 'Data pendaftar tidak ditemukan.')->throwResponse();
+            $response = redirect()->to(base_url('siswa/dashboard'))->with('error', 'Data pendaftar tidak ditemukan.');
+            throw new \CodeIgniter\HTTP\Exceptions\RedirectException($response);
         }
 
         if ($this->checkFinalized($siswa['id'])) {
-            redirect()->to(base_url('siswa/dashboard'))
-                ->with('error', 'Data pendaftar Anda telah difinalisasi secara permanen.')
-                ->throwResponse();
+            $response = redirect()->to(base_url('siswa/dashboard'))
+                ->with('error', 'Data pendaftar Anda telah difinalisasi secara permanen.');
+            throw new \CodeIgniter\HTTP\Exceptions\RedirectException($response);
         }
 
         return $siswa;
@@ -45,6 +46,13 @@ class IsiFormulir extends BaseController
     {
         $biodata = $this->getSiswaOrRedirect();
         $user = auth()->user();
+
+        if (($biodata['tanggal_lahir'] ?? '') === DEFAULT_TTL) {
+            $biodata['tanggal_lahir'] = '';
+        }
+        if (($biodata['no_kk'] ?? '') === '0000000000000000') {
+            $biodata['no_kk'] = '';
+        }
 
         return $this->renderSiswaView('siswa/form-biodata', [
             'biodata'      => $biodata,
@@ -65,7 +73,7 @@ class IsiFormulir extends BaseController
         }
 
         $this->formulirService->updateBiodata($biodata['id'], $this->request->getPost([
-            'nik', 'no_kk', 'nama_lengkap', 'tempat_lahir', 'tanggal_lahir',
+            'nisn', 'nik', 'no_kk', 'nama_lengkap', 'tempat_lahir', 'tanggal_lahir',
             'jenis_kelamin', 'no_hp', 'anak_ke', 'jumlah_saudara',
             'alamat_desa', 'alamat_kabupaten', 'alamat_kecamatan',
         ]));
@@ -81,6 +89,10 @@ class IsiFormulir extends BaseController
 
         if ($sekolah && $sekolah['nama_sekolah'] === DEFAULT_SEKOLAH) {
             $sekolah['nama_sekolah'] = '';
+        }
+        
+        $sekolah['alamat_sekolah'] = $biodata['alamat_sekolah'] ?? '';
+        if ($sekolah['alamat_sekolah'] === DEFAULT_SEKOLAH) {
             $sekolah['alamat_sekolah'] = '';
         }
 

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User\UserModel;
 use CodeIgniter\Shield\Entities\User;
+use CodeIgniter\Shield\Models\UserIdentityModel;
 
 class UserService
 {
@@ -100,11 +101,12 @@ class UserService
 
     public function isEmailTaken(string $email, ?int $excludeId = null): bool
     {
-        $query = $this->userModel->where('email', $email);
+        $identityModel = model(UserIdentityModel::class);
+        $builder = $identityModel->where('secret', $email)->where('type', 'email_password');
         if ($excludeId) {
-            $query->where('id !=', $excludeId);
+            $builder->where('user_id !=', $excludeId);
         }
-        return (bool) $query->first();
+        return (bool) $builder->first();
     }
 
     public function updatePassword(int $userId, string $password): void

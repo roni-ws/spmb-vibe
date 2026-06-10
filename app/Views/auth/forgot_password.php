@@ -22,10 +22,15 @@
             <!-- Header Section -->
             <div class="flex flex-col items-center text-center mb-[32px]">
                 <div
-                    class="w-20 h-20 rounded-full bg-primary-container text-on-primary-container dark:bg-white dark:text-primary flex items-center justify-center mb-sm shadow-sm">
-                    <span class="material-symbols-outlined"
-                        style="font-size: 40px; font-variation-settings: 'FILL' 0;">lock_reset</span>
+                    class="w-20 h-20 rounded-full bg-primary-container text-on-primary-container dark:bg-white dark:text-primary flex items-center justify-center mb-sm shadow-sm overflow-hidden <?= (!empty($logoImg) && file_exists(FCPATH . $logoImg)) ? 'p-1' : '' ?>">
+                    <?php if (!empty($logoImg) && file_exists(FCPATH . $logoImg)): ?>
+                        <img src="<?= base_url($logoImg) ?>" class="w-full h-full object-contain" alt="Logo">
+                    <?php else: ?>
+                        <span class="material-symbols-outlined"
+                            style="font-size: 40px; font-variation-settings: 'FILL' 0;">lock_reset</span>
+                    <?php endif; ?>
                 </div>
+                <p class="font-body-sm text-body-sm text-primary dark:text-tertiary-fixed-dim font-medium mb-xs"><?= esc($logoText) ?></p>
                 <h1 class="font-headline-md text-headline-md text-on-surface dark:text-white mb-xs">Lupa Kata Sandi?</h1>
                 <p class="font-body-md text-body-md text-on-surface-variant dark:text-slate-300">Masukkan alamat email terdaftar Anda, dan kami akan mengirimkan tautan untuk mengatur ulang kata sandi Anda.</p>
             </div>

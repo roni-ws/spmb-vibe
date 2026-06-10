@@ -17,7 +17,7 @@ class ProfileSettings extends BaseController
 
         $shieldUser = auth()->user();
         $siswa = model(SiswaModel::class)
-            ->where('nisn', $shieldUser->nisn ?? $shieldUser->username)
+            ->where('user_id', $shieldUser->id)
             ->first();
 
         return $this->renderSiswaView('siswa/form-profile-settings', [

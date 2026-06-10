@@ -34,6 +34,11 @@
             <span class="material-symbols-outlined text-[18px]">image</span>
             Hero Banner
         </button>
+        <button type="button" onclick="switchSubTab('tab-galeri')" id="btn-tab-galeri"
+                class="tab-btn px-4 py-2.5 rounded-xl text-label-bold font-semibold transition-all flex items-center gap-2 border-b-2 border-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container">
+            <span class="material-symbols-outlined text-[18px]">photo_library</span>
+            Galeri Foto
+        </button>
         <button type="button" onclick="switchSubTab('tab-alur')" id="btn-tab-alur"
                 class="tab-btn px-4 py-2.5 rounded-xl text-label-bold font-semibold transition-all flex items-center gap-2 border-b-2 border-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container">
             <span class="material-symbols-outlined text-[18px]">route</span>
@@ -58,9 +63,9 @@
         <?= csrf_field() ?>
 
         <?= $this->include('components/admin/settings/tabs/umum') ?>
+        <?= $this->include('components/admin/settings/tabs/galeri') ?>
         <?= $this->include('components/admin/settings/tabs/pendaftaran') ?>
         <!-- ==========================================
-
              SUBMIT TOOLBAR (Sticky at Bottom)
              ========================================== -->
         <div class="sticky bottom-6 mt-md p-4 rounded-2xl bg-surface border border-outline-variant/80 shadow-lg flex justify-between items-center backdrop-blur-md bg-opacity-95 z-10 animate-slide-up">

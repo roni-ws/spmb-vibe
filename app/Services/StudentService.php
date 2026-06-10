@@ -62,8 +62,8 @@ class StudentService
                 calon_siswa.alamat_desa,
                 calon_siswa.alamat_kecamatan,
                 calon_siswa.alamat_kabupaten,
+                calon_siswa.alamat_sekolah,
                 master_sekolah.nama_sekolah,
-                master_sekolah.alamat_sekolah,
                 kelengkapan_administrasi.pas_foto,
                 kelengkapan_administrasi.fc_ijazah_skl,
                 kelengkapan_administrasi.fc_kk,
@@ -163,6 +163,12 @@ class StudentService
     {
         $statusRecord = $this->statusModel->find($siswaId);
 
+        if (! $statusRecord || ! $statusRecord->is_finalized) {
+            throw new \RuntimeException(
+                'Siswa belum melakukan finalisasi. Verifikasi tidak diizinkan.'
+            );
+        }
+
         $updateData = [
             'status_verifikasi_id' => $statusId,
             'catatan_verifikasi'   => $catatan,
@@ -202,22 +208,22 @@ class StudentService
             return false;
         }
 
-        $nisn = $student['nisn'];
         $siswaUserModel = model(\App\Models\User\SiswaUserModel::class);
-        $userSiswa = $siswaUserModel->where('nisn', $nisn)->first();
-        if (!$userSiswa) {
-            $userSiswa = $siswaUserModel->where('username', $nisn)->first();
-        }
-        if ($userSiswa) {
-            $uId = $userSiswa->id;
+        $uId = $student['user_id'] ?? null;
+        if ($uId) {
             $siswaUserModel->builder('auth_identities')->where('user_id', $uId)->delete();
             $siswaUserModel->builder('auth_groups_users')->where('user_id', $uId)->delete();
             $siswaUserModel->builder('auth_remember_tokens')->where('user_id', $uId)->delete();
             $siswaUserModel->builder('auth_permissions_users')->where('user_id', $uId)->delete();
-            $siswaUserModel->delete($uId);
+            $siswaUserModel->delete($uId, true);
         }
 
         return (bool) $this->siswaModel->delete($userId);
+    }
+
+    public function getStudentByUserId(int $userId): ?array
+    {
+        return $this->siswaModel->asArray()->where('user_id', $userId)->first();
     }
 
     public function getStudentByNisn(string $nisn): ?array
@@ -277,7 +283,7 @@ class StudentService
 
     public function calculateProgress(?array $biodata, ?array $sekolah, ?array $berkas): array
     {
-        $hasBiodata = ! empty($biodata) && ! empty($biodata['nik']) && ! str_contains($biodata['nik'] ?? '', REG_PREFIX);
+        $hasBiodata = ! empty($biodata) && ! empty($biodata['nik']);
         $hasSekolah = ! empty($sekolah) && ($sekolah['nama_sekolah'] ?? '') !== DEFAULT_SEKOLAH;
         $hasBerkas  = ! empty($berkas) && (!empty($berkas['fc_ijazah_skl']) && !empty($berkas['fc_kk']) && !empty($berkas['pas_foto']));
 
@@ -299,20 +305,19 @@ class StudentService
         return $isFinalized;
     }
 
-    public function updateStudent(int $userId, array $data): void
+    public function updateStudent(int $userId, array $data): bool
     {
         $sekolahId = $this->sekolahModel->getOrCreateSekolahId($data['nama_sekolah']);
-        $this->sekolahModel->update($sekolahId, [
-            'alamat_sekolah' => $data['alamat_sekolah'],
-        ]);
 
-        $this->siswaModel->update($userId, [
+        $result = $this->siswaModel->update($userId, [
             'nama_lengkap'       => $data['nama_lengkap'],
             'nik'                => $data['nik'],
             'no_kk'              => $data['no_kk'],
             'tempat_lahir'       => $data['tempat_lahir'],
             'tanggal_lahir'      => $data['tanggal_lahir'],
             'jenis_kelamin'      => $data['jenis_kelamin'],
+            'sekolah_id'         => $sekolahId,
+            'alamat_sekolah'     => $data['alamat_sekolah'] ?? null,
             'anak_ke'            => $data['anak_ke'],
             'jumlah_saudara'     => $data['jumlah_saudara'],
             'no_hp'              => $data['no_hp'],
@@ -321,6 +326,10 @@ class StudentService
             'alamat_kabupaten'   => $data['alamat_kabupaten'],
             'sekolah_id'         => $sekolahId,
         ]);
+
+        if (! $result) {
+            return false;
+        }
 
         $orangTua = $this->orangTuaModel->find($userId);
         $orangTuaData = [
@@ -335,6 +344,8 @@ class StudentService
             $orangTuaData['siswa_id'] = $userId;
             $this->orangTuaModel->insert($orangTuaData);
         }
+
+        return true;
     }
 
     public function getExportQuery(): array
@@ -357,7 +368,6 @@ class StudentService
                 calon_siswa.alamat_kecamatan,
                 calon_siswa.alamat_kabupaten,
                 master_sekolah.nama_sekolah,
-                master_sekolah.alamat_sekolah,
                 data_orang_tua.nama_ayah,
                 data_orang_tua.pekerjaan_ayah,
                 data_orang_tua.nama_ibu,
@@ -379,7 +389,6 @@ class StudentService
                 calon_siswa.no_registrasi,
                 calon_siswa.nik, 
                 calon_siswa.nama_lengkap, 
-                calon_siswa.nik, 
                 calon_siswa.no_kk,
                 calon_siswa.tempat_lahir,
                 calon_siswa.tanggal_lahir,
@@ -395,7 +404,7 @@ class StudentService
                 data_orang_tua.nama_ibu,
                 data_orang_tua.pekerjaan_ibu,
                 master_sekolah.nama_sekolah, 
-                master_sekolah.alamat_sekolah, 
+                calon_siswa.alamat_sekolah, 
                 kelengkapan_administrasi.fc_ijazah_skl,
                 kelengkapan_administrasi.fc_kk,
                 kelengkapan_administrasi.pas_foto,
@@ -408,6 +417,17 @@ class StudentService
             ->getRowArray();
     }
 
+    public function getStudentProfileByUserId(int $userId): ?array
+    {
+        return $this->db->table('calon_siswa')
+            ->select('calon_siswa.*, status_verifikasi.nama_status as status_verifikasi, status_pendaftaran.is_finalized')
+            ->join('status_pendaftaran', 'status_pendaftaran.siswa_id = calon_siswa.id', 'left')
+            ->join('status_verifikasi', 'status_verifikasi.id = status_pendaftaran.status_verifikasi_id', 'left')
+            ->where('calon_siswa.user_id', $userId)
+            ->get()
+            ->getRowArray();
+    }
+
     public function getStudentProfileByNisn(string $nisn): ?array
     {
         return $this->db->table('calon_siswa')
@@ -415,6 +435,44 @@ class StudentService
             ->join('status_pendaftaran', 'status_pendaftaran.siswa_id = calon_siswa.id', 'left')
             ->join('status_verifikasi', 'status_verifikasi.id = status_pendaftaran.status_verifikasi_id', 'left')
             ->where('calon_siswa.nisn', $nisn)
+            ->get()
+            ->getRowArray();
+    }
+
+    public function getStudentForCetakByUserId(int $userId): ?array
+    {
+        return $this->baseStudentQuery()
+            ->select('
+                calon_siswa.id, 
+                calon_siswa.nisn, 
+                calon_siswa.nisn as username, 
+                calon_siswa.nisn as email, 
+                calon_siswa.created_at as created_at,
+                calon_siswa.no_registrasi,
+                calon_siswa.nik, 
+                calon_siswa.nama_lengkap, 
+                calon_siswa.no_kk,
+                calon_siswa.tempat_lahir,
+                calon_siswa.tanggal_lahir,
+                calon_siswa.jenis_kelamin,
+                calon_siswa.no_hp,
+                calon_siswa.anak_ke,
+                calon_siswa.jumlah_saudara,
+                CONCAT(calon_siswa.alamat_desa, \', \', calon_siswa.alamat_kecamatan, \', \', calon_siswa.alamat_kabupaten) as alamat,
+                data_orang_tua.nama_ayah,
+                data_orang_tua.pekerjaan_ayah,
+                data_orang_tua.nama_ibu,
+                data_orang_tua.pekerjaan_ibu,
+                master_sekolah.nama_sekolah, 
+                calon_siswa.alamat_sekolah, 
+                kelengkapan_administrasi.fc_ijazah_skl,
+                kelengkapan_administrasi.fc_kk,
+                kelengkapan_administrasi.pas_foto,
+                status_verifikasi.nama_status as status_verifikasi, 
+                status_pendaftaran.is_finalized,
+                \'Belum Pengumuman\' as status_kelulusan
+            ')
+            ->where('calon_siswa.user_id', $userId)
             ->get()
             ->getRowArray();
     }
@@ -431,7 +489,6 @@ class StudentService
                 calon_siswa.no_registrasi,
                 calon_siswa.nik, 
                 calon_siswa.nama_lengkap, 
-                calon_siswa.nik, 
                 calon_siswa.no_kk,
                 calon_siswa.tempat_lahir,
                 calon_siswa.tanggal_lahir,
@@ -445,7 +502,7 @@ class StudentService
                 data_orang_tua.nama_ibu,
                 data_orang_tua.pekerjaan_ibu,
                 master_sekolah.nama_sekolah, 
-                master_sekolah.alamat_sekolah, 
+                calon_siswa.alamat_sekolah, 
                 kelengkapan_administrasi.fc_ijazah_skl,
                 kelengkapan_administrasi.fc_kk,
                 kelengkapan_administrasi.pas_foto,

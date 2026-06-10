@@ -75,6 +75,13 @@ class Settings extends BaseController
             $this->settingsService->uploadImage($heroFile, 'hero_img', 'hero_');
         }
 
+        for ($i = 1; $i <= 4; $i++) {
+            $galleryFile = $this->request->getFile("gallery_file_{$i}");
+            if ($galleryFile && $galleryFile->isValid()) {
+                $this->settingsService->uploadImage($galleryFile, "gallery_img_{$i}", "gallery_{$i}_");
+            }
+        }
+
         return redirect()->to(base_url('admin/settings'))
             ->with('success', 'Seluruh konfigurasi frontend berhasil diperbarui secara real-time!');
     }
@@ -117,6 +124,10 @@ class Settings extends BaseController
             'footer_email'      => $this->settingsService->get('footer_email', 'spmb@unggulbangsa.sch.id'),
             'footer_address'    => $this->settingsService->get('footer_address', 'Jl. Pendidikan No. 1, Jakarta'),
             'footer_desc'       => $this->settingsService->get(SETTING_FOOTER_DESC, 'Membentuk generasi pemimpin masa depan yang beriman, cerdas, kreatif, mandiri, dan berwawasan global.'),
+            'gallery_img_1'     => $this->settingsService->get('gallery_img_1', ''),
+            'gallery_img_2'     => $this->settingsService->get('gallery_img_2', ''),
+            'gallery_img_3'     => $this->settingsService->get('gallery_img_3', ''),
+            'gallery_img_4'     => $this->settingsService->get('gallery_img_4', ''),
         ];
     }
 
@@ -166,6 +177,13 @@ class Settings extends BaseController
         $heroFile = $this->request->getFile('hero_file');
         if ($heroFile && $heroFile->isValid()) {
             $rules['hero_file'] = 'is_image[hero_file]|mime_in[hero_file,image/png,image/jpg,image/jpeg]|max_size[hero_file,4096]';
+        }
+
+        for ($i = 1; $i <= 4; $i++) {
+            $galleryFile = $this->request->getFile("gallery_file_{$i}");
+            if ($galleryFile && $galleryFile->isValid()) {
+                $rules["gallery_file_{$i}"] = 'is_image[gallery_file_' . $i . ']|mime_in[gallery_file_' . $i . ',image/png,image/jpg,image/jpeg]|max_size[gallery_file_' . $i . ',2048]';
+            }
         }
 
         return $rules;

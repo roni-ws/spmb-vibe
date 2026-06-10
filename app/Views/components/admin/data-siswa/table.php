@@ -73,7 +73,7 @@
                         </td>
                         <!-- NIK -->
                         <td class="p-4 text-body-sm text-on-surface font-semibold">
-                            <?= (!empty($student['nik']) && !str_contains($student['nik'], REG_PREFIX)) ? esc($student['nik']) : '<span class="text-outline italic">' . DEFAULT_BELUM_MENGISI . '</span>' ?>
+                            <?= !empty($student['nik']) ? esc($student['nik']) : '<span class="text-outline italic">' . DEFAULT_BELUM_MENGISI . '</span>' ?>
                         </td>
                         <!-- Sekolah -->
                         <td class="p-4 text-body-sm text-on-surface-variant max-w-[160px]">

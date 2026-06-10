@@ -51,6 +51,10 @@ class Home extends BaseController
             'step_data'         => $stepData,
             'req_data'          => $reqData,
         ];
+
+        for ($i = 1; $i <= 4; $i++) {
+            $data["gallery_img_{$i}"] = SettingsModel::getSetting("gallery_img_{$i}", '');
+        }
         return $this->response->setBody(view('public/home', $data));
     }
 }

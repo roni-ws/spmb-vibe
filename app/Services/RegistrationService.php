@@ -29,39 +29,48 @@ class RegistrationService
 
     public function register(string $username, string $email, string $password, string $fullName): User
     {
-        $siswaUsers = model(SiswaUserModel::class);
+        $db = \Config\Database::connect();
+        $db->transBegin();
 
-        $user = new User([
-            'username' => $username,
-            'nisn'     => $username,
-            'email'    => $email,
-            'password' => $password,
-            'active'   => 1,
-        ]);
+        try {
+            $siswaUsers = model(SiswaUserModel::class);
 
-        if (! $siswaUsers->save($user)) {
-            throw new \RuntimeException('Gagal membuat akun. Silakan coba beberapa saat lagi.');
+            $user = new User([
+                'username' => $username,
+                'nisn'     => $username,
+                'email'    => $email,
+                'password' => $password,
+                'active'   => 1,
+            ]);
+
+            if (! $siswaUsers->save($user)) {
+                throw new \RuntimeException('Gagal membuat akun. Silakan coba beberapa saat lagi.');
+            }
+
+            $userId = $siswaUsers->getInsertID();
+            $user   = $siswaUsers->findById($userId);
+            $user->addGroup(GROUP_USER);
+
+            $siswaId = $this->initializeStudentData($userId, $username, $fullName, $email);
+
+            $siswaNotif = new SiswaNotificationService();
+            $siswaNotif->send($siswaId, NOTIF_SISWA_WELCOME,
+                'Selamat Bergabung!',
+                'Akun pendaftaran Anda di SPMB telah berhasil dibuat. Silakan lengkapi data diri dan dokumen Anda, lalu lakukan finalisasi pendaftaran.'
+            );
+
+            $adminNotif = new AdminNotificationService();
+            $adminNotif->broadcast(NOTIF_ADMIN_SISWA_BARU,
+                'Calon Siswa Baru',
+                "{$fullName} ({$username}) baru saja mendaftar. Silakan verifikasi data pendaftar tersebut."
+            );
+
+            $db->transCommit();
+            return $user;
+        } catch (\Throwable $e) {
+            $db->transRollback();
+            throw $e;
         }
-
-        $userId = $siswaUsers->getInsertID();
-        $user   = $siswaUsers->findById($userId);
-        $user->addGroup(GROUP_USER);
-
-        $siswaId = $this->initializeStudentData($userId, $username, $fullName, $email);
-
-        $siswaNotif = new SiswaNotificationService();
-        $siswaNotif->send($siswaId, NOTIF_SISWA_WELCOME,
-            'Selamat Bergabung!',
-            'Akun pendaftaran Anda di SPMB telah berhasil dibuat. Silakan lengkapi data diri dan dokumen Anda, lalu lakukan finalisasi pendaftaran.'
-        );
-
-        $adminNotif = new AdminNotificationService();
-        $adminNotif->broadcast(NOTIF_ADMIN_SISWA_BARU,
-            'Calon Siswa Baru',
-            "{$fullName} ({$username}) baru saja mendaftar. Silakan verifikasi data pendaftar tersebut."
-        );
-
-        return $user;
     }
 
     public function initializeStudentData(int $userId, string $username, string $fullName, string $email): int
@@ -71,27 +80,28 @@ class RegistrationService
             $sekolahId = $sekolah['id'];
         } else {
             $this->sekolahModel->insert([
-                'nama_sekolah'   => DEFAULT_SEKOLAH,
-                'alamat_sekolah' => DEFAULT_SEKOLAH
+                'nama_sekolah'   => DEFAULT_SEKOLAH
             ]);
             $sekolahId = $this->sekolahModel->getInsertID();
         }
 
-        $this->siswaModel->insert([
-            'nisn'             => $username,
-            'nik'              => REG_PREFIX . str_pad((string)$userId, 12, '0', STR_PAD_LEFT),
+        if (! $this->siswaModel->insert([
+            'user_id'          => $userId,
             'nama_lengkap'     => $fullName,
-            'no_kk'            => KK_SENTINEL,
+            'no_kk'            => '',
             'tempat_lahir'     => '',
             'tanggal_lahir'    => DEFAULT_TTL,
             'jenis_kelamin'    => DEFAULT_GENDER,
             'sekolah_id'       => $sekolahId,
+            'alamat_sekolah'   => null,
             'anak_ke'          => 1,
             'jumlah_saudara'   => 0,
             'alamat_desa'      => '',
             'alamat_kecamatan' => '',
             'alamat_kabupaten' => '',
-        ]);
+        ])) {
+            throw new \RuntimeException('Gagal menyimpan data calon siswa: ' . json_encode($this->siswaModel->errors()));
+        }
         $siswaId = $this->siswaModel->getInsertID();
 
         $this->siswaModel->update($siswaId, ['no_registrasi' => $this->generateRegistrationNumber($siswaId)]);
@@ -132,9 +142,6 @@ class RegistrationService
     public function createManualStudent(array $data, array $files): int
     {
         $sekolahId = $this->sekolahModel->getOrCreateSekolahId($data['nama_sekolah']);
-        $this->sekolahModel->update($sekolahId, [
-            'alamat_sekolah' => $data['alamat_sekolah'],
-        ]);
 
         $this->siswaModel->insert([
             'nisn'               => $data['nisn'],

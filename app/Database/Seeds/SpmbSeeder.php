@@ -79,7 +79,6 @@ class SpmbSeeder extends Seeder
             $namaSekolah = "SMP Negeri " . ($s + 1) . " " . $faker->city;
             $db->table('master_sekolah')->insert([
                 'nama_sekolah'   => $namaSekolah,
-                'alamat_sekolah' => $faker->streetAddress . ", " . $faker->city,
             ]);
             $sekolahIds[] = $db->insertID();
         }
@@ -87,7 +86,6 @@ class SpmbSeeder extends Seeder
         // Placeholder for initial registration
         $db->table('master_sekolah')->insert([
             'nama_sekolah'   => 'Belum Diisi',
-            'alamat_sekolah' => 'Belum Diisi',
         ]);
         $placeholderSekolahId = $db->insertID();
 
@@ -119,6 +117,7 @@ class SpmbSeeder extends Seeder
             // a. Save user account to users_siswa table
             $db->table('users_siswa')->insert([
                 'username'   => $nisn,
+                'nisn'       => $nisn,
                 'email'      => $email,
                 'role'       => 'student',
                 'active'     => 1,
@@ -147,6 +146,7 @@ class SpmbSeeder extends Seeder
             // b. Insert candidate profile details
             $now = date('Y-m-d H:i:s');
             $db->table('calon_siswa')->insert([
+                'user_id'          => $userId,
                 'nisn'             => $nisn,
                 'nik'              => $nik,
                 'nama_lengkap'     => $nama,
@@ -161,6 +161,7 @@ class SpmbSeeder extends Seeder
                 'alamat_desa'      => $faker->streetAddress,
                 'alamat_kecamatan' => $faker->randomElement($kecamatanList),
                 'alamat_kabupaten' => $faker->city,
+                'alamat_sekolah'   => $faker->streetAddress . ", " . $faker->city,
                 'created_at'       => $now,
                 'updated_at'       => $now,
             ]);

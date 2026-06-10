@@ -21,9 +21,15 @@
             <!-- Branding / Welcome Side (Visible on Large Desktop) -->
             <div class="hidden lg:flex flex-col justify-center text-left w-full">
                 <div class="flex items-center gap-sm mb-md">
-                    <span class="material-symbols-outlined text-display-lg text-primary dark:text-white"
-                        style="font-size: 48px; font-variation-settings: 'FILL' 1;">school</span>
-                    <span class="font-headline-md text-2xl lg:text-3xl xl:text-headline-md text-primary dark:text-white font-bold tracking-tight">SPMB Unggul Bangsa</span>
+                    <?php if (!empty($logoImg) && file_exists(FCPATH . $logoImg)): ?>
+                        <div class="w-12 h-12 rounded-xl overflow-hidden bg-slate-50 flex items-center justify-center shrink-0 shadow-sm border border-outline-variant/40">
+                            <img src="<?= base_url($logoImg) ?>" class="w-full h-full object-contain p-1" alt="Logo">
+                        </div>
+                    <?php else: ?>
+                        <span class="material-symbols-outlined text-display-lg text-primary dark:text-white"
+                            style="font-size: 48px; font-variation-settings: 'FILL' 1;">school</span>
+                    <?php endif; ?>
+                    <span class="font-headline-md text-2xl lg:text-3xl xl:text-headline-md text-primary dark:text-white font-bold tracking-tight"><?= esc($logoText) ?></span>
                 </div>
                 <h1 class="font-display-lg text-3xl lg:text-4xl xl:text-display-lg text-on-surface dark:text-white mb-sm leading-tight">Mulai Perjalanan Akademik Anda</h1>
                 <p class="font-body-lg text-body-lg text-on-surface-variant dark:text-slate-300">
@@ -37,9 +43,15 @@
                 
                 <!-- Mobile Logo (Visible when Branding side is hidden) -->
                 <div class="lg:hidden flex items-center justify-center gap-sm mb-lg">
-                    <span class="material-symbols-outlined text-headline-md text-primary dark:text-white animate-bounce"
-                        style="font-variation-settings: 'FILL' 1;">school</span>
-                    <span class="font-headline-md text-headline-md text-primary dark:text-white font-bold">SPMB Unggul Bangsa</span>
+                    <?php if (!empty($logoImg) && file_exists(FCPATH . $logoImg)): ?>
+                        <div class="w-8 h-8 rounded-lg overflow-hidden bg-slate-50 flex items-center justify-center shrink-0">
+                            <img src="<?= base_url($logoImg) ?>" class="w-full h-full object-contain p-0.5" alt="Logo">
+                        </div>
+                    <?php else: ?>
+                        <span class="material-symbols-outlined text-headline-md text-primary dark:text-white animate-bounce"
+                            style="font-variation-settings: 'FILL' 1;">school</span>
+                    <?php endif; ?>
+                    <span class="font-headline-md text-headline-md text-primary dark:text-white font-bold"><?= esc($logoText) ?></span>
                 </div>
                 
                 <div class="mb-lg text-center md:text-left">

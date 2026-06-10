@@ -27,7 +27,7 @@ Biodata Diri (Langkah 1 dari 4)
                     <label class="font-label-bold text-body-sm text-on-surface" for="nik">Nomor Induk Kependudukan (NIK) <span class="text-error">*</span></label>
                     <input class="w-full px-sm py-3 border <?= isset($errors['nik']) ? 'border-error' : 'border-outline' ?> rounded-lg bg-surface font-body-md text-body-md text-on-surface placeholder:text-outline-variant focus:border-primary focus:ring-2 focus:ring-tertiary-fixed-dim/30 transition-all" 
                            id="nik" name="nik" pattern="\d{16}" placeholder="NIK 16 digit sesuai KK" required 
-                           value="<?= esc(old('nik', !str_contains($biodata['nik'] ?? '', REG_PREFIX) ? ($biodata['nik'] ?? '') : '')) ?>" title="Must be exactly 16 digits" type="text"/>
+                           value="<?= esc(old('nik', $biodata['nik'] ?? '')) ?>" title="Must be exactly 16 digits" type="text"/>
                     <?php if (isset($errors['nik'])): ?>
                         <span class="text-xs text-error mt-xs font-semibold"><?= esc($errors['nik']) ?></span>
                     <?php endif; ?>
@@ -42,6 +42,17 @@ Biodata Diri (Langkah 1 dari 4)
                         <span class="text-xs text-error mt-xs font-semibold"><?= esc($errors['nama_lengkap']) ?></span>
                     <?php endif; ?>
                 </div>
+            </div>
+
+            <!-- NISN -->
+            <div class="flex flex-col gap-xs">
+                <label class="font-label-bold text-body-sm text-on-surface" for="nisn">Nomor Induk Siswa Nasional (NISN) <span class="text-error">*</span></label>
+                <input class="w-full px-sm py-3 border <?= isset($errors['nisn']) ? 'border-error' : 'border-outline' ?> rounded-lg bg-surface font-body-md text-body-md text-on-surface placeholder:text-outline-variant focus:border-primary focus:ring-2 focus:ring-tertiary-fixed-dim/30 transition-all" 
+                       id="nisn" name="nisn" pattern="\d{10}" placeholder="NISN 10 digit" required 
+                       value="<?= esc(old('nisn', $biodata['nisn'] ?? '')) ?>" title="Must be exactly 10 digits" type="text"/>
+                <?php if (isset($errors['nisn'])): ?>
+                    <span class="text-xs text-error mt-xs font-semibold"><?= esc($errors['nisn']) ?></span>
+                <?php endif; ?>
             </div>
 
             <!-- Nomor Kartu Keluarga (KK) -->
@@ -99,7 +110,7 @@ Biodata Diri (Langkah 1 dari 4)
                 <label class="font-label-bold text-body-sm text-on-surface">Jenis Kelamin <span class="text-error">*</span></label>
                 <div class="flex flex-col sm:flex-row gap-sm">
                     <?php 
-                        $jk = old('jenis_kelamin', $biodata['jenis_kelamin'] ?? 'L');
+                        $jk = old('jenis_kelamin', $biodata['jenis_kelamin'] ?? '');
                     ?>
                     <label class="relative flex-1 cursor-pointer group">
                         <input class="peer sr-only" name="jenis_kelamin" required type="radio" value="L" <?= $jk === 'L' ? 'checked' : '' ?>/>

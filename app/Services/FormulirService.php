@@ -29,6 +29,18 @@ class FormulirService
     public function updateBiodata(int $siswaId, array $data): void
     {
         $this->siswaModel->update($siswaId, $data);
+
+        if (!empty($data['nisn'])) {
+            $siswa = $this->siswaModel->find($siswaId);
+            if ($siswa && $siswa['user_id']) {
+                $userModel = model(\App\Models\User\SiswaUserModel::class);
+                $user = $userModel->find($siswa['user_id']);
+                if ($user) {
+                    $user->nisn = $data['nisn'];
+                    $userModel->save($user);
+                }
+            }
+        }
     }
 
     public function updateSekolah(int $siswaId, string $namaSekolah, string $alamatSekolah): void
@@ -42,25 +54,17 @@ class FormulirService
 
         if ($existing) {
             $sekolahId = $existing['id'];
-            $this->sekolahModel->update($sekolahId, ['alamat_sekolah' => $alamatSekolah]);
         } else {
-            $currentSekolah = $this->sekolahModel->find($this->siswaModel->find($siswaId)['sekolah_id']);
-            if ($currentSekolah && $currentSekolah['nama_sekolah'] !== DEFAULT_SEKOLAH) {
-                $this->sekolahModel->update($currentSekolah['id'], [
-                    'nama_sekolah'   => $namaSekolah,
-                    'alamat_sekolah' => $alamatSekolah,
-                ]);
-                $sekolahId = $currentSekolah['id'];
-            } else {
-                $this->sekolahModel->insert([
-                    'nama_sekolah'   => $namaSekolah,
-                    'alamat_sekolah' => $alamatSekolah,
-                ]);
-                $sekolahId = $this->sekolahModel->getInsertID();
-            }
+            $this->sekolahModel->insert([
+                'nama_sekolah'   => $namaSekolah,
+            ]);
+            $sekolahId = $this->sekolahModel->getInsertID();
         }
 
-        $this->siswaModel->update($siswaId, ['sekolah_id' => $sekolahId]);
+        $this->siswaModel->update($siswaId, [
+            'sekolah_id'     => $sekolahId,
+            'alamat_sekolah' => $alamatSekolah,
+        ]);
 
         if ($this->db->transStatus() === false) {
             $this->db->transRollback();

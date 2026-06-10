@@ -105,6 +105,9 @@ $routes->group('api', static function ($routes) {
     $routes->post('admin/login', 'Api\Admin\AuthController::loginAction');
     $routes->post('siswa/login', 'Api\Siswa\AuthController::loginAction');
 
+    // Endpoint API Internal Terbuka (Public)
+    $routes->get('sekolah/search', 'Api\Sekolah::search');
+
     // Endpoint testing terproteksi filter JWT bawaan Shield
     $routes->get('admin/profile', 'Api\Admin\AuthController::profile', ['filter' => 'jwt']);
     $routes->get('siswa/profile', 'Api\Siswa\AuthController::profile', ['filter' => 'jwt']);

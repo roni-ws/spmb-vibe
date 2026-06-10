@@ -20,9 +20,8 @@ class Notifications extends BaseController
         $this->requireSiswa();
 
         $user = auth()->user();
-        $nisn = $user->nisn ?? $user->username;
         $siswa = model(\App\Models\Siswa\SiswaModel::class)
-            ->where('nisn', $nisn)
+            ->where('user_id', $user->id)
             ->first();
 
         if (!$siswa) {
@@ -44,9 +43,8 @@ class Notifications extends BaseController
         $this->requireSiswa();
 
         $user = auth()->user();
-        $nisn = $user->nisn ?? $user->username;
         $siswa = model(\App\Models\Siswa\SiswaModel::class)
-            ->where('nisn', $nisn)
+            ->where('user_id', $user->id)
             ->first();
 
         if ($siswa) {

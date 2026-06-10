@@ -18,7 +18,8 @@ abstract class BaseController extends Controller
                 $this->response->setJSON(['status' => 'error', 'message' => $msg])->send();
                 exit;
             }
-            redirect()->to(base_url($redirect))->with('error', $msg)->throwResponse();
+            $response = redirect()->to(base_url($redirect))->with('error', $msg);
+            throw new \CodeIgniter\HTTP\Exceptions\RedirectException($response);
         }
     }
 
@@ -30,9 +31,9 @@ abstract class BaseController extends Controller
     protected function requireLoggedIn(string $redirect = 'login'): void
     {
         if (!auth()->loggedIn()) {
-            redirect()->to(base_url($redirect))
-                ->with('error', 'Silakan login terlebih dahulu.')
-                ->throwResponse();
+            $response = redirect()->to(base_url($redirect))
+                ->with('error', 'Silakan login terlebih dahulu.');
+            throw new \CodeIgniter\HTTP\Exceptions\RedirectException($response);
         }
     }
 
@@ -40,7 +41,7 @@ abstract class BaseController extends Controller
     {
         $user = auth()->user();
         if ($user && $user->inGroup(ROLE_ADMIN)) {
-            redirect()->to(base_url('admin/dashboard'))->throwResponse();
+            throw new \CodeIgniter\HTTP\Exceptions\RedirectException(base_url('admin/dashboard'));
         }
     }
 
@@ -73,10 +74,10 @@ abstract class BaseController extends Controller
 
     protected function renderSiswaView(string $view, array $data = []): ResponseInterface
     {
-        $user = auth()->user();
-        $nisn = $user ? ($user->nisn ?? $user->username) : null;
+        $user   = auth()->user();
+        $userId = $user ? (int) $user->id : null;
 
-        return $this->response->setBody(view($view, array_merge($this->getSiteSettings(), $this->getSiswaLayoutData($nisn), $data)));
+        return $this->response->setBody(view($view, array_merge($this->getSiteSettings(), $this->getSiswaLayoutData($userId), $data)));
     }
 
     protected function redirectByRole(): ResponseInterface
@@ -126,11 +127,9 @@ abstract class BaseController extends Controller
             && ($statusPendaftaran['status_verifikasi'] ?? '') === VERIF_STATUS_VALID;
     }
 
-    protected function getSiswaLayoutData(?string $nisn = null): array
+    protected function getSiswaLayoutData(?int $userId = null): array
     {
-        $nisn = $nisn ?? (auth()->loggedIn() ? (auth()->user()->nisn ?? auth()->user()->username) : null);
-
-        if (!$nisn) {
+        if (!$userId) {
             return [
                 'nama_lengkap'     => 'Siswa',
                 'user_email'       => '',
@@ -139,13 +138,13 @@ abstract class BaseController extends Controller
         }
 
         $siswa = model(\App\Models\Siswa\SiswaModel::class)
-            ->where('nisn', $nisn)
+            ->where('user_id', $userId)
             ->first();
         $status = $siswa ? $this->getRegistrationStatus((int) $siswa['id']) : null;
         $shieldUser = auth()->user();
 
         return [
-            'nama_lengkap'    => ! empty($siswa['nama_lengkap']) ? $siswa['nama_lengkap'] : $nisn,
+            'nama_lengkap'    => ! empty($siswa['nama_lengkap']) ? $siswa['nama_lengkap'] : ($shieldUser->nisn ?? $shieldUser->username ?? 'Siswa'),
             'user_email'      => $shieldUser ? $shieldUser->email : '',
             'can_cetak_bukti' => $this->canCetakBukti($status),
         ];

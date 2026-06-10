@@ -34,4 +34,39 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // Inisialisasi TomSelect untuk Autocomplete Sekolah
+    if (namaSekolah) {
+        new TomSelect("#nama_sekolah", {
+            valueField: 'value',
+            labelField: 'text',
+            searchField: 'text',
+            create: true,
+            maxItems: 1,
+            placeholder: "Ketik nama sekolah Anda...",
+            load: function(query, callback) {
+                if (query.length < 2) return callback();
+                
+                fetch('/api/sekolah/search?q=' + encodeURIComponent(query))
+                    .then(response => response.json())
+                    .then(json => {
+                        callback(json);
+                    })
+                    .catch(() => {
+                        callback();
+                    });
+            },
+            render: {
+                option_create: function(data, escape) {
+                    return '<div class="create p-2 cursor-pointer bg-primary/10 text-primary font-semibold rounded-md mx-1 my-1 hover:bg-primary hover:text-white transition-colors">Tambahkan "<strong>' + escape(data.input) + '</strong>" ke dalam sistem</div>';
+                },
+                no_results: function(data, escape) {
+                    return '<div class="no-results p-2 text-on-surface-variant italic">Sekolah tidak ditemukan. Tekan "Enter" untuk menambahkannya.</div>';
+                },
+                option: function(data, escape) {
+                    return '<div class="p-2 cursor-pointer hover:bg-surface-variant">' + escape(data.text) + '</div>';
+                }
+            }
+        });
+    }
 });

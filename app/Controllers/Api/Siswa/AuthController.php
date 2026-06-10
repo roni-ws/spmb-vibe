@@ -71,9 +71,8 @@ class AuthController extends BaseController
             return $this->failUnauthorized('Sesi tidak valid.');
         }
 
-        $nisn = $user->nisn ?? $user->username;
         $studentService = new \App\Services\StudentService();
-        $studentProfile = $studentService->getStudentProfileByNisn($nisn);
+        $studentProfile = $studentService->getStudentProfileByUserId((int) $user->id);
 
         return $this->respond([
             'status' => true,

@@ -38,10 +38,16 @@ class DataSiswa extends BaseController
         $catatan  = $this->request->getPost('catatan_verifikasi');
 
         $studentService = new StudentService();
-        $studentService->verifyStudent($userId, $statusId, $catatan);
 
-        return redirect()->back()
-            ->with('success', 'Data verifikasi berkas calon siswa berhasil diperbarui!');
+        try {
+            $studentService->verifyStudent($userId, $statusId, $catatan);
+
+            return redirect()->back()
+                ->with('success', 'Data verifikasi berkas calon siswa berhasil diperbarui!');
+        } catch (\RuntimeException $e) {
+            return redirect()->back()
+                ->with('error', $e->getMessage());
+        }
     }
 
     public function edit(int $userId): ResponseInterface
@@ -55,7 +61,13 @@ class DataSiswa extends BaseController
         }
 
         $studentService = new StudentService();
-        $studentService->updateStudent($userId, $this->request->getPost());
+        $updated = $studentService->updateStudent($userId, $this->request->getPost());
+
+        if (! $updated) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Gagal memperbarui data. Silakan coba lagi.');
+        }
 
         return redirect()->back()
             ->with('success', 'Data pendaftar berhasil diperbarui secara permanen!');
