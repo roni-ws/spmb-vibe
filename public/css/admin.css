@@ -1,7 +1,7 @@
 /* =============================================================
    public/css/admin.css
    Shared styles for the Admin Dashboard layout
-   (DataTables overrides, sidebar, scrollbar, base utilities)
+   (Grid.js overrides, sidebar, scrollbar, base utilities)
    ============================================================= */
 
 /* ── Base ────────────────────────────────────────────────── */
@@ -41,42 +41,36 @@ body {
 .badge-invalid { background: #ffdad6; color: #93000a; }
 .badge-default { background: #e7eeff; color: #43474e; }
 
-/* ── DataTables — match Tailwind design tokens ───────────── */
-.dataTables_wrapper .dataTables_filter input,
-.dataTables_wrapper .dataTables_length select {
-    border: 1px solid #c4c6cf;
-    border-radius: 0.5rem;
-    padding: 4px 10px;
-    font-size: 14px;
-    outline: none;
-    background: #fff;
+/* ── Grid.js — match Tailwind design tokens ─────────────────── */
+.gridjs-container {
+    border-radius: 0;
+    box-shadow: none;
+    color: #121c2c;
+    font-family: Inter, system-ui, sans-serif;
 }
-.dataTables_wrapper .dataTables_filter input:focus,
-.dataTables_wrapper .dataTables_length select:focus {
-    border-color: #002045;
-    box-shadow: 0 0 0 2px rgba(0, 32, 69, 0.15);
-}
-.dataTables_wrapper .dataTables_paginate .paginate_button.current,
-.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
-    background: #002045;
-    color: #fff !important;
-    border-color: #002045;
-    border-radius: 0.5rem;
-}
-.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-    background: #f0f3ff;
-    border-radius: 0.5rem;
-    border-color: transparent;
-}
-.dataTables_wrapper .dataTables_info {
-    font-size: 12px;
-    color: #43474e;
-}
-/* Hide built-in search / length — we use custom inputs */
-.dataTables_wrapper .dataTables_filter,
-.dataTables_wrapper .dataTables_length { display: none; }
 
-table.dataTable thead th {
+.gridjs-wrapper {
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+}
+
+.gridjs-table {
+    width: 100%;
+}
+
+.gridjs-tbody td,
+.gridjs-tbody td:first-child {
+    padding: 12px 14px;
+    border: none;
+    border-bottom: 1px solid #c4c6cf;
+    vertical-align: middle;
+    font-size: 14px;
+}
+
+.gridjs-thead th,
+.gridjs-thead th:first-child {
+    padding: 12px 14px;
     background-color: #f0f3ff;
     color: #43474e;
     font-weight: 600;
@@ -84,10 +78,97 @@ table.dataTable thead th {
     text-transform: uppercase;
     letter-spacing: 0.05em;
     white-space: nowrap;
+    border: none;
+    border-bottom: 1px solid #c4c6cf;
 }
-table.dataTable tbody tr   { transition: background 0.15s; }
-table.dataTable tbody tr:hover { background-color: #f0f3ff; }
-table.dataTable tbody td   { vertical-align: middle; }
+
+.gridjs-tr:hover td {
+    background-color: #f0f3ff;
+}
+
+.gridjs-tr-selected td {
+    background-color: #d6e3ff !important;
+}
+
+/* Pagination */
+.gridjs-footer-custom {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 12px 16px;
+    border-top: 1px solid #c4c6cf;
+    background-color: #ffffff;
+}
+
+.gridjs-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.gridjs-pagination .gridjs-summary {
+    font-size: 12px;
+    color: #43474e;
+    white-space: nowrap;
+}
+
+.gridjs-pagination .gridjs-pages button {
+    background: transparent;
+    border: 1px solid #c4c6cf;
+    border-radius: 0.5rem;
+    margin: 0 2px;
+    padding: 4px 10px;
+    font-size: 13px;
+    color: #121c2c;
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s;
+}
+
+.gridjs-pagination .gridjs-pages button:hover {
+    background: #f0f3ff;
+}
+
+.gridjs-pagination .gridjs-pages button.gridjs-currentPage {
+    background: #002045;
+    color: #fff;
+    border-color: #002045;
+    font-weight: 600;
+}
+
+/* Search input (custom, attached by Grid.js via selector) */
+#custom-search {
+    border: 1px solid #c4c6cf;
+    border-radius: 0.75rem;
+    padding: 10px 12px 10px 40px;
+    font-size: 14px;
+    outline: none;
+    background-color: #ffffff;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    width: 100%;
+}
+
+#custom-search:focus {
+    border-color: #002045;
+    box-shadow: 0 0 0 2px rgba(0, 32, 69, 0.15);
+}
+
+/* Loading indicator */
+.gridjs-loading-bar {
+    background-color: #002045;
+}
+
+/* Sort icons */
+.gridjs-sort-neutral,
+.gridjs-sort-asc,
+.gridjs-sort-desc {
+    opacity: 0.5;
+}
+.gridjs-sort-neutral:hover,
+.gridjs-sort-asc,
+.gridjs-sort-desc {
+    opacity: 1;
+}
 
 /* ── Dropdown Animations ─────────────────────────────────── */
 @keyframes dropdown-fade-in {

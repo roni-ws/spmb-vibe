@@ -44,6 +44,7 @@ body {
 }
 .header-text {
     flex-grow: 1;
+    text-align: center;
 }
 .header-text h1,
 .header-text h2,
@@ -264,21 +265,106 @@ body {
 }
 @media print {
     @page {
-        margin: 0;
+        margin: 3mm 5mm;
     }
     .no-print {
         display: none !important;
     }
     body {
-        padding: 5mm 8mm;
+        padding: 0;
         margin: 0;
         background-color: #fff;
+        font-size: 10px;
     }
     .container {
-        border: 2px solid #002045;
+        border: 1px solid #002045;
         box-shadow: none;
         max-width: 100%;
-        padding: 20px;
+        padding: 10px;
+    }
+    .header {
+        padding-bottom: 8px;
+        margin-bottom: 4px;
+    }
+    .header-logo {
+        width: 60px;
+        height: 60px;
+        margin-right: 15px;
+    }
+    .header-text h1,
+    .header-text h2,
+    .header-text h3,
+    .header-text h4 {
+        font-size: 13px;
+    }
+    .header-text p {
+        font-size: 9px;
+        margin: 2px 0 0;
+    }
+    .slip-title {
+        font-size: 12px;
+        margin-bottom: 5px;
+        padding-bottom: 4px;
+    }
+    .biodata-wrapper {
+        padding: 8px;
+        gap: 12px;
+        margin-bottom: 4px;
+    }
+    .pas-foto-container {
+        width: 100px;
+        padding: 6px;
+    }
+    .pas-foto-box {
+        width: 75px;
+        height: 100px;
+    }
+    .pas-foto-placeholder {
+        width: 75px;
+        height: 100px;
+        font-size: 9px;
+    }
+    .section-title {
+        font-size: 10px;
+        margin-top: 4px;
+        margin-bottom: 4px;
+        padding-bottom: 2px;
+    }
+    .info-table td {
+        padding: 2px 0;
+        font-size: 9.5px;
+    }
+    .info-table td.value.text-large {
+        font-size: 11px;
+    }
+    .grid {
+        margin: 0 -6px;
+    }
+    .col-6 {
+        padding: 0 6px;
+    }
+    .status-card-new {
+        margin-top: 4px;
+    }
+    .status-item-new {
+        padding: 6px 10px;
+    }
+    .sign-area {
+        margin-top: 10px;
+        padding: 0 8px;
+    }
+    .sign-box {
+        font-size: 10px;
+    }
+    .sign-box .space {
+        height: 30px;
+    }
+    .sign-box p {
+        margin: 1px 0;
+    }
+    .badge {
+        font-size: 8px;
+        padding: 2px 5px;
     }
 }
 .no-print-btn {

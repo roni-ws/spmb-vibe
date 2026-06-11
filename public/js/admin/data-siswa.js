@@ -1,127 +1,277 @@
-/**
- * public/js/admin/pendaftar.js
- * JavaScript for the Admin "Data Pendaftar" page.
- * Handles: DataTables init, custom filters, checkbox/bulk select,
- *          action dropdown menus, verify modal, delete modal, toast.
- *
- * Requires globals set inline from PHP:
- *   window.BASE_URL          – base_url()
- *   window.CSRF_TOKEN_NAME   – csrf_token()
- *   window.CSRF_HASH         – csrf_hash()
- */
-
 /* ── Set untuk menyimpan ID student terpilih (lintas halaman) ── */
 const selectedStudentIds = new Set();
+let gridSiswa = null;
 
-/* ── DataTables Init ─────────────────────────────────────── */
-$(document).ready(function () {
-    const table = $('#student-table').DataTable({
-        responsive: false,
-        pageLength: 15,
-        lengthMenu: [10, 15, 25, 50],
-        language: { url: window.BASE_URL + 'vendor/datatables/i18n/id.json' },
-        columnDefs: [
-            { orderable: false, targets: [0, 7] },
-            { searchable: false, targets: [0, 6, 7] }
+/* ── Grid.js Init ──────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', function () {
+    const avatarColors = [
+        'bg-primary-container text-on-primary-container',
+        'bg-secondary-container text-on-secondary-container',
+        'bg-tertiary-container text-on-tertiary-container',
+        'bg-surface-container-high text-primary',
+    ];
+
+    gridSiswa = new gridjs.Grid({
+        plugins: [
+            {
+                id: 'selection',
+                component: gridjs.plugins.selection.RowSelection,
+            },
         ],
-        order: [[4, 'desc']],
-        drawCallback: function () { restoreCheckboxStates(); }
+        columns: [
+            {
+                id: 'selection',
+                name: gridjs.html('<input type="checkbox" id="grid-select-all" class="rounded border-outline-variant text-primary focus:ring-primary cursor-pointer" />'),
+                width: '50px',
+                sort: false,
+                plugin: {
+                    component: gridjs.plugins.selection.RowSelection,
+                },
+            },
+            {
+                data: (row) => row,
+                name: 'Calon Siswa',
+                formatter: (cell) => {
+                    const nama = cell.nama_lengkap || cell.username || '-';
+                    const inisial = nama.trim().substring(0, 2).toUpperCase();
+                    const colorIdx = Math.abs(cell.id % avatarColors.length);
+                    return gridjs.html(
+                        '<div class="flex items-center gap-2.5">' +
+                            '<div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ' + avatarColors[colorIdx] + '">' + inisial + '</div>' +
+                            '<div class="min-w-0">' +
+                                '<p class="font-semibold text-body-sm text-on-surface truncate" style="max-width:140px">' + escHtml(nama) + '</p>' +
+                                '<p class="text-caption text-on-surface-variant truncate" style="max-width:140px">NISN: ' + escHtml(cell.nisn || '-') + '</p>' +
+                            '</div>' +
+                        '</div>'
+                    );
+                },
+            },
+            {
+                id: 'no_hp',
+                name: 'No. Telp',
+                formatter: (cell) => cell || '-',
+            },
+            {
+                id: 'nik',
+                name: 'NIK',
+                hidden: true,
+                formatter: (cell) => cell || '-',
+            },
+            {
+                id: 'nama_sekolah',
+                name: 'Asal Sekolah',
+                formatter: (cell) => cell || '-',
+            },
+
+            {
+                data: (row) => row,
+                name: 'Status Berkas',
+                formatter: (cell) => {
+                    let status = cell.status_verifikasi || 'Belum Verifikasi';
+                    if (Number(cell.is_finalized) && (status === 'Revisi' || status === 'Tidak Valid')) {
+                        status = 'Belum Verifikasi';
+                    }
+                    const cls = status === 'Valid' ? 'badge-valid' : status === 'Revisi' ? 'badge-invalid' : 'badge-pending';
+                    const icon = status === 'Valid' ? 'check_circle' : status === 'Revisi' ? 'edit_note' : 'pending_actions';
+                    return gridjs.html(
+                        '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold whitespace-nowrap ' + cls + '">' +
+                            '<span class="material-symbols-outlined" style="font-size:14px">' + icon + '</span> ' + status +
+                        '</span>'
+                    );
+                },
+            },
+            {
+                data: (row) => row,
+                name: 'Finalisasi',
+                formatter: (cell) => {
+                    if (Number(cell.is_finalized)) {
+                        return gridjs.html(
+                            '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-caption font-semibold bg-tertiary-container/40 text-on-tertiary-container">' +
+                                '<span class="material-symbols-outlined" style="font-size:14px">lock</span> Final' +
+                            '</span>'
+                        );
+                    }
+                    return gridjs.html(
+                        '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-caption font-semibold bg-surface-container text-on-surface-variant">' +
+                            '<span class="material-symbols-outlined" style="font-size:14px">lock_open</span> Belum' +
+                        '</span>'
+                    );
+                },
+            },
+            {
+                data: (row) => row,
+                name: gridjs.html('<div style="text-align:center">Aksi</div>'),
+                width: '120px',
+                sort: false,
+                formatter: (cell) => {
+                    const studentJson = escAttr(JSON.stringify(cell));
+                    return gridjs.html(
+                        '<div class="flex items-center justify-center gap-0">' +
+                            '<button class="view-student-btn p-1 text-info hover:bg-info-container/20 rounded-full transition-colors" title="Lihat Detail" data-student="' + studentJson + '">' +
+                                '<span class="material-symbols-outlined" style="font-size:16px">visibility</span>' +
+                            '</button>' +
+                            '<button class="delete-student-btn p-1 text-error hover:bg-error-container/20 rounded-full transition-colors" title="Hapus Calon Siswa" data-student="' + studentJson + '">' +
+                                '<span class="material-symbols-outlined" style="font-size:16px">delete</span>' +
+                            '</button>' +
+                            '<a href="' + window.BASE_URL + 'admin/arsip/' + cell.id + '" target="_blank" class="p-1 text-secondary hover:bg-secondary-container/20 rounded-full transition-colors" title="Cetak Arsip">' +
+                                '<span class="material-symbols-outlined" style="font-size:16px">print</span>' +
+                            '</a>' +
+                        '</div>'
+                    );
+                },
+            },
+        ],
+        server: {
+            url: window.BASE_URL + 'admin/grid-data',
+            then: data => data.data,
+            total: data => data.total,
+        },
+        pagination: {
+            limit: 15,
+            server: {
+                url: function (prev, page, limit) {
+                    const url = new URL(prev, window.location.origin);
+                    url.searchParams.set('limit', limit);
+                    url.searchParams.set('offset', page * limit);
+                    const searchEl = document.getElementById('custom-search');
+                    if (searchEl && searchEl.value)
+                        url.searchParams.set('search', searchEl.value);
+                    const statusEl = document.getElementById('status-filter');
+                    if (statusEl && statusEl.value)
+                        url.searchParams.set('status', statusEl.value);
+                    return url.toString();
+                },
+            },
+        },
+        search: false,
+        sort: false,
+        className: {
+            table: 'w-full text-left border-collapse',
+            th: 'p-3 font-semibold text-label-bold text-primary text-xs uppercase tracking-wider bg-surface-container-low border-b border-outline-variant',
+            td: 'p-3 text-body-sm',
+            header: 'bg-surface-container-low',
+            footer: 'gridjs-footer-custom',
+        },
     });
 
-    $('#custom-search').on('keyup', function () { table.search(this.value).draw(); });
-    $('#status-filter').on('change', function () { table.column(5).search(this.value).draw(); });
+    gridSiswa.render(document.getElementById('grid-siswa-wrapper'));
 
-    $('#reset-filter').on('click', function () {
-        $('#custom-search').val('');
-        $('#status-filter').val('');
-        table.search('').columns().search('').draw();
-    });
-
-    // Move DataTables pagination & info into our footer
-    $('#dt-paginate-wrapper').append($('.dataTables_paginate'));
-    $('#table-info-text').text('');
-    $('.dataTables_info').appendTo('#table-info-text');
-
-    // View Student click handler
-    $(document).on('click', '.view-student-btn', function () {
-        const userId = $(this).data('id');
-        openViewModal(userId, this);
-    });
-
-    // Edit Student click handler
-    $(document).on('click', '.edit-student-btn', function () {
-        const userId = $(this).data('id');
-        openEditModal(userId, this);
-    });
-
-    // Delete Student click handler
-    $(document).on('click', '.delete-student-btn', function () {
-        const userId = $(this).data('id');
-        const nama = $(this).data('nama');
-        confirmDelete(userId, nama);
-    });
-
-    // Checkbox / Bulk Select event delegation
-    $(document).on('change', '.row-checkbox', function () {
-        if (this.checked) {
-            selectedStudentIds.add(this.value);
-        } else {
-            selectedStudentIds.delete(this.value);
+    /* ── RowSelection Store Sync ─────────────────────────── */
+    const gridRowIdToStudentId = new Map();
+    gridSiswa.config.store.subscribe(function (state) {
+        if (state.data && state.data.rows) {
+            gridRowIdToStudentId.clear();
+            state.data.rows.forEach(function (row) {
+                const studentData = row.cells[1]?.data;
+                if (studentData && studentData.id)
+                    gridRowIdToStudentId.set(row.id, studentData.id);
+            });
         }
-        syncCheckboxes();
+        const selectedRowIds = state.rowSelection?.rowIds || [];
+        selectedStudentIds.clear();
+        selectedRowIds.forEach(function (gridRowId) {
+            const studentId = gridRowIdToStudentId.get(gridRowId);
+            if (studentId) selectedStudentIds.add(String(studentId));
+        });
         updateBulkToolbar();
     });
-    $(document).on('change', '#select-all', function (e) {
-        if (e.target.checked) {
-            $('.row-checkbox:visible').each(function () {
-                selectedStudentIds.add(this.value);
-                this.checked = true;
-            });
-        } else {
-            $('.row-checkbox:visible').each(function () {
-                selectedStudentIds.delete(this.value);
-                this.checked = false;
+
+    /* ── Event Delegation: Action Buttons ────────────────── */
+    document.getElementById('grid-siswa-wrapper').addEventListener('click', function (e) {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+
+        document.querySelectorAll('[id^="menu-"]').forEach(function (m) { m.classList.add('hidden'); });
+
+        if (btn.classList.contains('view-student-btn')) {
+            const d = JSON.parse(btn.dataset.student);
+            openViewModal(d.id, d);
+        } else if (btn.classList.contains('delete-student-btn')) {
+            const d = JSON.parse(btn.dataset.student);
+            confirmDelete(d.id, d.nama_lengkap || d.username || '-');
+        }
+    });
+
+    /* ── Select-All Checkbox ─────────────────────────────── */
+    document.getElementById('grid-siswa-wrapper').addEventListener('change', function (e) {
+        if (e.target.id === 'grid-select-all') {
+            const checked = e.target.checked;
+            const state = gridSiswa.config.store.getState();
+            const rows = state.data?.rows || [];
+            const RowSelectionActions = gridjs.plugins.selection.RowSelectionActions;
+            rows.forEach(function (row) {
+                if (checked) {
+                    gridSiswa.config.store.dispatch(RowSelectionActions.CheckRow(row.id));
+                } else {
+                    gridSiswa.config.store.dispatch(RowSelectionActions.UncheckRow(row.id));
+                }
             });
         }
-        updateBulkToolbar();
+    });
+
+    /* ── Select-All Checkbox Sync (after store update via API) ─ */
+    gridSiswa.config.store.subscribe(function (state) {
+        const selectAll = document.getElementById('grid-select-all');
+        if (!selectAll) return;
+        const rows = state.data?.rows || [];
+        const selectedRowIds = state.rowSelection?.rowIds || [];
+        if (rows.length > 0 && selectedRowIds.length === rows.length) {
+            selectAll.checked = true;
+            selectAll.indeterminate = false;
+        } else if (selectedRowIds.length > 0) {
+            selectAll.checked = false;
+            selectAll.indeterminate = true;
+        } else {
+            selectAll.checked = false;
+            selectAll.indeterminate = false;
+        }
+    });
+
+    /* ── Status Filter ───────────────────────────────────── */
+    document.getElementById('status-filter').addEventListener('change', function () {
+        gridSiswa.forceRender();
+    });
+
+    /* ── Custom Search ───────────────────────────────────── */
+    let searchTimeout;
+    document.getElementById('custom-search').addEventListener('input', function () {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(function () {
+            gridSiswa.forceRender();
+        }, 300);
+    });
+
+    /* ── Reset Filter ────────────────────────────────────── */
+    document.getElementById('reset-filter').addEventListener('click', function () {
+        document.getElementById('custom-search').value = '';
+        document.getElementById('status-filter').value = '';
+        gridSiswa.forceRender();
     });
 });
 
-/* ── Checkbox / Bulk Select ──────────────────────────────── */
-function syncCheckboxes() {
-    const selectAll = document.getElementById('select-all');
-    if (!selectAll) return;
-
-    const $visibleCbs = $('.row-checkbox:visible');
-    const $checkedVisibleCbs = $('.row-checkbox:visible:checked');
-
-    if ($visibleCbs.length > 0 && $visibleCbs.length === $checkedVisibleCbs.length) {
-        selectAll.checked = true;
-    } else {
-        selectAll.checked = false;
-    }
+/* ── Helper: escape HTML ──────────────────────────────────── */
+function escHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
 }
 
+function escAttr(str) {
+    return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+/* ── Bulk Select / Toolbar ────────────────────────────────── */
 function updateBulkToolbar() {
     const toolbar = document.getElementById('bulk-toolbar');
     const countEl = document.getElementById('selected-count');
     if (selectedStudentIds.size > 0) {
         toolbar.classList.remove('hidden');
         toolbar.classList.add('flex');
-        const total = $('#student-table').DataTable().page.info().recordsTotal;
-        countEl.textContent = selectedStudentIds.size + ' dari ' + total + ' data dipilih';
+        countEl.textContent = selectedStudentIds.size + ' data dipilih';
     } else {
         toolbar.classList.add('hidden');
         toolbar.classList.remove('flex');
     }
-}
-
-function restoreCheckboxStates() {
-    $('.row-checkbox:visible').each(function () {
-        this.checked = selectedStudentIds.has(this.value);
-    });
-    syncCheckboxes();
-    updateBulkToolbar();
 }
 
 function openBulkDeleteModal() {
@@ -147,13 +297,13 @@ document.getElementById('bulk-confirm-delete-btn')?.addEventListener('click', fu
     closeBulkDeleteModal();
 
     const ids = Array.from(selectedStudentIds);
-    const fd  = new FormData();
-    ids.forEach(id => fd.append('ids[]', id));
+    const fd = new FormData();
+    ids.forEach(function (id) { fd.append('ids[]', id); });
     fd.append(window.CSRF_TOKEN_NAME, window.CSRF_HASH);
 
     fetch(window.BASE_URL + 'admin/bulk-delete-students', { method: 'POST', body: fd })
-        .then(r => r.json())
-        .then(data => {
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
             if (data.status === 'success') {
                 selectedStudentIds.clear();
                 location.reload();
@@ -163,26 +313,11 @@ document.getElementById('bulk-confirm-delete-btn')?.addEventListener('click', fu
         });
 });
 
-/* ── Action Dropdown Menus ───────────────────────────────── */
-function toggleActionMenu(id) {
-    const all = document.querySelectorAll('[id^="menu-"]');
-    all.forEach(m => { if (m.id !== id) m.classList.add('hidden'); });
-    document.getElementById(id).classList.toggle('hidden');
-}
-
-window.addEventListener('click', function (e) {
-    if (!e.target.closest('.relative')) {
-        document.querySelectorAll('[id^="menu-"]').forEach(m => m.classList.add('hidden'));
-    }
-});
-
-/* ── Delete Modal ────────────────────────────────────────── */
+/* ── Delete Modal ─────────────────────────────────────────── */
 function confirmDelete(userId, nama) {
-    document.querySelectorAll('[id^="menu-"]').forEach(m => m.classList.add('hidden'));
     document.getElementById('delete-student-name').textContent = nama;
     document.getElementById('delete-form').action = window.BASE_URL + 'admin/delete-student/' + userId;
-    const modal = document.getElementById('delete-modal');
-    modal.style.display = 'flex';
+    document.getElementById('delete-modal').style.display = 'flex';
 }
 
 function closeDeleteModal() {
@@ -193,58 +328,8 @@ document.getElementById('delete-modal')?.addEventListener('click', function (e) 
     if (e.target === this) closeDeleteModal();
 });
 
-/* ── Edit Modal ──────────────────────────────────────────── */
-function populateEditField(id, value) {
-    const el = document.getElementById(id);
-    if (el) el.value = value ?? '';
-}
-
-function openEditModal(userId, btn) {
-    document.querySelectorAll('[id^="menu-"]').forEach(m => m.classList.add('hidden'));
-    const d = JSON.parse(btn.dataset.student);
-
-    populateEditField('edit-nama', d.nama_lengkap);
-    const noRegEl = document.getElementById('edit-no_registrasi');
-    if (noRegEl) noRegEl.textContent = d.no_registrasi ?? '';
-    populateEditField('edit-nik', d.nik);
-    populateEditField('edit-no_kk', d.no_kk);
-    populateEditField('edit-tempat_lahir', d.tempat_lahir);
-    populateEditField('edit-tanggal_lahir', d.tanggal_lahir);
-    populateEditField('edit-jenis_kelamin', d.jenis_kelamin);
-    populateEditField('edit-anak_ke', d.anak_ke);
-    populateEditField('edit-jumlah_saudara', d.jumlah_saudara);
-    populateEditField('edit-nohp', d.no_hp);
-    populateEditField('edit-alamat_desa', d.alamat_desa);
-    populateEditField('edit-alamat_kecamatan', d.alamat_kecamatan);
-    populateEditField('edit-alamat_kabupaten', d.alamat_kabupaten);
-    populateEditField('edit-nama_ayah', d.nama_ayah);
-    populateEditField('edit-pekerjaan_ayah', d.pekerjaan_ayah);
-    populateEditField('edit-nama_ibu', d.nama_ibu);
-    populateEditField('edit-pekerjaan_ibu', d.pekerjaan_ibu);
-    populateEditField('edit-sekolah', d.nama_sekolah);
-    populateEditField('edit-alamat_sekolah', d.alamat_sekolah);
-
-    document.getElementById('edit-form').action = window.BASE_URL + 'admin/edit-student/' + userId;
-
-    const modal = document.getElementById('edit-modal');
-    modal.style.display = 'flex';
-}
-
-function closeEditModal() {
-    const modal = document.getElementById('edit-modal');
-    modal.style.display = 'none';
-}
-
-document.getElementById('edit-modal')?.addEventListener('click', function (e) {
-    if (e.target === this) closeEditModal();
-});
-
-/* ── View Modal ──────────────────────────────────────────── */
-function openViewModal(userId, btn) {
-    document.querySelectorAll('[id^="menu-"]').forEach(m => m.classList.add('hidden'));
-    const d = JSON.parse(btn.dataset.student);
-
-    // Biodata
+/* ── View Modal ───────────────────────────────────────────── */
+function openViewModal(userId, d) {
     document.getElementById('view-nisn').textContent = d.nisn || '-';
     document.getElementById('view-nama').textContent = d.nama_lengkap || '-';
     document.getElementById('view-no_registrasi').textContent = d.no_registrasi || '-';
@@ -257,45 +342,38 @@ function openViewModal(userId, btn) {
     document.getElementById('view-jumlah_saudara').textContent = d.jumlah_saudara ?? '-';
     document.getElementById('view-nohp').textContent = d.no_hp || '-';
 
-    // Alamat
     document.getElementById('view-alamat_desa').textContent = d.alamat_desa || '-';
     document.getElementById('view-alamat_kecamatan').textContent = d.alamat_kecamatan || '-';
     document.getElementById('view-alamat_kabupaten').textContent = d.alamat_kabupaten || '-';
 
-    // Orang Tua
     document.getElementById('view-nama_ayah').textContent = d.nama_ayah || '-';
     document.getElementById('view-pekerjaan_ayah').textContent = d.pekerjaan_ayah || '-';
     document.getElementById('view-nama_ibu').textContent = d.nama_ibu || '-';
     document.getElementById('view-pekerjaan_ibu').textContent = d.pekerjaan_ibu || '-';
 
-    // Sekolah
     document.getElementById('view-sekolah').textContent = d.nama_sekolah || '-';
     document.getElementById('view-alamat_sekolah').textContent = d.alamat_sekolah || '-';
 
-    // Status badge (verifikasi)
     const badge = document.getElementById('view-status_badge');
     let statusText = d.status_verifikasi || 'Belum Verifikasi';
-    if (d.is_finalized && (statusText === 'Revisi' || statusText === 'Tidak Valid')) {
+    if (Number(d.is_finalized) && (statusText === 'Revisi' || statusText === 'Tidak Valid')) {
         statusText = 'Belum Verifikasi';
     }
     badge.textContent = statusText;
     const stClass = statusText === 'Valid' ? 'badge-valid' : statusText === 'Revisi' ? 'badge-invalid' : 'badge-pending';
     badge.className = 'px-2 py-0.5 rounded-full text-caption font-bold inline-block ' + stClass;
 
-    // Final badge
     const finalBadge = document.getElementById('view-final_badge');
-    finalBadge.textContent = d.is_finalized ? 'Final' : 'Belum Final';
-    finalBadge.className = 'px-2 py-0.5 rounded-full text-caption font-bold inline-block badge-' + (d.is_finalized ? 'valid' : 'default');
+    finalBadge.textContent = Number(d.is_finalized) ? 'Final' : 'Belum Final';
+    finalBadge.className = 'px-2 py-0.5 rounded-full text-caption font-bold inline-block badge-' + (Number(d.is_finalized) ? 'valid' : 'default');
 
-    // Verifikasi form — populate current values
     document.getElementById('view-verify-status').value = d.status_verifikasi_id || 1;
     document.getElementById('view-verify-catatan').value = d.catatan_verifikasi || '';
     document.getElementById('view-verify-form').action = window.BASE_URL + 'admin/verify/' + userId;
 
-    // Toggle verifikasi form vs banner berdasarkan status finalisasi
     const verifyWrapper = document.getElementById('view-verify-form-wrapper');
     const banner = document.getElementById('view-not-finalized-banner');
-    if (d.is_finalized) {
+    if (Number(d.is_finalized)) {
         verifyWrapper?.classList.remove('hidden');
         banner?.classList.add('hidden');
     } else {
@@ -303,11 +381,9 @@ function openViewModal(userId, btn) {
         banner?.classList.remove('hidden');
     }
 
-    // Tgl Daftar
     const tgl = d.created_at ? new Date(d.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-';
     document.getElementById('view-tgl_daftar').textContent = tgl;
 
-    // Pas Foto
     const img = document.getElementById('view-pas-foto');
     const placeholder = document.getElementById('view-pas-foto-placeholder');
     if (d.pas_foto) {
@@ -319,93 +395,79 @@ function openViewModal(userId, btn) {
         placeholder?.classList.remove('hidden');
     }
 
-    // Dokumen Unggahan
     function setBerkasLink(file, linkId, badgeId) {
         const link = document.getElementById(linkId);
-        const badge = document.getElementById(badgeId);
+        const badgeEl = document.getElementById(badgeId);
         if (file) {
             link.href = window.BASE_URL + 'uploads/berkas/' + file;
             link.classList.remove('hidden');
-            badge.textContent = 'SUDAH DIUNGGAH';
-            badge.className = 'px-2 py-0.5 rounded-full text-caption font-bold badge-valid';
+            badgeEl.textContent = 'SUDAH DIUNGGAH';
+            badgeEl.className = 'px-2 py-0.5 rounded-full text-caption font-bold badge-valid';
         } else {
             link.classList.add('hidden');
-            badge.textContent = 'BELUM DIUNGGAH';
-            badge.className = 'px-2 py-0.5 rounded-full text-caption font-bold badge-pending';
+            badgeEl.textContent = 'BELUM DIUNGGAH';
+            badgeEl.className = 'px-2 py-0.5 rounded-full text-caption font-bold badge-pending';
         }
     }
     setBerkasLink(d.fc_ijazah_skl, 'view-link-ijazah', 'view-badge-ijazah');
     setBerkasLink(d.fc_kk, 'view-link-kk', 'view-badge-kk');
 
-    const modal = document.getElementById('view-modal');
-    modal.style.display = 'flex';
+    document.getElementById('view-modal').style.display = 'flex';
 }
 
 function closeViewModal() {
-    const modal = document.getElementById('view-modal');
-    modal.style.display = 'none';
+    document.getElementById('view-modal').style.display = 'none';
 }
 
 document.getElementById('view-modal')?.addEventListener('click', function (e) {
     if (e.target === this) closeViewModal();
 });
 
-/* ── Add Modal (Multi-Step) ──────────────────────────────── */
+/* ── Add Modal (Multi-Step) ───────────────────────────────── */
 let currentAddStep = 1;
 const totalAddSteps = 4;
 
 function openAddModal() {
-    document.querySelectorAll('[id^="menu-"]').forEach(m => m.classList.add('hidden'));
+    document.querySelectorAll('[id^="menu-"]').forEach(function (m) { m.classList.add('hidden'); });
     document.getElementById('add-form').reset();
     currentAddStep = 1;
     updateAddStepper();
-    const modal = document.getElementById('add-modal');
-    modal.style.display = 'flex';
+    document.getElementById('add-modal').style.display = 'flex';
 }
 
 function closeAddModal() {
-    const modal = document.getElementById('add-modal');
-    modal.style.display = 'none';
+    document.getElementById('add-modal').style.display = 'none';
 }
 
 function updateAddStepper() {
     document.getElementById('add-step-indicator-text').innerText = currentAddStep;
-    
-    // Update contents
+
     for (let i = 1; i <= totalAddSteps; i++) {
-        const content = document.getElementById(`add-step-content-${i}`);
-        if (content) {
-            content.classList.toggle('hidden', i !== currentAddStep);
-        }
+        const content = document.getElementById('add-step-content-' + i);
+        if (content) content.classList.toggle('hidden', i !== currentAddStep);
     }
 
-    // Update circles
     for (let i = 1; i <= totalAddSteps; i++) {
-        const circle = document.getElementById(`add-step-circle-${i}`);
+        const circle = document.getElementById('add-step-circle-' + i);
         if (circle) {
             if (i < currentAddStep) {
-                // Completed
                 circle.className = 'w-8 h-8 rounded-full flex items-center justify-center text-caption font-bold bg-primary text-on-primary border-2 border-primary transition-colors';
                 circle.innerHTML = '<span class="material-symbols-outlined text-[16px]">check</span>';
             } else if (i === currentAddStep) {
-                // Current
                 circle.className = 'w-8 h-8 rounded-full flex items-center justify-center text-caption font-bold bg-primary text-on-primary border-2 border-primary transition-colors';
                 circle.innerHTML = i;
             } else {
-                // Future
                 circle.className = 'w-8 h-8 rounded-full flex items-center justify-center text-caption font-bold bg-surface-container-high text-on-surface-variant border-2 border-outline-variant transition-colors';
                 circle.innerHTML = i;
             }
         }
     }
 
-    // Update progress bar line
     const progress = document.getElementById('add-stepper-progress');
     if (progress) {
         progress.style.width = ((currentAddStep - 1) / (totalAddSteps - 1)) * 100 + '%';
     }
 
-    // Update buttons
     const btnPrev = document.getElementById('add-btn-prev');
     const btnCancel = document.getElementById('add-btn-cancel');
     const btnNext = document.getElementById('add-btn-next');
@@ -429,7 +491,7 @@ function updateAddStepper() {
 }
 
 function validateAddStep(step) {
-    const container = document.getElementById(`add-step-content-${step}`);
+    const container = document.getElementById('add-step-content-' + step);
     if (!container) return true;
     const inputs = container.querySelectorAll('input[required], select[required], textarea[required]');
     for (const input of inputs) {
