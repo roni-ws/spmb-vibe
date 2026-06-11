@@ -48,7 +48,32 @@
             </div>
             
             <!-- Login Form -->
-            <form class="flex flex-col gap-md" method="POST" action="<?= base_url('login') ?>">
+            <form class="flex flex-col gap-md" method="POST" action="<?= base_url('login') ?>" novalidate>
+                <?php
+                $flashError   = session()->getFlashdata('error');
+                $flashErrors  = session()->getFlashdata('errors');
+                $flashMessage = session()->getFlashdata('message');
+                $alertMessages = [];
+                if ($flashErrors && is_array($flashErrors)) {
+                    $alertMessages = array_values($flashErrors);
+                } elseif ($flashError) {
+                    $alertMessages = [$flashError];
+                } elseif ($flashMessage) {
+                    $alertMessages = [$flashMessage];
+                }
+                if ($alertMessages): ?>
+                <div class="flex items-start gap-3 p-4 rounded-xl bg-secondary-container/15 border border-secondary/15" role="alert">
+                    <span class="material-symbols-outlined shrink-0 text-secondary" style="font-size:20px">warning</span>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-semibold text-sm text-secondary mb-1">Terdapat kesalahan</p>
+                        <ul class="text-sm text-on-secondary-container space-y-1 list-disc list-inside">
+                            <?php foreach ($alertMessages as $msg): ?>
+                            <li><?= esc($msg) ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                </div>
+                <?php endif; ?>
                 <!-- Input Identifier (Role-based label changes dynamically) -->
                 <div class="flex flex-col gap-xs">
                     <label class="font-label-bold text-label-bold text-on-surface dark:text-slate-200 ml-1" for="identifier" id="label-identifier">Email atau Username</label>

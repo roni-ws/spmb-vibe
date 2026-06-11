@@ -118,6 +118,21 @@ class DataSiswa extends BaseController
         return redirect()->back()->with('error', 'Gagal menghapus data pendaftar. Data tidak ditemukan.');
     }
 
+    public function gridData(): ResponseInterface
+    {
+        $this->requireGroup([ROLE_ADMIN, ROLE_PANITIA]);
+
+        $limit  = (int) ($this->request->getGet('limit') ?? 15);
+        $offset = (int) ($this->request->getGet('offset') ?? 0);
+        $search = $this->request->getGet('search') ?? '';
+        $status = $this->request->getGet('status') ?? '';
+
+        $studentService = new StudentService();
+        $result = $studentService->getGridData($limit, $offset, $search, $status);
+
+        return $this->response->setJSON($result);
+    }
+
     public function bulkDelete(): ResponseInterface
     {
         $this->requireGroup([ROLE_ADMIN]);

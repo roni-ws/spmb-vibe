@@ -14,6 +14,7 @@ $flashErrors  = session()->getFlashdata('errors');
 <?php endif; ?>
 
 <script src="<?= base_url('js/core/toast.js') ?>"></script>
+<script src="<?= base_url('js/core/validation-alert.js') ?>"></script>
 <script src="<?= base_url('js/mobile/sidebar.js') ?>"></script>
 
 <?= $this->renderSection('scripts') ?>

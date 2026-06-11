@@ -206,20 +206,41 @@ include __DIR__ . '/../components/shared/kop_surat.php'; ?>
             </div>
         </div>
 
-        <!-- Signatures / Lembar Tanda Tangan -->
-        <div class="sign-area">
-            <div class="sign-box">
-                <p>Calon Peserta Didik,</p>
-                <div class="space"></div>
-                <p class="sign-line">__________________________</p>
-                <p class="sign-name"><?= esc($student['nama_lengkap'] ?: $student['username']) ?></p>
+        <!-- Bukti Penerimaan Calon Peserta Didik Baru -->
+        <div style="border-top: 2px dashed #002045; margin: 15px 0 6px 0;"></div>
+        <div class="section-title">BUKTI PENERIMAAN CALON PESERTA DIDIK BARU</div>
+        <div class="grid">
+            <div class="col-6">
+                <table class="info-table">
+                    <tr><td class="label" style="width: 34%;">No. Registrasi</td><td class="colon">:</td><td class="value">SPMB-<?= date('Y') ?>-<?= sprintf('%04d', $student['id']) ?></td></tr>
+                    <tr><td class="label">NISN</td><td class="colon">:</td><td class="value"><?= esc($student['nisn'] ?: '-') ?></td></tr>
+                    <tr><td class="label">Nama Lengkap</td><td class="colon">:</td><td class="value"><?= esc($student['nama_lengkap'] ?: '-') ?></td></tr>
+                    <tr><td class="label">Jenis Kelamin</td><td class="colon">:</td><td class="value"><?= ($student['jenis_kelamin'] === 'L') ? 'Laki-laki' : (($student['jenis_kelamin'] === 'P') ? 'Perempuan' : '-') ?></td></tr>
+                    <tr><td class="label">Tempat/Tgl Lahir</td><td class="colon">:</td><td class="value"><?= esc($student['tempat_lahir'] ?: '-') ?>, <?= !empty($student['tanggal_lahir']) ? date('d/m/Y', strtotime($student['tanggal_lahir'])) : '-' ?></td></tr>
+                    <tr><td class="label">NIK</td><td class="colon">:</td><td class="value"><?= esc($student['nik'] ?: '-') ?></td></tr>
+                    <tr><td class="label">Alamat</td><td class="colon">:</td><td class="value address-val"><?= trim(implode(', ', array_filter([$student['alamat_desa'] ?? '', $student['alamat_kecamatan'] ?? '', $student['alamat_kabupaten'] ?? '']))) ?: '-' ?></td></tr>
+                </table>
             </div>
-            <div class="sign-box">
-                <p><?= esc($kota_ttd) ?>, <?= date('d F Y') ?></p>
-                <p>Ketua Panitia SPMB <?= esc($logoText) ?>,</p>
-                <div class="space"></div>
-                <p class="sign-line">__________________________</p>
-                <p class="sign-name">(<?= esc($ketua_panitia) ?>)</p>
+            <div class="col-6">
+                <div style="font-weight: 700; font-size: 11px; color: #002045; text-transform: uppercase; border-bottom: 1px solid #e2e8f0; padding-bottom: 3px; margin-bottom: 4px;">Komponen Persyaratan</div>
+                <table class="info-table">
+                    <tr><td class="label" style="width: 44%;">Scan Ijazah / SKL</td><td class="colon">:</td><td class="value"><span class="badge badge-<?= !empty($student['fc_ijazah_skl']) ? 'valid' : 'revisi' ?>"><?= !empty($student['fc_ijazah_skl']) ? 'SUDAH' : 'BELUM' ?></span></td></tr>
+                    <tr><td class="label">Scan Kartu Keluarga</td><td class="colon">:</td><td class="value"><span class="badge badge-<?= !empty($student['fc_kk']) ? 'valid' : 'revisi' ?>"><?= !empty($student['fc_kk']) ? 'SUDAH' : 'BELUM' ?></span></td></tr>
+                    <tr><td class="label">Pas Foto 3x4</td><td class="colon">:</td><td class="value"><span class="badge badge-<?= !empty($student['pas_foto']) ? 'valid' : 'revisi' ?>"><?= !empty($student['pas_foto']) ? 'SUDAH' : 'BELUM' ?></span></td></tr>
+                </table>
+
+                <div style="margin-top: 4px; margin-bottom: 6px;">
+                    <?php $s = $student['status_verifikasi'] ?: VERIF_STATUS_BELUM; $sBadge = match($s) { 'Valid' => 'valid', 'Revisi' => 'revisi', default => 'pending' }; ?>
+                    <span class="badge badge-<?= $student['is_finalized'] ? 'valid' : 'revisi' ?>"><?= $student['is_finalized'] ? 'SUDAH FINALISASI' : 'BELUM FINALISASI' ?></span>
+                    <span class="badge badge-<?= $sBadge ?>"><?= strtoupper($s) ?></span>
+                </div>
+
+                <div class="sign-box" style="width: 100%; text-align: center; font-size: 10.5px;">
+                    <p>Diterima oleh,</p>
+                    <p>Petugas Panitia SPMB <?= esc($logoText) ?>,</p>
+                    <div class="space" style="height: 55px;"></div>
+                    <p class="sign-line">(__________________________)</p>
+                </div>
             </div>
         </div>
     </div>

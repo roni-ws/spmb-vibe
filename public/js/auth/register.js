@@ -82,6 +82,58 @@ document.addEventListener("DOMContentLoaded", function() {
         return input ? input.value : '';
     }
 
+    // ── Custom Form Validation (replaces native HTML5) ──────────
+    function validateForm() {
+        var errors = [];
+        var fullName = document.getElementById('fullName');
+        var email = document.getElementById('email');
+        var username = document.getElementById('username');
+        var password = document.getElementById('password');
+        var passwordConfirm = document.getElementById('password_confirm');
+        var terms = document.getElementById('terms');
+
+        if (fullName && !fullName.value.trim()) {
+            errors.push('Nama lengkap wajib diisi.');
+        }
+        if (email && !email.value.trim()) {
+            errors.push('Alamat email wajib diisi.');
+        } else if (email && email.value.trim() && !email.value.includes('@')) {
+            errors.push('Format alamat email tidak valid.');
+        }
+        if (username && !username.value.trim()) {
+            errors.push('Nama pengguna (username) wajib diisi.');
+        } else if (username && username.value.trim().length < 3) {
+            errors.push('Username minimal terdiri dari 3 karakter.');
+        }
+        if (password && !password.value) {
+            errors.push('Kata sandi wajib diisi.');
+        } else if (password && password.value) {
+            if (!/(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])/.test(password.value)) {
+                errors.push('Kata sandi harus mengandung kombinasi huruf, angka, dan simbol.');
+            }
+        }
+        if (passwordConfirm && !passwordConfirm.value) {
+            errors.push('Konfirmasi kata sandi wajib diisi.');
+        } else if (password && passwordConfirm && password.value !== passwordConfirm.value) {
+            errors.push('Konfirmasi kata sandi tidak cocok dengan kata sandi yang dimasukkan.');
+        }
+        if (terms && !terms.checked) {
+            errors.push('Anda harus menyetujui Ketentuan Layanan dan Kebijakan Privasi.');
+        }
+
+        return errors;
+    }
+
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            var errors = validateForm();
+            if (errors.length) {
+                e.preventDefault();
+                showFormAlert(form, errors);
+            }
+        });
+    }
+
     // ── Real-time Email Check (on blur) ────────────────────────────
     var emailInput = document.getElementById('email');
     var emailStatus = document.getElementById('email-status');

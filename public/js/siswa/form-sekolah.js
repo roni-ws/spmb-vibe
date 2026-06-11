@@ -9,28 +9,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (form) {
         form.addEventListener('submit', function(e) {
-            let isValid = true;
-            let errorMessage = '';
+            var errors = [];
 
             if (namaSekolah && namaSekolah.value.trim().length < 5) {
-                isValid = false;
-                errorMessage += 'Nama sekolah asal minimal 5 karakter.\n';
+                errors.push('Nama sekolah asal minimal 5 karakter.');
                 namaSekolah.classList.add('border-error');
             } else if (namaSekolah) {
                 namaSekolah.classList.remove('border-error');
             }
 
             if (alamatSekolah && alamatSekolah.value.trim().length < 10) {
-                isValid = false;
-                errorMessage += 'Alamat sekolah asal minimal 10 karakter.\n';
+                errors.push('Alamat sekolah asal minimal 10 karakter.');
                 alamatSekolah.classList.add('border-error');
             } else if (alamatSekolah) {
                 alamatSekolah.classList.remove('border-error');
             }
 
-            if (!isValid) {
+            if (errors.length) {
                 e.preventDefault();
-                alert(errorMessage);
+                showFormAlert(form, errors);
             }
         });
     }

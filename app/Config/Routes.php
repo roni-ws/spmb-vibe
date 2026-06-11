@@ -65,6 +65,7 @@ $routes->group('admin', ['filter' => 'group:admin,panitia'], static function ($r
     $routes->post('delete-student/(:num)', 'Admin\DataSiswa::delete/$1');
     $routes->post('bulk-delete-students', 'Admin\DataSiswa::bulkDelete');
     $routes->post('add-student', 'Admin\DataSiswa::add');
+    $routes->get('grid-data', 'Admin\DataSiswa::gridData');
 
     // Rute Khusus Manajemen User (Hanya Admin & Superadmin)
     $routes->group('users', ['filter' => 'group:admin'], static function ($routes) {

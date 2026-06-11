@@ -60,7 +60,29 @@
                 </div>
 
                 
-                <form action="<?= base_url('register') ?>" class="flex flex-col gap-md" method="POST">
+                <form action="<?= base_url('register') ?>" class="flex flex-col gap-md" method="POST" novalidate>
+                    <?php
+                    $flashError  = session()->getFlashdata('error');
+                    $flashErrors = session()->getFlashdata('errors');
+                    $alertMessages = [];
+                    if ($flashErrors && is_array($flashErrors)) {
+                        $alertMessages = array_values($flashErrors);
+                    } elseif ($flashError) {
+                        $alertMessages = [$flashError];
+                    }
+                    if ($alertMessages): ?>
+                    <div class="flex items-start gap-3 p-4 rounded-xl bg-secondary-container/15 border border-secondary/15" role="alert">
+                        <span class="material-symbols-outlined shrink-0 text-secondary" style="font-size:20px">warning</span>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-semibold text-sm text-secondary mb-1">Terdapat kesalahan</p>
+                            <ul class="text-sm text-on-secondary-container space-y-1 list-disc list-inside">
+                                <?php foreach ($alertMessages as $msg): ?>
+                                <li><?= esc($msg) ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                    </div>
+                    <?php endif; ?>
                     <?= csrf_field() ?>
 
                     <!-- Full Name -->
@@ -118,9 +140,8 @@
                             <input
                                 class="w-full pl-[40px] pr-[44px] py-[14px] bg-surface-container-lowest dark:bg-slate-900 border border-outline-variant dark:border-outline/50 rounded-lg font-body-md text-body-md text-on-surface dark:text-white placeholder:text-outline/70 focus:outline-none focus:border-primary focus:dark:border-white focus:ring-1 focus:ring-primary focus:dark:ring-white transition-all duration-200 shadow-sm"
                                 id="password" name="password" placeholder="••••••••" required="" type="password"
-                                minlength="8"
-                                pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}"
-                                title="Kata sandi harus minimal 8 karakter dan mengandung kombinasi huruf besar, huruf kecil, angka, dan simbol." />
+                                pattern="(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).*"
+                                title="Kata sandi harus mengandung kombinasi huruf, angka, dan simbol." />
                             <button
                                 class="absolute inset-y-0 right-0 pr-sm flex items-center text-outline hover:text-on-surface dark:hover:text-white transition-colors focus:outline-none"
                                 onclick="togglePasswordVisibility()" type="button">
@@ -129,7 +150,7 @@
                             </button>
                         </div>
                         <p class="text-[11px] text-on-surface-variant dark:text-slate-400 mt-1 ml-1 leading-normal">
-                            Minimal 8 karakter dengan kombinasi huruf besar (A-Z), kecil (a-z), angka (0-9), dan simbol.
+                            Kombinasi huruf, angka, dan simbol.
                         </p>
                     </div>
 
@@ -144,7 +165,6 @@
                             <input
                                 class="w-full pl-[40px] pr-[44px] py-[14px] bg-surface-container-lowest dark:bg-slate-900 border border-outline-variant dark:border-outline/50 rounded-lg font-body-md text-body-md text-on-surface dark:text-white placeholder:text-outline/70 focus:outline-none focus:border-primary focus:dark:border-white focus:ring-1 focus:ring-primary focus:dark:ring-white transition-all duration-200 shadow-sm"
                                 id="password_confirm" name="password_confirm" placeholder="••••••••" required="" type="password"
-                                minlength="8"
                                 title="Masukkan ulang kata sandi Anda." />
                             <button
                                 class="absolute inset-y-0 right-0 pr-sm flex items-center text-outline hover:text-on-surface dark:hover:text-white transition-colors focus:outline-none"

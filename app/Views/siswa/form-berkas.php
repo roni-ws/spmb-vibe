@@ -18,7 +18,7 @@ Kelengkapan Berkas (Langkah 4 dari 4)
     <div class="bg-surface border border-outline-variant rounded-2xl shadow-sm p-md md:p-lg mb-md relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-tertiary-fixed-dim"></div>
         
-        <form action="<?= base_url('siswa/berkas') ?>" method="POST" enctype="multipart/form-data" class="space-y-lg">
+        <form action="<?= base_url('siswa/berkas') ?>" method="POST" enctype="multipart/form-data" class="space-y-lg" novalidate>
             <?= csrf_field() ?>
 
             <!-- Unggah Ijazah / SKL -->

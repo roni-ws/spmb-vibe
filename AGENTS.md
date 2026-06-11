@@ -5,6 +5,7 @@ CI4.7 + Shield 1.3, PHP 8.2+, MySQL (MySQLi), Tailwind CSS v4, TCPDF, PhpSpreads
 
 ## Quick start
 - `npm run build` / `npm run watch` — compile Tailwind from `public/css/input.css` -> `public/css/landing-page.css`
+- **IMPORTANT:** Always run `npm run build` after any CSS changes (edits to `input.css` or any file that uses Tailwind classes), since landing-page.css is the compiled output.
 - `composer test` or `vendor/bin/phpunit` — run tests (empty currently)
 - `php spark` — CI4 CLI
 

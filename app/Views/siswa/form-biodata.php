@@ -18,7 +18,7 @@ Biodata Diri (Langkah 1 dari 4)
     <div class="bg-surface border border-outline-variant rounded-2xl shadow-sm p-md md:p-lg mb-md relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-tertiary-fixed-dim"></div>
         
-        <form action="<?= base_url('siswa/biodata') ?>" method="POST" class="space-y-md">
+        <form action="<?= base_url('siswa/biodata') ?>" method="POST" class="space-y-md" novalidate>
             <?= csrf_field() ?>
 
             <!-- NIK & Nama Lengkap -->

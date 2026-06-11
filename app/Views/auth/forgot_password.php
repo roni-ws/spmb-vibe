@@ -37,7 +37,7 @@
 
             
             <!-- Forgot Password Form -->
-            <form class="flex flex-col gap-md" action="#" method="POST" onsubmit="event.preventDefault(); alert('Tautan penyetelan ulang sandi telah disimulasikan dikirim ke email Anda.');">
+            <form class="flex flex-col gap-md" action="#" method="POST" novalidate onsubmit="event.preventDefault(); showFormAlert(this, ['Tautan penyetelan ulang sandi telah disimulasikan dikirim ke email Anda.']);">
                 <!-- Input Email -->
                 <div class="flex flex-col gap-xs">
                     <label class="font-label-bold text-label-bold text-on-surface dark:text-slate-200 ml-1" for="email">Alamat Email</label>

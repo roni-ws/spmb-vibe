@@ -20,9 +20,8 @@ $headTitleSuffix = 'Admin | ' . esc($logoText);
 <head>
     <?php include __DIR__ . '/../partials/head-content.php'; ?>
 
-    <!-- DataTables CSS (Local) -->
-    <link rel="stylesheet" href="<?= base_url('vendor/datatables/css/jquery.dataTables.min.css') ?>" />
-    <link rel="stylesheet" href="<?= base_url('vendor/datatables/css/responsive.dataTables.min.css') ?>" />
+    <!-- Grid.js CSS (Local) -->
+    <link rel="stylesheet" href="<?= base_url('assets/css/gridjs.mermaid.min.css') ?>" />
 
     <!-- Admin CSS -->
     <?= link_tag('css/admin.css') ?>
@@ -50,10 +49,10 @@ $headTitleSuffix = 'Admin | ' . esc($logoText);
 
     <?php include __DIR__ . '/../partials/m-bottom-nav-admin.php'; ?>
 
-    <!-- jQuery + DataTables JS (Local) -->
+    <!-- jQuery + Grid.js JS (Local) -->
     <script src="<?= base_url('vendor/jquery/jquery.min.js') ?>"></script>
-    <script src="<?= base_url('vendor/datatables/js/jquery.dataTables.min.js') ?>"></script>
-    <script src="<?= base_url('vendor/datatables/js/dataTables.responsive.min.js') ?>"></script>
+    <script src="<?= base_url('assets/js/gridjs.production.min.js') ?>"></script>
+    <script src="<?= base_url('assets/js/selection.umd.js') ?>"></script>
 
     <!-- ApexCharts (Local) -->
     <script src="<?= base_url('vendor/apexcharts/apexcharts.min.js') ?>"></script>

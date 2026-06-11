@@ -92,8 +92,6 @@
 
 <?= $this->include('components/admin/data-siswa/modals/add_modal') ?>
 
-<?= $this->include('components/admin/data-siswa/modals/edit_modal') ?>
-
 <?= $this->include('components/admin/data-siswa/modals/view_modal') ?>
 
 <?= $this->endSection() ?>

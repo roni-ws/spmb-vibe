@@ -22,36 +22,32 @@ document.addEventListener('DOMContentLoaded', function() {
     // Form submission validation
     if (form) {
         form.addEventListener('submit', function(e) {
-            let isValid = true;
-            let errorMessage = '';
+            var errors = [];
 
             if (nikInput && nikInput.value.length !== 16) {
-                isValid = false;
-                errorMessage += 'NIK harus tepat 16 digit.\n';
+                errors.push('NIK harus tepat 16 digit.');
                 nikInput.classList.add('border-error');
             } else if (nikInput) {
                 nikInput.classList.remove('border-error');
             }
 
             if (kkInput && kkInput.value.length !== 16) {
-                isValid = false;
-                errorMessage += 'Nomor Kartu Keluarga harus tepat 16 digit.\n';
+                errors.push('Nomor Kartu Keluarga harus tepat 16 digit.');
                 kkInput.classList.add('border-error');
             } else if (kkInput) {
                 kkInput.classList.remove('border-error');
             }
 
             if (hpInput && (hpInput.value.length < 10 || hpInput.value.length > 15)) {
-                isValid = false;
-                errorMessage += 'Nomor HP harus berkisar antara 10 hingga 15 digit.\n';
+                errors.push('Nomor HP harus berkisar antara 10 hingga 15 digit.');
                 hpInput.classList.add('border-error');
             } else if (hpInput) {
                 hpInput.classList.remove('border-error');
             }
 
-            if (!isValid) {
+            if (errors.length) {
                 e.preventDefault();
-                alert(errorMessage);
+                showFormAlert(form, errors);
             }
         });
     }

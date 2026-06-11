@@ -54,7 +54,7 @@
         </div>
 
         <!-- Modal Body -->
-        <form id="add-form" method="post" action="<?= base_url('admin/add-student') ?>" enctype="multipart/form-data" style="display: flex; flex-direction: column; overflow: hidden; margin: 0;">
+        <form id="add-form" method="post" action="<?= base_url('admin/add-student') ?>" enctype="multipart/form-data" novalidate style="display: flex; flex-direction: column; overflow: hidden; margin: 0;">
             <?= csrf_field() ?>
             <div class="px-6 py-5 overflow-y-auto custom-scrollbar" style="flex: 1 1 auto; max-height: 55vh;">
                 <!-- ================================

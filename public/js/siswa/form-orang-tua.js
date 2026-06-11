@@ -11,44 +11,39 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (form) {
         form.addEventListener('submit', function(e) {
-            let isValid = true;
-            let errorMessage = '';
+            var errors = [];
 
             if (namaAyah && namaAyah.value.trim().length < 3) {
-                isValid = false;
-                errorMessage += 'Nama lengkap Ayah minimal 3 karakter.\n';
+                errors.push('Nama lengkap Ayah minimal 3 karakter.');
                 namaAyah.classList.add('border-error');
             } else if (namaAyah) {
                 namaAyah.classList.remove('border-error');
             }
 
             if (pekerjaanAyah && pekerjaanAyah.value.trim().length < 2) {
-                isValid = false;
-                errorMessage += 'Pekerjaan Ayah minimal 2 karakter.\n';
+                errors.push('Pekerjaan Ayah minimal 2 karakter.');
                 pekerjaanAyah.classList.add('border-error');
             } else if (pekerjaanAyah) {
                 pekerjaanAyah.classList.remove('border-error');
             }
 
             if (namaIbu && namaIbu.value.trim().length < 3) {
-                isValid = false;
-                errorMessage += 'Nama lengkap Ibu minimal 3 karakter.\n';
+                errors.push('Nama lengkap Ibu minimal 3 karakter.');
                 namaIbu.classList.add('border-error');
             } else if (namaIbu) {
                 namaIbu.classList.remove('border-error');
             }
 
             if (pekerjaanIbu && pekerjaanIbu.value.trim().length < 2) {
-                isValid = false;
-                errorMessage += 'Pekerjaan Ibu minimal 2 karakter.\n';
+                errors.push('Pekerjaan Ibu minimal 2 karakter.');
                 pekerjaanIbu.classList.add('border-error');
             } else if (pekerjaanIbu) {
                 pekerjaanIbu.classList.remove('border-error');
             }
 
-            if (!isValid) {
+            if (errors.length) {
                 e.preventDefault();
-                alert(errorMessage);
+                showFormAlert(form, errors);
             }
         });
     }

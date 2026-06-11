@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (file) {
                     // Check file size
                     if (file.size > maxSizeBytes) {
-                        alert(`File "${fileInputConfig.label}" melebihi batas ukuran maksimal 2MB. Silakan kompres atau pilih berkas lain.`);
+                        showFormAlert(input.closest('form') || document.querySelector('form'), ['File "' + fileInputConfig.label + '" melebihi batas ukuran maksimal 2MB. Silakan kompres atau pilih berkas lain.']);
                         this.value = ''; // Reset input
                         return;
                     }
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Check file extension
                     const extension = file.name.split('.').pop().toLowerCase();
                     if (!allowedExtensions.includes(extension)) {
-                        alert(`Format berkas "${fileInputConfig.label}" tidak didukung. Harap unggah berkas dengan format: PDF, JPG, JPEG, atau PNG.`);
+                        showFormAlert(input.closest('form') || document.querySelector('form'), ['Format berkas "' + fileInputConfig.label + '" tidak didukung. Harap unggah berkas dengan format: PDF, JPG, JPEG, atau PNG.']);
                         this.value = ''; // Reset input
                         return;
                     }

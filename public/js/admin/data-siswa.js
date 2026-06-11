@@ -491,14 +491,29 @@ function updateAddStepper() {
 }
 
 function validateAddStep(step) {
-    const container = document.getElementById('add-step-content-' + step);
+    var container = document.getElementById('add-step-content-' + step);
     if (!container) return true;
-    const inputs = container.querySelectorAll('input[required], select[required], textarea[required]');
-    for (const input of inputs) {
-        if (!input.checkValidity()) {
-            input.reportValidity();
-            return false;
+    var inputs = container.querySelectorAll('input[required], select[required], textarea[required]');
+    var errors = [];
+    var firstInvalid = null;
+    for (var i = 0; i < inputs.length; i++) {
+        var input = inputs[i];
+        var label = input.closest('.flex-col') || input.closest('div');
+        var labelText = label ? label.querySelector('label') : null;
+        var fieldName = labelText ? labelText.textContent.replace('*', '').trim() : (input.name || 'Field');
+        if (!input.value.trim()) {
+            errors.push(fieldName + ' wajib diisi.');
+            input.classList.add('border-error');
+            if (!firstInvalid) firstInvalid = input;
+        } else {
+            input.classList.remove('border-error');
         }
+    }
+    if (errors.length) {
+        var form = document.getElementById('add-form');
+        showFormAlert(form, errors);
+        if (firstInvalid) firstInvalid.focus();
+        return false;
     }
     return true;
 }

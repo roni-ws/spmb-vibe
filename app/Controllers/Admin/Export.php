@@ -76,6 +76,11 @@ class Export extends BaseController
             'logoText'       => SettingsModel::getSetting('logo_text', 'SPMB Unggul Bangsa'),
             'logoImg'        => SettingsModel::getSetting('logo_img', ''),
             'footer_address' => SettingsModel::getSetting('footer_address', 'Jakarta'),
+            'kopContent'    => SettingsModel::getSetting('kop_content',
+                '<h2 style="margin:0; font-size:18px; text-transform:uppercase;">PANITIA PENERIMAAN SISWA BARU (SPMB)</h2>'
+                . '<h3 style="margin:2px 0; font-size:16px; font-weight:600;">SMA UNGGUL BANGSA</h3>'
+                . '<p style="margin:2px 0;">Jl. Raya Pendidikan No. 45, Jakarta Pusat</p>'
+                . '<p style="margin:2px 0;">Telp: (021) 555 0123 | Website: spmb.unggulbangsa.sch.id</p>'),
         ]));
     }
 
@@ -91,10 +96,15 @@ class Export extends BaseController
         }
 
         $settings = [
-            'kota_ttd'     => SettingsModel::getSetting('kota_ttd', 'Jakarta'),
-            'ketua_panitia' => SettingsModel::getSetting('ketua_panitia', ''),
-            'logoText'     => SettingsModel::getSetting('logo_text', 'SPMB Unggul Bangsa'),
-            'logoImg'      => SettingsModel::getSetting('logo_img', ''),
+            'kota_ttd'      => SettingsModel::getSetting('kota_ttd', 'Jakarta'),
+            'ketua_panitia'  => SettingsModel::getSetting('ketua_panitia', ''),
+            'logoText'      => SettingsModel::getSetting('logo_text', 'SPMB Unggul Bangsa'),
+            'logoImg'       => SettingsModel::getSetting('logo_img', ''),
+            'kopContent'   => SettingsModel::getSetting('kop_content',
+                '<h2 style="margin:0; font-size:18px; text-transform:uppercase;">PANITIA PENERIMAAN SISWA BARU (SPMB)</h2>'
+                . '<h3 style="margin:2px 0; font-size:16px; font-weight:600;">SMA UNGGUL BANGSA</h3>'
+                . '<p style="margin:2px 0;">Jl. Raya Pendidikan No. 45, Jakarta Pusat</p>'
+                . '<p style="margin:2px 0;">Telp: (021) 555 0123 | Website: spmb.unggulbangsa.sch.id</p>'),
         ];
         return $this->response->setBody(view('siswa/cetak-formulir', array_merge(['student' => $student], $settings)));
     }
@@ -115,6 +125,11 @@ class Export extends BaseController
             'ketua_panitia'  => SettingsModel::getSetting('ketua_panitia', ''),
             'logoText'      => SettingsModel::getSetting('logo_text', 'SPMB Unggul Bangsa'),
             'logoImg'       => SettingsModel::getSetting('logo_img', ''),
+            'kopContent'   => SettingsModel::getSetting('kop_content',
+                '<h2 style="margin:0; font-size:18px; text-transform:uppercase;">PANITIA PENERIMAAN SISWA BARU (SPMB)</h2>'
+                . '<h3 style="margin:2px 0; font-size:16px; font-weight:600;">SMA UNGGUL BANGSA</h3>'
+                . '<p style="margin:2px 0;">Jl. Raya Pendidikan No. 45, Jakarta Pusat</p>'
+                . '<p style="margin:2px 0;">Telp: (021) 555 0123 | Website: spmb.unggulbangsa.sch.id</p>'),
         ];
         return $this->response->setBody(view('admin/cetak-arsip', array_merge(['student' => $student], $settings)));
     }

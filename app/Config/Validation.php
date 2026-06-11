@@ -189,7 +189,7 @@ class Validation extends BaseConfig
         'fullName'         => 'required|min_length[3]|max_length[100]',
         'email'            => 'required|valid_email|is_unique[users_siswa.email]|is_unique[auth_identities.secret]',
         'username'         => 'required|min_length[3]|max_length[30]|is_unique[users_siswa.username]|regex_match[/\A[a-zA-Z0-9\.]+\z/]',
-        'password'         => 'required|min_length[8]|regex_match[/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])/]',
+        'password'         => 'required|regex_match[/(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])/]',
         'password_confirm' => 'required|matches[password]',
         'terms'            => 'required',
     ];
@@ -213,7 +213,7 @@ class Validation extends BaseConfig
         'password' => [
             'required'     => 'Kata sandi wajib diisi.',
             'min_length'   => 'Kata sandi minimal harus terdiri dari 8 karakter.',
-            'regex_match'  => 'Kata sandi harus mengandung kombinasi huruf besar, huruf kecil, angka, dan simbol.',
+            'regex_match'  => 'Kata sandi harus mengandung kombinasi huruf, angka, dan simbol.',
         ],
         'password_confirm' => [
             'required' => 'Konfirmasi kata sandi wajib diisi.',

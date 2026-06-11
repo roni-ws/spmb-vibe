@@ -54,8 +54,15 @@ abstract class BaseController extends Controller
     protected function getSiteSettings(): array
     {
         return [
-            'logoText'  => \App\Models\SettingsModel::getSetting('logo_text', 'SPMB Unggul Bangsa'),
-            'logoImg'   => \App\Models\SettingsModel::getSetting('logo_img', ''),
+            'logoText'      => \App\Models\SettingsModel::getSetting('logo_text', 'SPMB Unggul Bangsa'),
+            'logoImg'       => \App\Models\SettingsModel::getSetting('logo_img', ''),
+            'kota_ttd'      => \App\Models\SettingsModel::getSetting('kota_ttd', 'Jakarta'),
+            'ketua_panitia' => \App\Models\SettingsModel::getSetting('ketua_panitia', ''),
+            'kopContent'   => \App\Models\SettingsModel::getSetting('kop_content',
+                '<h2 style="margin:0; font-size:18px; text-transform:uppercase;">PANITIA PENERIMAAN SISWA BARU (SPMB)</h2>'
+                . '<h3 style="margin:2px 0; font-size:16px; font-weight:600;">SMA UNGGUL BANGSA</h3>'
+                . '<p style="margin:2px 0;">Jl. Raya Pendidikan No. 45, Jakarta Pusat</p>'
+                . '<p style="margin:2px 0;">Telp: (021) 555 0123 | Website: spmb.unggulbangsa.sch.id</p>'),
         ];
     }
 

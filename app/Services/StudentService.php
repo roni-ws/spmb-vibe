@@ -41,9 +41,97 @@ class StudentService
             ->join('status_verifikasi', 'status_verifikasi.id = status_pendaftaran.status_verifikasi_id', 'left');
     }
 
+    public function getGridData(int $limit, int $offset, string $search = '', string $status = ''): array
+    {
+        $selectFields = '
+            calon_siswa.id,
+            calon_siswa.nisn as username,
+            calon_siswa.no_registrasi,
+            calon_siswa.nik,
+            calon_siswa.created_at,
+            calon_siswa.nama_lengkap,
+            calon_siswa.tempat_lahir,
+            calon_siswa.tanggal_lahir,
+            calon_siswa.jenis_kelamin,
+            calon_siswa.nisn,
+            calon_siswa.no_kk,
+            calon_siswa.no_hp,
+            calon_siswa.anak_ke,
+            calon_siswa.jumlah_saudara,
+            calon_siswa.alamat_desa,
+            calon_siswa.alamat_kecamatan,
+            calon_siswa.alamat_kabupaten,
+            calon_siswa.alamat_sekolah,
+            master_sekolah.nama_sekolah,
+            kelengkapan_administrasi.pas_foto,
+            kelengkapan_administrasi.fc_ijazah_skl,
+            kelengkapan_administrasi.fc_kk,
+            data_orang_tua.nama_ayah,
+            data_orang_tua.pekerjaan_ayah,
+            data_orang_tua.nama_ibu,
+            data_orang_tua.pekerjaan_ibu,
+            status_pendaftaran.status_verifikasi_id,
+            status_verifikasi.nama_status as status_verifikasi,
+            status_pendaftaran.is_finalized,
+            status_pendaftaran.catatan_verifikasi
+        ';
+
+        $filteredBuilder = $this->baseStudentQuery()
+            ->select($selectFields, false);
+
+        if ($search !== '') {
+            $filteredBuilder->groupStart()
+                ->like('calon_siswa.nama_lengkap', $search)
+                ->orLike('calon_siswa.nik', $search)
+                ->orLike('calon_siswa.no_registrasi', $search)
+                ->orLike('master_sekolah.nama_sekolah', $search)
+                ->groupEnd();
+        }
+
+        if ($status !== '') {
+            $filteredBuilder->where('status_verifikasi.nama_status', $status);
+        }
+
+        $countBuilder = $this->baseStudentQuery();
+
+        if ($search !== '') {
+            $countBuilder->groupStart()
+                ->like('calon_siswa.nama_lengkap', $search)
+                ->orLike('calon_siswa.nik', $search)
+                ->orLike('calon_siswa.no_registrasi', $search)
+                ->orLike('master_sekolah.nama_sekolah', $search)
+                ->groupEnd();
+        }
+
+        if ($status !== '') {
+            $countBuilder->where('status_verifikasi.nama_status', $status);
+        }
+
+        $totalFiltered = $countBuilder
+            ->select('COUNT(*) as cnt', false)
+            ->get()
+            ->getRow()->cnt ?? 0;
+
+        $data = $filteredBuilder
+            ->orderBy('calon_siswa.id', 'DESC')
+            ->limit($limit, $offset)
+            ->get()
+            ->getResultArray();
+
+        foreach ($data as &$row) {
+            $row['is_finalized'] = (int) $row['is_finalized'];
+        }
+        unset($row);
+
+        return [
+            'data'  => $data,
+            'total' => (int) $totalFiltered,
+        ];
+    }
+
     public function getAllStudentsWithDetail(): array
     {
-        return $this->baseStudentQuery()
+        $result = $this->baseStudentQuery()
             ->select('
                 calon_siswa.id, 
                 calon_siswa.nisn as username, 
@@ -79,6 +167,13 @@ class StudentService
             ->orderBy('calon_siswa.id', 'DESC')
             ->get()
             ->getResultArray();
+
+        foreach ($result as &$row) {
+            $row['is_finalized'] = (int) $row['is_finalized'];
+        }
+        unset($row);
+
+        return $result;
     }
 
     private function getStatsQuery(): array
@@ -398,7 +493,10 @@ class StudentService
                 calon_siswa.jumlah_saudara,
                 calon_siswa.nisn as username, 
                 calon_siswa.created_at,
-                CONCAT(calon_siswa.alamat_desa, \', \', calon_siswa.alamat_kecamatan, \', \', calon_siswa.alamat_kabupaten) as alamat,
+                calon_siswa.alamat_desa,
+                calon_siswa.alamat_kecamatan,
+                calon_siswa.alamat_kabupaten,
+                CONCAT_WS(\', \', calon_siswa.alamat_desa, calon_siswa.alamat_kecamatan, calon_siswa.alamat_kabupaten) as alamat,
                 data_orang_tua.nama_ayah,
                 data_orang_tua.pekerjaan_ayah,
                 data_orang_tua.nama_ibu,
@@ -458,7 +556,10 @@ class StudentService
                 calon_siswa.no_hp,
                 calon_siswa.anak_ke,
                 calon_siswa.jumlah_saudara,
-                CONCAT(calon_siswa.alamat_desa, \', \', calon_siswa.alamat_kecamatan, \', \', calon_siswa.alamat_kabupaten) as alamat,
+                calon_siswa.alamat_desa,
+                calon_siswa.alamat_kecamatan,
+                calon_siswa.alamat_kabupaten,
+                CONCAT_WS(\', \', calon_siswa.alamat_desa, calon_siswa.alamat_kecamatan, calon_siswa.alamat_kabupaten) as alamat,
                 data_orang_tua.nama_ayah,
                 data_orang_tua.pekerjaan_ayah,
                 data_orang_tua.nama_ibu,
@@ -496,7 +597,10 @@ class StudentService
                 calon_siswa.no_hp,
                 calon_siswa.anak_ke,
                 calon_siswa.jumlah_saudara,
-                CONCAT(calon_siswa.alamat_desa, \', \', calon_siswa.alamat_kecamatan, \', \', calon_siswa.alamat_kabupaten) as alamat,
+                calon_siswa.alamat_desa,
+                calon_siswa.alamat_kecamatan,
+                calon_siswa.alamat_kabupaten,
+                CONCAT_WS(\', \', calon_siswa.alamat_desa, calon_siswa.alamat_kecamatan, calon_siswa.alamat_kabupaten) as alamat,
                 data_orang_tua.nama_ayah,
                 data_orang_tua.pekerjaan_ayah,
                 data_orang_tua.nama_ibu,
