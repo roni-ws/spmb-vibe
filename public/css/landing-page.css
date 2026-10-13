@@ -516,6 +516,9 @@
   .mt-12 {
     margin-top: calc(var(--spacing) * 12);
   }
+  .mt-\[24px\] {
+    margin-top: 24px;
+  }
   .mt-\[32px\] {
     margin-top: 32px;
   }
@@ -1268,6 +1271,12 @@
       border-color: color-mix(in oklab, var(--color-surface-variant) 30%, transparent);
     }
   }
+  .border-tertiary\/15 {
+    border-color: color-mix(in srgb, #002625 15%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      border-color: color-mix(in oklab, var(--color-tertiary) 15%, transparent);
+    }
+  }
   .border-transparent {
     border-color: transparent;
   }
@@ -1453,6 +1462,12 @@
   }
   .bg-tertiary-container {
     background-color: var(--color-tertiary-container);
+  }
+  .bg-tertiary-container\/15 {
+    background-color: color-mix(in srgb, #003d3c 15%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-tertiary-container) 15%, transparent);
+    }
   }
   .bg-tertiary-container\/40 {
     background-color: color-mix(in srgb, #003d3c 40%, transparent);
@@ -1909,6 +1924,10 @@
   .font-semibold {
     --tw-font-weight: var(--font-weight-semibold);
     font-weight: var(--font-weight-semibold);
+  }
+  .tracking-\[8px\] {
+    --tw-tracking: 8px;
+    letter-spacing: 8px;
   }
   .tracking-tight {
     --tw-tracking: var(--tracking-tight);

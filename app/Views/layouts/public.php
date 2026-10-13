@@ -2,6 +2,7 @@
 $logoText ??= 'SPMB Unggul Bangsa';
 $logoImg ??= '';
 $is_open ??= true;
+helper('html');
 ?>
 <!DOCTYPE html>
 <html lang="id" class="light">
@@ -26,6 +27,10 @@ $is_open ??= true;
     
     <!-- Render individual view custom CSS section -->
     <?= $this->renderSection('css') ?>
+
+    <?php if (!empty($recaptchaSiteKey)): ?>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <?php endif; ?>
 </head>
 
 <body

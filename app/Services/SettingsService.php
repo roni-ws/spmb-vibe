@@ -9,7 +9,7 @@ use CodeIgniter\HTTP\Files\UploadedFile;
 
 class SettingsService
 {
-    private const ALLOWED_KOP_TAGS = ['p','br','strong','em','u','h1','h2','h3','h4','span','div','a','ul','ol','li'];
+    private const ALLOWED_KOP_TAGS = ['p','br','strong','em','u','h1','h2','h3','h4','span','div','ul','ol','li'];
 
     protected PengumumanModel $pengumumanModel;
 

@@ -2,10 +2,9 @@
 
 namespace App\Controllers;
 
+use App\Models\SettingsModel;
 use CodeIgniter\Controller;
-use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
-use Psr\Log\LoggerInterface;
 
 abstract class BaseController extends Controller
 {
@@ -51,6 +50,27 @@ abstract class BaseController extends Controller
         $this->redirectAdminIfNeeded();
     }
 
+    protected function validateRecaptcha(?string $response): bool
+    {
+        $secret = SettingsModel::getSetting('recaptcha_secret_key');
+        if (empty($secret)) {
+            return true;
+        }
+        if (empty($response)) {
+            return false;
+        }
+        $ch = curl_init('https://www.google.com/recaptcha/api/siteverify');
+        curl_setopt_array($ch, [
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => http_build_query(['secret' => $secret, 'response' => $response]),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 10,
+        ]);
+        $result = json_decode(curl_exec($ch));
+        curl_close($ch);
+        return ($result->success ?? false) === true;
+    }
+
     protected function getSiteSettings(): array
     {
         return [
@@ -69,13 +89,14 @@ abstract class BaseController extends Controller
     protected function getPublicSettings(): array
     {
         return [
-            'logoText'       => \App\Models\SettingsModel::getSetting('logo_text', 'SPMB Unggul Bangsa'),
-            'logoImg'        => \App\Models\SettingsModel::getSetting('logo_img', ''),
-            'is_open'        => \App\Models\SettingsModel::getSetting('is_open', '1') === '1',
-            'footer_desc'    => \App\Models\SettingsModel::getSetting('footer_desc', ''),
-            'footer_phone'   => \App\Models\SettingsModel::getSetting('footer_phone', ''),
-            'footer_email'   => \App\Models\SettingsModel::getSetting('footer_email', ''),
-            'footer_address' => \App\Models\SettingsModel::getSetting('footer_address', ''),
+            'logoText'       => SettingsModel::getSetting('logo_text', 'SPMB Unggul Bangsa'),
+            'logoImg'        => SettingsModel::getSetting('logo_img', ''),
+            'is_open'        => SettingsModel::getSetting('is_open', '1') === '1',
+            'footer_desc'    => SettingsModel::getSetting('footer_desc', ''),
+            'footer_phone'   => SettingsModel::getSetting('footer_phone', ''),
+            'footer_email'   => SettingsModel::getSetting('footer_email', ''),
+            'footer_address' => SettingsModel::getSetting('footer_address', ''),
+            'recaptchaSiteKey' => SettingsModel::getSetting('recaptcha_site_key', ''),
         ];
     }
 

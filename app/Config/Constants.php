@@ -48,24 +48,6 @@ defined('DECADE') || define('DECADE', 315_360_000);
  | --------------------------------------------------------------------------
  |
  | Used to indicate the conditions under which the script is exit()ing.
- | While there is no universal standard for error codes, there are some
- | broad conventions.  Three such conventions are mentioned below, for
- | those who wish to make use of them.  The CodeIgniter defaults were
- | chosen for the least overlap with these conventions, while still
- | leaving room for others to be defined in future versions and user
- | applications.
- |
- | The three main conventions used for determining exit status codes
- | are as follows:
- |
- |    Standard C/C++ Library (stdlibc):
- |       http://www.gnu.org/software/libc/manual/html_node/Exit-Status.html
- |       (This link also contains other GNU-specific conventions)
- |    BSD sysexits.h:
- |       http://www.gsp.com/cgi-bin/man.cgi?section=3&topic=sysexits
- |    Bash scripting:
- |       http://tldp.org/LDP/abs/html/exitcodes.html
- |
  */
 defined('EXIT_SUCCESS')        || define('EXIT_SUCCESS', 0);        // no errors
 defined('EXIT_ERROR')          || define('EXIT_ERROR', 1);          // generic error
@@ -97,7 +79,6 @@ defined('DEFAULT_SEKOLAH')   || define('DEFAULT_SEKOLAH', 'Belum Diisi');
 defined('DEFAULT_GENDER')    || define('DEFAULT_GENDER', 'L');
 defined('DEFAULT_TTL')       || define('DEFAULT_TTL', '2008-01-01');
 defined('REG_PREFIX')        || define('REG_PREFIX', 'REG-');
-defined('KK_SENTINEL')       || define('KK_SENTINEL', '0000000000000000');
 defined('HP_EMPTY')          || define('HP_EMPTY', '-');
 defined('DEFAULT_BELUM_MENGISI') || define('DEFAULT_BELUM_MENGISI', 'Belum Mengisi');
 defined('STATUS_BELUM_FINAL')    || define('STATUS_BELUM_FINAL', 'Belum Final');
@@ -106,21 +87,16 @@ defined('SETTING_IS_OPEN')      || define('SETTING_IS_OPEN', 'is_open');
 defined('SETTING_TAHUN_AJARAN') || define('SETTING_TAHUN_AJARAN', 'tahun_ajaran');
 defined('SETTING_LOGO_TEXT')    || define('SETTING_LOGO_TEXT', 'logo_text');
 defined('SETTING_FOOTER_DESC')  || define('SETTING_FOOTER_DESC', 'footer_desc');
-defined('SETTING_WHATSAPP')     || define('SETTING_WHATSAPP', 'whatsapp_link');
+
+defined('SETTING_RECAPTCHA_SITE')   || define('SETTING_RECAPTCHA_SITE', 'recaptcha_site_key');
+defined('SETTING_RECAPTCHA_SECRET') || define('SETTING_RECAPTCHA_SECRET', 'recaptcha_secret_key');
 
 defined('ROLE_ADMIN')    || define('ROLE_ADMIN', 'admin');
 defined('ROLE_PANITIA')  || define('ROLE_PANITIA', 'panitia');
 defined('ROLE_STUDENT')  || define('ROLE_STUDENT', 'student');
 defined('GROUP_USER')    || define('GROUP_USER', 'user');
 
-defined('ALLOWED_IMG_EXT') || define('ALLOWED_IMG_EXT', 'jpg,jpeg,png');
-defined('ALLOWED_DOC_EXT') || define('ALLOWED_DOC_EXT', 'pdf,jpg,jpeg,png');
-defined('UPLOAD_MAX_SIZE') || define('UPLOAD_MAX_SIZE', 2048);
-
 defined('UPLOAD_PATH')         || define('UPLOAD_PATH', 'uploads/berkas/');
-
-defined('RECENT_STUDENTS_LIMIT') || define('RECENT_STUDENTS_LIMIT', 4);
-defined('MONTHLY_TRENDS_MONTHS') || define('MONTHLY_TRENDS_MONTHS', 6);
 
 defined('NOTIF_SISWA_WELCOME')          || define('NOTIF_SISWA_WELCOME', 'welcome');
 defined('NOTIF_SISWA_STATUS_CHANGE')    || define('NOTIF_SISWA_STATUS_CHANGE', 'status_change');

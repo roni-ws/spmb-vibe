@@ -18,13 +18,11 @@
     }
 
     function csrfToken() {
-        var meta = document.querySelector('meta[name=csrf-token]');
-        return meta ? meta.getAttribute('content') : '';
+        return window.CSRF_HASH || '';
     }
 
     function csrfName() {
-        var meta = document.querySelector('meta[name=csrf-name]');
-        return meta ? meta.getAttribute('content') : 'csrf_test_name';
+        return window.CSRF_TOKEN_NAME || 'csrf_test_name';
     }
 
     function fetchNotifications() {
@@ -92,15 +90,22 @@
             method: 'POST',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': csrfToken(),
                 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
             },
             body: new URLSearchParams(data)
         })
-        .then(function () {
-            updateBadge(0);
-            fetchNotifications();
+        .then(function (res) {
+            if (res.ok) {
+                updateBadge(0);
+                fetchNotifications();
+            } else {
+                console.warn('markAsRead failed:', res.status, res.statusText);
+            }
         })
-        .catch(function () {});
+        .catch(function (err) {
+            console.error('markAsRead error:', err);
+        });
     }
 
     function escapeHtml(str) {

@@ -11,8 +11,6 @@ class Dashboard extends BaseController
 {
     protected $helpers = ['url', 'html', 'form'];
 
-    private ?SettingsService $settingsService = null;
-
     public function index(): ResponseInterface
     {
         $this->requireGroup([ROLE_ADMIN]);

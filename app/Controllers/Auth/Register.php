@@ -31,6 +31,13 @@ class Register extends BaseController
             return redirect()->to(base_url())->with('error', 'Pendaftaran calon siswa baru saat ini sedang ditutup.');
         }
 
+        if (! empty(\App\Models\SettingsModel::getSetting('recaptcha_site_key'))) {
+            $recaptcha = $this->request->getPost('g-recaptcha-response');
+            if (! $this->validateRecaptcha($recaptcha)) {
+                return redirect()->back()->withInput()->with('error', 'Verifikasi reCAPTCHA gagal. Silakan coba lagi.');
+            }
+        }
+
         if (! $this->validateData($this->request->getPost(), 'pendaftaranSiswa')) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
@@ -45,10 +52,12 @@ class Register extends BaseController
                 $this->request->getPost('fullName')
             );
 
-            auth()->login($user);
+            $authenticator = auth('session')->getAuthenticator();
+            $authenticator->startLogin($user);
+            $authenticator->startUpAction('register', $user);
 
-            return $this->redirectByRole()
-                ->with('success', 'Akun Anda berhasil dibuat! Selamat datang di dashboard SPMB.');
+            return redirect()->to(route_to('auth-action-show'))
+                ->with('success', 'Akun Anda berhasil dibuat! Silakan cek email untuk verifikasi aktivasi akun.');
         } catch (\Throwable $e) {
             log_message('error', 'Registration Error: ' . $e->getMessage());
             return redirect()->back()

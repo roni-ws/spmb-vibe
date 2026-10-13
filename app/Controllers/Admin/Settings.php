@@ -56,6 +56,7 @@ class Settings extends BaseController
             'req2_title', 'req2_desc', 'req2_icon',
             'req3_title', 'req3_desc', 'req3_icon',
             'footer_phone', 'footer_email', 'footer_address', 'footer_desc',
+            'recaptcha_site_key', 'recaptcha_secret_key',
         ]));
 
         $kopContent = $this->settingsService->sanitizeKopContent($this->request->getPost('kop_content'));
@@ -123,7 +124,9 @@ class Settings extends BaseController
             'footer_phone'      => $this->settingsService->get('footer_phone', '+62 21 555 0123'),
             'footer_email'      => $this->settingsService->get('footer_email', 'spmb@unggulbangsa.sch.id'),
             'footer_address'    => $this->settingsService->get('footer_address', 'Jl. Pendidikan No. 1, Jakarta'),
-            'footer_desc'       => $this->settingsService->get(SETTING_FOOTER_DESC, 'Membentuk generasi pemimpin masa depan yang beriman, cerdas, kreatif, mandiri, dan berwawasan global.'),
+            'footer_desc'         => $this->settingsService->get(SETTING_FOOTER_DESC, 'Membentuk generasi pemimpin masa depan yang beriman, cerdas, kreatif, mandiri, dan berwawasan global.'),
+            'recaptcha_site_key'   => $this->settingsService->get(SETTING_RECAPTCHA_SITE, ''),
+            'recaptcha_secret_key' => $this->settingsService->get(SETTING_RECAPTCHA_SECRET, ''),
             'gallery_img_1'     => $this->settingsService->get('gallery_img_1', ''),
             'gallery_img_2'     => $this->settingsService->get('gallery_img_2', ''),
             'gallery_img_3'     => $this->settingsService->get('gallery_img_3', ''),
@@ -164,25 +167,27 @@ class Settings extends BaseController
             'footer_email'      => 'required|valid_email|max_length[100]',
             'footer_address'    => 'required|min_length[5]|max_length[255]',
             'footer_desc'       => 'required|min_length[10]|max_length[500]',
-            'kop_content'       => 'permit_empty|max_length[5000]',
-            'ketua_panitia'     => 'permit_empty|max_length[200]',
-            'kota_ttd'          => 'permit_empty|max_length[100]',
+            'kop_content'         => 'permit_empty|max_length[5000]',
+            'ketua_panitia'       => 'permit_empty|max_length[200]',
+            'kota_ttd'            => 'permit_empty|max_length[100]',
+            'recaptcha_site_key'   => 'permit_empty|max_length[255]',
+            'recaptcha_secret_key' => 'permit_empty|max_length[255]',
         ];
 
         $logoFile = $this->request->getFile('logo_file');
         if ($logoFile && $logoFile->isValid()) {
-            $rules['logo_file'] = 'is_image[logo_file]|mime_in[logo_file,image/png,image/jpg,image/jpeg]|max_size[logo_file,2048]';
+            $rules['logo_file'] = 'is_image[logo_file]|mime_in[logo_file,image/png,image/jpg,image/jpeg]|ext_in[logo_file,png,jpg,jpeg]|max_size[logo_file,2048]';
         }
 
         $heroFile = $this->request->getFile('hero_file');
         if ($heroFile && $heroFile->isValid()) {
-            $rules['hero_file'] = 'is_image[hero_file]|mime_in[hero_file,image/png,image/jpg,image/jpeg]|max_size[hero_file,4096]';
+            $rules['hero_file'] = 'is_image[hero_file]|mime_in[hero_file,image/png,image/jpg,image/jpeg]|ext_in[hero_file,png,jpg,jpeg]|max_size[hero_file,4096]';
         }
 
         for ($i = 1; $i <= 4; $i++) {
             $galleryFile = $this->request->getFile("gallery_file_{$i}");
             if ($galleryFile && $galleryFile->isValid()) {
-                $rules["gallery_file_{$i}"] = 'is_image[gallery_file_' . $i . ']|mime_in[gallery_file_' . $i . ',image/png,image/jpg,image/jpeg]|max_size[gallery_file_' . $i . ',2048]';
+                $rules["gallery_file_{$i}"] = 'is_image[gallery_file_' . $i . ']|mime_in[gallery_file_' . $i . ',image/png,image/jpg,image/jpeg]|ext_in[gallery_file_' . $i . ',png,jpg,jpeg]|max_size[gallery_file_' . $i . ',2048]';
             }
         }
 

@@ -58,6 +58,28 @@
             </div>
         </div>
     </div>
+
+    <!-- Google reCAPTCHA -->
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-md md:p-lg shadow-sm">
+        <h3 class="font-headline-sm text-headline-sm text-primary mb-sm flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">security</span> Google reCAPTCHA
+        </h3>
+        <p class="text-caption text-on-surface-variant mb-6">Masukkan Site Key dan Secret Key dari Google reCAPTCHA v2 (Checkbox) untuk melindungi halaman Login, Registrasi, Lupa Kata Sandi, dan Atur Ulang Kata Sandi dari serangan bot.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+            <div class="flex flex-col gap-2">
+                <label for="recaptcha_site_key" class="text-body-sm font-semibold text-on-surface">Site Key</label>
+                <input type="text" name="recaptcha_site_key" id="recaptcha_site_key" value="<?= esc($settings['recaptcha_site_key'] ?? '') ?>"
+                       class="w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 text-body-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
+                <p class="text-caption text-on-surface-variant">Dapatkan dari <a href="https://www.google.com/recaptcha/admin" target="_blank" class="text-primary hover:underline">Google reCAPTCHA Admin</a></p>
+            </div>
+            <div class="flex flex-col gap-2">
+                <label for="recaptcha_secret_key" class="text-body-sm font-semibold text-on-surface">Secret Key</label>
+                <input type="password" name="recaptcha_secret_key" id="recaptcha_secret_key" value="<?= esc($settings['recaptcha_secret_key'] ?? '') ?>"
+                       class="w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 text-body-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- ==========================================

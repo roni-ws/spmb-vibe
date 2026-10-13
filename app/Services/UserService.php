@@ -40,12 +40,6 @@ class UserService
         return $newUserId;
     }
 
-    public function findByUsername(string $username): ?array
-    {
-        $user = $this->userModel->where('username', $username)->first();
-        return $user ? $user->toArray() : null;
-    }
-
     public function getStaffList(): array
     {
         $users = $this->userModel

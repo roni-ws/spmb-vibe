@@ -59,14 +59,14 @@ class ContentSecurityPolicy extends BaseConfig
      *
      * @var list<string>|string
      */
-    public $scriptSrc = 'self';
+    public $scriptSrc = ['self', 'unsafe-inline'];
 
     /**
      * Specifies valid sources for JavaScript <script> elements.
      *
      * @var list<string>|string
      */
-    public array|string $scriptSrcElem = 'self';
+    public array|string $scriptSrcElem = ['self', 'unsafe-inline'];
 
     /**
      * Specifies valid sources for JavaScript inline event
@@ -74,21 +74,21 @@ class ContentSecurityPolicy extends BaseConfig
      *
      * @var list<string>|string
      */
-    public array|string $scriptSrcAttr = 'self';
+    public array|string $scriptSrcAttr = ['self', 'unsafe-inline'];
 
     /**
      * Lists allowed stylesheets' URLs.
      *
      * @var list<string>|string
      */
-    public $styleSrc = 'self';
+    public $styleSrc = ['self', 'unsafe-inline'];
 
     /**
      * Specifies valid sources for stylesheets <link> elements.
      *
      * @var list<string>|string
      */
-    public array|string $styleSrcElem = 'self';
+    public array|string $styleSrcElem = ['self', 'unsafe-inline'];
 
     /**
      * Specifies valid sources for stylesheets inline
@@ -96,7 +96,7 @@ class ContentSecurityPolicy extends BaseConfig
      *
      * @var list<string>|string
      */
-    public array|string $styleSrcAttr = 'self';
+    public array|string $styleSrcAttr = ['self', 'unsafe-inline'];
 
     /**
      * Defines the origins from which images can be loaded.

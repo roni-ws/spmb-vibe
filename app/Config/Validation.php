@@ -2,6 +2,7 @@
 
 namespace Config;
 
+use App\Models\SettingsModel;
 use CodeIgniter\Config\BaseConfig;
 use CodeIgniter\Validation\StrictRules\CreditCardRules;
 use CodeIgniter\Validation\StrictRules\FileRules;
@@ -25,7 +26,44 @@ class Validation extends BaseConfig
         FormatRules::class,
         FileRules::class,
         CreditCardRules::class,
+        Validation::class,
     ];
+
+    public function validateRecaptcha(string $response, ?string $params = null, array $data = [], ?string &$error = null): bool
+    {
+        $secret = SettingsModel::getSetting('recaptcha_secret_key');
+        if (empty($secret)) {
+            return true;
+        }
+        if (empty($response)) {
+            $error = 'Verifikasi reCAPTCHA diperlukan.';
+            return false;
+        }
+        $ch = curl_init('https://www.google.com/recaptcha/api/siteverify');
+        curl_setopt_array($ch, [
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => http_build_query(['secret' => $secret, 'response' => $response]),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 10,
+        ]);
+        $result = json_decode(curl_exec($ch));
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        if ($httpCode !== 200 || !$result) {
+            $error = 'Verifikasi reCAPTCHA gagal. Silakan coba lagi.';
+            return false;
+        }
+        if (($result->success ?? false) !== true) {
+            $error = 'Verifikasi reCAPTCHA gagal. Silakan coba lagi.';
+            return false;
+        }
+        return true;
+    }
+
+    public function validate_recaptcha(string $response, ?string $params = null, array $data = [], ?string &$error = null): bool
+    {
+        return $this->validateRecaptcha($response, $params, $data, $error);
+    }
 
     /**
      * Specifies the views that are used to display the

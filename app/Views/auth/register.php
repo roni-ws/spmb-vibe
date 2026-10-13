@@ -61,28 +61,7 @@
 
                 
                 <form action="<?= base_url('register') ?>" class="flex flex-col gap-md" method="POST" novalidate>
-                    <?php
-                    $flashError  = session()->getFlashdata('error');
-                    $flashErrors = session()->getFlashdata('errors');
-                    $alertMessages = [];
-                    if ($flashErrors && is_array($flashErrors)) {
-                        $alertMessages = array_values($flashErrors);
-                    } elseif ($flashError) {
-                        $alertMessages = [$flashError];
-                    }
-                    if ($alertMessages): ?>
-                    <div class="flex items-start gap-3 p-4 rounded-xl bg-secondary-container/15 border border-secondary/15" role="alert">
-                        <span class="material-symbols-outlined shrink-0 text-secondary" style="font-size:20px">warning</span>
-                        <div class="flex-1 min-w-0">
-                            <p class="font-semibold text-sm text-secondary mb-1">Terdapat kesalahan</p>
-                            <ul class="text-sm text-on-secondary-container space-y-1 list-disc list-inside">
-                                <?php foreach ($alertMessages as $msg): ?>
-                                <li><?= esc($msg) ?></li>
-                                <?php endforeach; ?>
-                            </ul>
-                        </div>
-                    </div>
-                    <?php endif; ?>
+                    <?= $this->include('components/shared/alert') ?>
                     <?= csrf_field() ?>
 
                     <!-- Full Name -->
@@ -193,6 +172,10 @@
                         </div>
                     </div>
                     
+                    <?php if (!empty($recaptchaSiteKey)): ?>
+                    <div class="g-recaptcha flex justify-center" data-sitekey="<?= esc($recaptchaSiteKey) ?>"></div>
+                    <?php endif; ?>
+
                     <!-- Submit Action -->
                     <div class="mt-sm">
                         <button

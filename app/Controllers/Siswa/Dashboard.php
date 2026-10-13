@@ -77,6 +77,17 @@ class Dashboard extends BaseController
             return redirect()->to(base_url('siswa/dashboard'))->with('error', 'Data pendaftar tidak ditemukan.');
         }
 
+        $progress = $this->studentService->calculateProgress(
+            $this->studentService->getStudentProfileByUserId((int) $siswa['user_id']),
+            $this->studentService->getStudentSchool((int) $siswa['id']),
+            $this->studentService->getStudentBerkas((int) $siswa['id'])
+        );
+
+        if ($progress['progressPercent'] < 100) {
+            return redirect()->to(base_url('siswa/dashboard'))
+                ->with('error', 'Finalisasi gagal: Lengkapi seluruh data (Biodata, Sekolah, Orang Tua, dan Berkas) sebelum melakukan finalisasi.');
+        }
+
         $this->studentService->finalizeStudent((int) $siswa['id']);
 
         $adminNotif = new AdminNotificationService();

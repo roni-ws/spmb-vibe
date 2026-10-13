@@ -34,28 +34,39 @@ class Export extends BaseController
         ]);
 
         foreach ($students as $student) {
+            $safeVal = function ($val) {
+                if ($val === null || $val === '') {
+                    return $val;
+                }
+                $first = $val[0];
+                if (in_array($first, ['=', '+', '-', '@'], true)) {
+                    return "'" . $val;
+                }
+                return $val;
+            };
+
             fputcsv($output, [
                 $student['id'],
                 $student['username'] ? "\t" . $student['username'] : HP_EMPTY,
                 $student['no_registrasi'] ? "\t" . $student['no_registrasi'] : HP_EMPTY,
                 $student['nik'] ? "\t" . $student['nik'] : HP_EMPTY,
                 $student['no_kk'] ? "\t" . $student['no_kk'] : HP_EMPTY,
-                $student['nama_lengkap'] ?: DEFAULT_BELUM_MENGISI,
-                $student['tempat_lahir'] ?: HP_EMPTY,
+                $safeVal($student['nama_lengkap']) ?: DEFAULT_BELUM_MENGISI,
+                $safeVal($student['tempat_lahir']) ?: HP_EMPTY,
                 $student['tanggal_lahir'] ?: HP_EMPTY,
                 $student['jenis_kelamin'] ?: HP_EMPTY,
                 $student['anak_ke'] ?: HP_EMPTY,
                 $student['jumlah_saudara'] ?: HP_EMPTY,
                 $student['no_hp'] ? "\t" . $student['no_hp'] : HP_EMPTY,
-                $student['alamat_desa'] ?: HP_EMPTY,
-                $student['alamat_kecamatan'] ?: HP_EMPTY,
-                $student['alamat_kabupaten'] ?: HP_EMPTY,
-                $student['nama_sekolah'] ?: HP_EMPTY,
-                $student['alamat_sekolah'] ?: HP_EMPTY,
-                $student['nama_ayah'] ?: HP_EMPTY,
-                $student['pekerjaan_ayah'] ?: HP_EMPTY,
-                $student['nama_ibu'] ?: HP_EMPTY,
-                $student['pekerjaan_ibu'] ?: HP_EMPTY,
+                $safeVal($student['alamat_desa']) ?: HP_EMPTY,
+                $safeVal($student['alamat_kecamatan']) ?: HP_EMPTY,
+                $safeVal($student['alamat_kabupaten']) ?: HP_EMPTY,
+                $safeVal($student['nama_sekolah']) ?: HP_EMPTY,
+                $safeVal($student['alamat_sekolah']) ?: HP_EMPTY,
+                $safeVal($student['nama_ayah']) ?: HP_EMPTY,
+                $safeVal($student['pekerjaan_ayah']) ?: HP_EMPTY,
+                $safeVal($student['nama_ibu']) ?: HP_EMPTY,
+                $safeVal($student['pekerjaan_ibu']) ?: HP_EMPTY,
                 $student['status_verifikasi'] ?: VERIF_STATUS_BELUM,
                 $student['is_finalized'] ? 'Selesai' : STATUS_BELUM_FINAL
             ]);

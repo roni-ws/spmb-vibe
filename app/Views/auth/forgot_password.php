@@ -37,7 +37,9 @@
 
             
             <!-- Forgot Password Form -->
-            <form class="flex flex-col gap-md" action="#" method="POST" novalidate onsubmit="event.preventDefault(); showFormAlert(this, ['Tautan penyetelan ulang sandi telah disimulasikan dikirim ke email Anda.']);">
+            <form class="flex flex-col gap-md" action="<?= base_url('forgot-password') ?>" method="POST" novalidate>
+                <?= $this->include('components/shared/alert') ?>
+                <?= csrf_field() ?>
                 <!-- Input Email -->
                 <div class="flex flex-col gap-xs">
                     <label class="font-label-bold text-label-bold text-on-surface dark:text-slate-200 ml-1" for="email">Alamat Email</label>
@@ -52,6 +54,10 @@
                     </div>
                 </div>
                 
+                <?php if (!empty($recaptchaSiteKey)): ?>
+                <div class="g-recaptcha flex justify-center" data-sitekey="<?= esc($recaptchaSiteKey) ?>"></div>
+                <?php endif; ?>
+
                 <!-- Submit Action -->
                 <div class="mt-sm">
                     <button

@@ -16,6 +16,9 @@ $routes->post('/register', 'Auth\Register::store');
 $routes->post('/check-email', 'Auth\Register::checkEmail');
 $routes->post('/check-username', 'Auth\Register::checkUsername');
 $routes->get('/forgot-password', 'Auth\Login::forgotPassword');
+$routes->post('/forgot-password', 'Auth\Login::forgotPasswordAction');
+$routes->get('/reset-password', 'Auth\Login::resetPasswordForm', ['as' => 'reset-password']);
+$routes->post('/reset-password', 'Auth\Login::resetPasswordAction');
 
 // -----------------------------------------------------------------------
 // Rute Dashboard Calon Siswa — Dilindungi filter Shield (harus login)

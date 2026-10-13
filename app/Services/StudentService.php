@@ -321,11 +321,6 @@ class StudentService
         return $this->siswaModel->asArray()->where('user_id', $userId)->first();
     }
 
-    public function getStudentByNisn(string $nisn): ?array
-    {
-        return $this->siswaModel->asArray()->where('nisn', $nisn)->first();
-    }
-
     public function getStudentSchool(int $siswaId): ?array
     {
         $siswa = $this->siswaModel->find($siswaId);
@@ -411,7 +406,6 @@ class StudentService
             'tempat_lahir'       => $data['tempat_lahir'],
             'tanggal_lahir'      => $data['tanggal_lahir'],
             'jenis_kelamin'      => $data['jenis_kelamin'],
-            'sekolah_id'         => $sekolahId,
             'alamat_sekolah'     => $data['alamat_sekolah'] ?? null,
             'anak_ke'            => $data['anak_ke'],
             'jumlah_saudara'     => $data['jumlah_saudara'],
@@ -526,17 +520,6 @@ class StudentService
             ->getRowArray();
     }
 
-    public function getStudentProfileByNisn(string $nisn): ?array
-    {
-        return $this->db->table('calon_siswa')
-            ->select('calon_siswa.*, status_verifikasi.nama_status as status_verifikasi, status_pendaftaran.is_finalized')
-            ->join('status_pendaftaran', 'status_pendaftaran.siswa_id = calon_siswa.id', 'left')
-            ->join('status_verifikasi', 'status_verifikasi.id = status_pendaftaran.status_verifikasi_id', 'left')
-            ->where('calon_siswa.nisn', $nisn)
-            ->get()
-            ->getRowArray();
-    }
-
     public function getStudentForCetakByUserId(int $userId): ?array
     {
         return $this->baseStudentQuery()
@@ -578,44 +561,4 @@ class StudentService
             ->getRowArray();
     }
 
-    public function getStudentForCetakByNisn(string $nisn): ?array
-    {
-        return $this->baseStudentQuery()
-            ->select('
-                calon_siswa.id, 
-                calon_siswa.nisn, 
-                calon_siswa.nisn as username, 
-                calon_siswa.nisn as email, 
-                calon_siswa.created_at as created_at,
-                calon_siswa.no_registrasi,
-                calon_siswa.nik, 
-                calon_siswa.nama_lengkap, 
-                calon_siswa.no_kk,
-                calon_siswa.tempat_lahir,
-                calon_siswa.tanggal_lahir,
-                calon_siswa.jenis_kelamin,
-                calon_siswa.no_hp,
-                calon_siswa.anak_ke,
-                calon_siswa.jumlah_saudara,
-                calon_siswa.alamat_desa,
-                calon_siswa.alamat_kecamatan,
-                calon_siswa.alamat_kabupaten,
-                CONCAT_WS(\', \', calon_siswa.alamat_desa, calon_siswa.alamat_kecamatan, calon_siswa.alamat_kabupaten) as alamat,
-                data_orang_tua.nama_ayah,
-                data_orang_tua.pekerjaan_ayah,
-                data_orang_tua.nama_ibu,
-                data_orang_tua.pekerjaan_ibu,
-                master_sekolah.nama_sekolah, 
-                calon_siswa.alamat_sekolah, 
-                kelengkapan_administrasi.fc_ijazah_skl,
-                kelengkapan_administrasi.fc_kk,
-                kelengkapan_administrasi.pas_foto,
-                status_verifikasi.nama_status as status_verifikasi, 
-                status_pendaftaran.is_finalized,
-                \'Belum Pengumuman\' as status_kelulusan
-            ')
-            ->where('calon_siswa.nisn', $nisn)
-            ->get()
-            ->getRowArray();
-    }
 }

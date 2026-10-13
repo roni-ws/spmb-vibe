@@ -78,6 +78,12 @@ class Users extends BaseController
                 ->with('error', 'Keamanan Sistem: Anda tidak diizinkan untuk menghapus akun Anda sendiri.');
         }
 
+        $targetUser = auth()->getProvider()->findById($userId);
+        if ($targetUser && $targetUser->inGroup(ROLE_ADMIN)) {
+            return redirect()->back()
+                ->with('error', 'Keamanan Sistem: Akun Administrator tidak dapat dihapus.');
+        }
+
         $this->userService->delete($userId);
 
         return redirect()->to(base_url('admin/users'))

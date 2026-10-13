@@ -79,7 +79,12 @@ class Filters extends BaseFilters
      * }
      */
     public array $globals = [
-        'before' => [],
+        'before' => [
+            'csrf' => ['except' => [
+                'admin/notifications/mark-as-read',
+                'siswa/notifications/mark-as-read',
+            ]],
+        ],
         'after' => [],
     ];
 
@@ -113,6 +118,8 @@ class Filters extends BaseFilters
                 'login*',
                 'register*',
                 'auth/*',
+                'forgot-password*',
+                'reset-password*',
             ],
         ],
     ];

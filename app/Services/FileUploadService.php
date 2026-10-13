@@ -42,7 +42,7 @@ class FileUploadService
 
         $this->deleteOldFiles($uploadPath . $prefix . '_' . $siswaId . '_*.*');
 
-        $newName = $prefix . '_' . $siswaId . '_' . time() . '.' . $file->guessExtension();
+        $newName = $prefix . '_' . $siswaId . '_' . bin2hex(random_bytes(16)) . '.' . $file->guessExtension();
         $file->move($uploadPath, $newName);
 
         return $newName;

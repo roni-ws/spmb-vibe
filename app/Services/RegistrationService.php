@@ -40,7 +40,7 @@ class RegistrationService
                 'nisn'     => $username,
                 'email'    => $email,
                 'password' => $password,
-                'active'   => 1,
+                'active'   => 0,
             ]);
 
             if (! $siswaUsers->save($user)) {

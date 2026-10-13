@@ -1,0 +1,14 @@
+# Disable PHP engine to prevent web shell execution
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+
+# Deny access to all file types by default
+<Files *>
+    Require all denied
+</Files>
+
+# Allow only image and PDF files
+<FilesMatch "\.(jpg|jpeg|png|gif|webp|pdf)$">
+    Require all granted
+</FilesMatch>
