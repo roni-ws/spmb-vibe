@@ -1,0 +1,180 @@
+<?php
+
+namespace App\Controllers;
+
+use App\Models\SettingsModel;
+use CodeIgniter\Controller;
+use CodeIgniter\HTTP\ResponseInterface;
+
+abstract class BaseController extends Controller
+{
+
+    protected function requireGroup(string|array $groups, string $redirect = 'login'): void
+    {
+        if (!auth()->loggedIn() || !auth()->user()->inGroup(...(array)$groups)) {
+            $msg = 'Akses ditolak.';
+            if ($this->request->isAJAX()) {
+                $this->response->setJSON(['status' => 'error', 'message' => $msg])->send();
+                exit;
+            }
+            $response = redirect()->to(base_url($redirect))->with('error', $msg);
+            throw new \CodeIgniter\HTTP\Exceptions\RedirectException($response);
+        }
+    }
+
+    protected function requireAdmin(string $redirect = 'login'): void
+    {
+        $this->requireGroup(ROLE_ADMIN, $redirect);
+    }
+
+    protected function requireLoggedIn(string $redirect = 'login'): void
+    {
+        if (!auth()->loggedIn()) {
+            $response = redirect()->to(base_url($redirect))
+                ->with('error', 'Silakan login terlebih dahulu.');
+            throw new \CodeIgniter\HTTP\Exceptions\RedirectException($response);
+        }
+    }
+
+    protected function redirectAdminIfNeeded(): void
+    {
+        $user = auth()->user();
+        if ($user && $user->inGroup(ROLE_ADMIN)) {
+            throw new \CodeIgniter\HTTP\Exceptions\RedirectException(base_url('admin/dashboard'));
+        }
+    }
+
+    protected function requireSiswa(): void
+    {
+        $this->requireLoggedIn();
+        $this->redirectAdminIfNeeded();
+    }
+
+    protected function validateRecaptcha(?string $response): bool
+    {
+        $secret = SettingsModel::getSetting('recaptcha_secret_key');
+        if (empty($secret)) {
+            return true;
+        }
+        if (empty($response)) {
+            return false;
+        }
+        $ch = curl_init('https://www.google.com/recaptcha/api/siteverify');
+        curl_setopt_array($ch, [
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => http_build_query(['secret' => $secret, 'response' => $response]),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 10,
+        ]);
+        $result = json_decode(curl_exec($ch));
+        curl_close($ch);
+        return ($result->success ?? false) === true;
+    }
+
+    protected function getSiteSettings(): array
+    {
+        return [
+            'logoText'      => \App\Models\SettingsModel::getSetting('logo_text', 'SPMB Unggul Bangsa'),
+            'logoImg'       => \App\Models\SettingsModel::getSetting('logo_img', ''),
+            'kota_ttd'      => \App\Models\SettingsModel::getSetting('kota_ttd', 'Jakarta'),
+            'ketua_panitia' => \App\Models\SettingsModel::getSetting('ketua_panitia', ''),
+            'kopContent'   => \App\Models\SettingsModel::getSetting('kop_content',
+                '<h2 style="margin:0; font-size:18px; text-transform:uppercase;">PANITIA PENERIMAAN SISWA BARU (SPMB)</h2>'
+                . '<h3 style="margin:2px 0; font-size:16px; font-weight:600;">SMA UNGGUL BANGSA</h3>'
+                . '<p style="margin:2px 0;">Jl. Raya Pendidikan No. 45, Jakarta Pusat</p>'
+                . '<p style="margin:2px 0;">Telp: (021) 555 0123 | Website: spmb.unggulbangsa.sch.id</p>'),
+        ];
+    }
+
+    protected function getPublicSettings(): array
+    {
+        return [
+            'logoText'       => SettingsModel::getSetting('logo_text', 'SPMB Unggul Bangsa'),
+            'logoImg'        => SettingsModel::getSetting('logo_img', ''),
+            'is_open'        => SettingsModel::getSetting('is_open', '1') === '1',
+            'footer_desc'    => SettingsModel::getSetting('footer_desc', ''),
+            'footer_phone'   => SettingsModel::getSetting('footer_phone', ''),
+            'footer_email'   => SettingsModel::getSetting('footer_email', ''),
+            'footer_address' => SettingsModel::getSetting('footer_address', ''),
+            'recaptchaSiteKey' => SettingsModel::getSetting('recaptcha_site_key', ''),
+        ];
+    }
+
+    protected function renderSiswaView(string $view, array $data = []): ResponseInterface
+    {
+        $user   = auth()->user();
+        $userId = $user ? (int) $user->id : null;
+
+        return $this->response->setBody(view($view, array_merge($this->getSiteSettings(), $this->getSiswaLayoutData($userId), $data)));
+    }
+
+    protected function redirectByRole(): ResponseInterface
+    {
+        $user = auth()->user();
+
+        if ($user && ($user->inGroup(ROLE_ADMIN) || $user->inGroup(ROLE_PANITIA))) {
+            return redirect()->to(base_url('admin/dashboard'));
+        }
+
+        return redirect()->to(base_url('siswa/dashboard'));
+    }
+
+    protected function getRegistrationStatus(int $siswaId): ?array
+    {
+        return model(\App\Models\Siswa\StatusPendaftaranModel::class)
+            ->getWithVerifikasiBySiswaId($siswaId);
+    }
+
+    protected function needsRevision(?string $statusVerifikasi): bool
+    {
+        return in_array($statusVerifikasi, [VERIF_STATUS_REVISI, VERIF_STATUS_TIDAK_VALID], true);
+    }
+
+    protected function checkFinalized(int $siswaId): bool
+    {
+        $status = $this->getRegistrationStatus($siswaId);
+
+        if (!$status) {
+            return false;
+        }
+
+        if ($this->needsRevision($status['status_verifikasi'] ?? null)) {
+            return false;
+        }
+
+        return (int) $status['is_finalized'] === 1;
+    }
+
+    protected function canCetakBukti(?array $statusPendaftaran): bool
+    {
+        if (!$statusPendaftaran) {
+            return false;
+        }
+
+        return (int) ($statusPendaftaran['is_finalized'] ?? 0) === 1
+            && ($statusPendaftaran['status_verifikasi'] ?? '') === VERIF_STATUS_VALID;
+    }
+
+    protected function getSiswaLayoutData(?int $userId = null): array
+    {
+        if (!$userId) {
+            return [
+                'nama_lengkap'     => 'Siswa',
+                'user_email'       => '',
+                'can_cetak_bukti'  => false,
+            ];
+        }
+
+        $siswa = model(\App\Models\Siswa\SiswaModel::class)
+            ->where('user_id', $userId)
+            ->first();
+        $status = $siswa ? $this->getRegistrationStatus((int) $siswa['id']) : null;
+        $shieldUser = auth()->user();
+
+        return [
+            'nama_lengkap'    => ! empty($siswa['nama_lengkap']) ? $siswa['nama_lengkap'] : ($shieldUser->nisn ?? $shieldUser->username ?? 'Siswa'),
+            'user_email'      => $shieldUser ? $shieldUser->email : '',
+            'can_cetak_bukti' => $this->canCetakBukti($status),
+        ];
+    }
+}

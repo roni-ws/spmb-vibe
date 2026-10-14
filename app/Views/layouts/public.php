@@ -1,0 +1,147 @@
+<?php
+$logoText ??= 'SPMB SMA WAHAS MODEL';
+$logoImg ??= '';
+$is_open ??= true;
+helper('html');
+?>
+<!DOCTYPE html>
+<html lang="id" class="light">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title><?= $this->renderSection('title') ?> - SPMB <?= esc($logoText) ?></title>
+    
+    <!-- Google Fonts & Material Symbols -->
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Montserrat:wght@600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+        
+    <!-- Custom CSS (Compiled Tailwind & Material Design style) -->
+    <?= link_tag('css/landing-page.css') ?>
+    
+    <!-- Render individual view custom CSS section -->
+    <?= $this->renderSection('css') ?>
+
+    <?php if (!empty($recaptchaSiteKey)): ?>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <?php endif; ?>
+</head>
+
+<body
+    class="bg-background text-on-surface antialiased selection:bg-primary-container selection:text-on-primary-container min-h-screen flex flex-col">
+    
+    <!-- TopAppBar -->
+    <header
+        class="bg-surface dark:bg-on-surface border-b border-outline-variant dark:border-outline shadow-sm flex justify-between items-center px-gutter w-full h-16 sticky top-0 z-50 shrink-0">
+        <?php
+        $containerClass = 'flex items-center gap-sm';
+        $iconClass      = 'material-symbols-outlined text-primary dark:text-tertiary-fixed-dim text-3xl animate-bounce';
+        $iconExtra      = 'data-icon="school" data-weight="fill"';
+        $textClass      = 'font-headline-md text-lg sm:text-xl md:text-headline-md font-bold text-primary dark:text-white tracking-tight';
+        ?>
+        <?php include __DIR__ . '/../components/shared/logo-display.php'; ?>
+        <!-- Web Menu Links -->
+        <div class="hidden md:flex items-center gap-md">
+            <a class="font-label-bold text-label-bold text-slate-700 dark:text-slate-300 hover:text-primary hover:dark:text-white hover:bg-surface-container-low hover:dark:bg-slate-800 transition-colors px-4 py-2 rounded-lg"
+                href="<?= base_url() ?>">Beranda</a>
+            <a class="font-label-bold text-label-bold text-slate-700 dark:text-slate-300 hover:text-primary hover:dark:text-white hover:bg-surface-container-low hover:dark:bg-slate-800 transition-colors px-4 py-2 rounded-lg"
+                href="<?= base_url('#alur') ?>">Alur</a>
+            <a class="font-label-bold text-label-bold text-slate-700 dark:text-slate-300 hover:text-primary hover:dark:text-white hover:bg-surface-container-low hover:dark:bg-slate-800 transition-colors px-4 py-2 rounded-lg"
+                href="<?= base_url('#syarat') ?>">Persyaratan</a>
+            <a class="font-label-bold text-label-bold text-slate-700 dark:text-slate-300 hover:text-primary hover:dark:text-white hover:bg-surface-container-low hover:dark:bg-slate-800 transition-colors px-4 py-2 rounded-lg"
+                href="<?= base_url('#kontak') ?>">Kontak</a>
+        </div>
+        <!-- Web Action Buttons -->
+        <div class="hidden md:flex items-center gap-2">
+            <?php if (auth()->loggedIn()): ?>
+                <?php
+                $dashboardUrl = base_url('siswa/dashboard');
+                if (auth()->user()->inGroup('admin', 'panitia')) {
+                    $dashboardUrl = base_url('admin/dashboard');
+                }
+                ?>
+                <a href="<?= $dashboardUrl ?>" class="bg-secondary-container text-on-secondary-container dark:bg-secondary dark:text-on-secondary font-label-bold text-label-bold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity text-sm shadow-md flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">dashboard</span>
+                    Dashboard
+                </a>
+            <?php else: ?>
+                <a href="<?= base_url('login') ?>" class="border border-primary text-primary dark:border-slate-300 dark:text-slate-200 font-label-bold text-label-bold px-4 py-2 rounded-lg hover:bg-surface-container-low hover:dark:bg-slate-800 transition-colors text-sm">
+                    Login
+                </a>
+                <?php if ($is_open): ?>
+                    <a href="<?= base_url('register') ?>" class="bg-primary text-on-primary dark:bg-white dark:text-primary font-label-bold text-label-bold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity text-sm shadow-md">
+                        Daftar
+                    </a>
+                <?php endif; ?>
+            <?php endif; ?>
+        </div>
+        <!-- Mobile Hamburger Button (Removed in favor of Bottom Nav) -->
+    </header>
+
+    <!-- Mobile Navigation Drawer (Removed in favor of Bottom Nav) -->
+
+    <!-- Main Content Section -->
+    <?= $this->renderSection('content') ?>
+
+    <!-- Spacer agar footer/konten tidak terpotong bottom nav -->
+    <div class="h-20 md:hidden w-full"></div>
+
+    <!-- Footer -->
+    <footer id="kontak" class="bg-inverse-surface text-inverse-on-surface py-12 mt-auto z-10 shrink-0">
+        <div class="max-w-[1200px] mx-auto px-gutter grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="w-full flex flex-col">
+                <?php
+                $containerClass = 'flex items-center gap-2 mb-4';
+                $imgWrapClass   = 'w-8 h-8 rounded-lg overflow-hidden bg-slate-50 flex items-center justify-center shrink-0';
+                $imgClass       = 'w-full h-full object-contain p-0.5';
+                $iconClass      = 'material-symbols-outlined text-tertiary-fixed-dim text-3xl';
+                $iconExtra      = 'data-icon="school" data-weight="fill"';
+                $textClass      = 'font-headline-sm text-headline-sm font-bold';
+                ?>
+                <?php include __DIR__ . '/../components/shared/logo-display.php'; ?>
+                <p class="font-body-sm text-body-sm text-outline-variant w-full text-justify"><?= esc($footer_desc ?? 'Membentuk generasi pemimpin masa depan yang beriman, cerdas, kreatif, mandiri, dan berwawasan global.') ?></p>
+            </div>
+            <div class="w-full flex flex-col">
+                <h4 class="font-label-bold text-label-bold mb-4 text-white">Hubungi Panitia SPMB</h4>
+                <ul class="space-y-2 font-body-sm text-body-sm text-outline-variant">
+                    <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm"
+                            data-icon="call">call</span> <?= esc($footer_phone ?? '+62 21 555 0123') ?></li>
+                    <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm"
+                            data-icon="mail">mail</span> <?= esc($footer_email ?? 'spmb@unggulbangsa.sch.id') ?></li>
+                    <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm"
+                            data-icon="location_on">location_on</span> <?= esc($footer_address ?? 'Jl. Pendidikan No. 1, Jakarta') ?></li>
+                </ul>
+            </div>
+            <div class="w-full flex flex-col">
+                <h4 class="font-label-bold text-label-bold mb-4 text-white">Tautan Penting</h4>
+                <ul class="space-y-2 font-body-sm text-body-sm text-outline-variant">
+                    <li><a class="hover:text-white transition-colors" href="<?= base_url('login') ?>">Portal Pendaftaran</a></li>
+                    <li><a class="hover:text-white transition-colors" href="#">Kebijakan Privasi</a></li>
+                    <li><a class="hover:text-white transition-colors" href="#">Tanya Jawab (FAQ)</a></li>
+                </ul>
+            </div>
+        </div>
+        <div
+            class="max-w-[1200px] mx-auto px-gutter mt-12 pt-8 border-t border-outline/30 text-center font-caption text-caption text-outline-variant">
+            © <?= date('Y') ?> <?= esc($logoText) ?>. Hak Cipta Dilindungi.
+        </div>
+    </footer>
+
+    <!-- Additional page script section -->
+    <?= $this->renderSection('scripts') ?>
+
+    <!-- Mobile Drawer Interactivity Script -->
+    <?= script_tag('js/public/main.js') ?>
+
+    <script src="<?= base_url('js/core/validation-alert.js') ?>"></script>
+
+    <?php include __DIR__ . '/../partials/m-bottom-nav-public.php'; ?>
+</body>
+
+</html>
